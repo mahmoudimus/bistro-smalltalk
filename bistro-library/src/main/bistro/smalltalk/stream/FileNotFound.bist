@@ -1,0 +1,35 @@
+"FileNotFound.bist"
+package: smalltalk.stream;
+
+"Represents an exception raised upon discovery of a missing file.
+@author Copyright 1999,2010 Nikolas S. Boyd. All rights reserved."
+Error subclass: FileNotFound
+metaclass: [
+
+	"Signals a file not found exception."
+	filePath: aFilePath [
+		(FileNotFound basicNew: aFilePath) signal.
+	]
+]
+class: [
+
+	"The full path of the missing file."
+	filePath.
+
+	"Constructs a new FileNotFound."
+	FileNotFound: aFilePath [
+		filePath := aFilePath.
+	]
+
+	"Returns the missing file path."
+	filePath [
+		^filePath
+	]
+
+"testing"
+
+	"Indicates whether this is a resumable exception."
+	isResumable [
+		^true
+	]
+]

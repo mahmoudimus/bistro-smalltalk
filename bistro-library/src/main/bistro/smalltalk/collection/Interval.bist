@@ -1,0 +1,135 @@
+"Interval.bist"
+package: smalltalk.collection;
+
+"Represents a sequence of numbers.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+SequenceableCollection subclass: Interval
+metaclass: 
+[
+	"Returns a new empty Interval."
+	new
+	[	^self from: 0 to: 0 by: 0
+	]
+
+	"Returns a new Interval from (start) to (stop)."
+	from: start to: stop
+	[	^self from: start to: stop by: 1
+	]
+
+	"Returns a new Interval from (start) to (stop) by (step)."
+	from: start to: stop by: step
+	{	return new Interval( (Number) start, (Number) stop, (Number) step );
+	}
+]
+class:
+[
+	"The interval start."
+	start (Number).
+
+	"The interval stop."
+	stop (Number).
+
+	"The interval step."
+	step (Number).
+
+	"Constructs a new Interval."
+	protected Interval: aStart (Number) : aStop (Number) : aStep (Number)
+	[	start := aStart.
+		stop := aStop.
+		step := aStep.
+	]
+
+"accessing"
+
+	"Returns the first receiver element."
+	first
+	[	self emptyCheck.
+		^primitive IntegerFrom: start primitiveInteger
+	]
+
+	"Returns the last receiver element."
+	last
+	[	self emptyCheck.
+		^stop - (stop - start \\ step)
+	]
+
+	"Returns the receiver size."
+	size
+	[	^self isEmpty 
+			ifTrue: [ 0 ]
+			ifFalse: [ stop - start // step + 1 ]
+	]
+
+	"Returns a behavior used to clone the receiver."
+	(smalltalk.behavior.Behavior) species
+	[	^OrderedCollection
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection
+	[	aCollection class == self class ifTrue: [
+			^start = aCollection first and: 
+			[ stop = aCollection stop and: 
+			[ step = aCollection step]]
+		].
+		^super = aCollection
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	int result = start.hashCode();
+		result <<= 2;
+		result ^= stop.hashCode();
+		result <<= 1;
+		result ^= step.hashCode();
+		return result;
+	}
+
+"accessing elements"
+
+	"Returns the element at (index), or evaluates (aBlock),
+	if the receiver does not include an (index)."
+	at: index ifAbsent: aBlock (ZeroArgumentBlock)
+	[	i (int) := self checkIndex: index ifAbsent: aBlock.
+		i *= step primitiveInteger.
+		i += start primitiveInteger.
+		^primitive IntegerFrom: i
+	]
+
+"copying elements"
+
+	"Returns a copy of the receiver in reverse order."
+	reverse
+	[	^Interval from: stop to: start by: step negated
+	]
+
+"enumerating"
+
+	"Returns a new collection created passing the receiver elements
+	through a (filterBlock)."
+	collect: filterBlock (OneArgumentBlock)
+	[	result := self species new: self size.
+		index (FastInteger) := 0 asFastInteger.
+		self do: [ :v |
+			index += 1 asPrimitive.
+			result at: index put: (filterBlock value: v)
+		].
+		^result
+	]
+
+	"Evaluates (aBlock) with each receiver element."
+	do: aBlock (OneArgumentBlock)
+	[	start to: stop by: step do: [ :i | aBlock value: i ]
+	]
+
+"testing"
+
+	"Indicates whether the receiver is empty."
+	isEmpty
+	[	^step < 0 
+			ifTrue: [ start < stop ] 
+			ifFalse: [ stop < start ]
+	]
+]

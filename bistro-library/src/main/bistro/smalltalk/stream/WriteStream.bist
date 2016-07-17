@@ -1,0 +1,84 @@
+"WriteStream.bist"
+package: smalltalk.stream;
+import: smalltalk.collection.ExtensibleCollection;
+import: smalltalk.collection.OrderedCollection;
+import: smalltalk.collection.Collection;
+
+"Supports reading from a stream of values.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+CollectionStream subclass: WriteStream
+implements: WriteableStream
+metaclass: 
+[
+	"Returns a new WriteStream on (aCollection)."
+	on: aCollection (ExtensibleCollection)
+	[	^WriteStream basicNew: aCollection
+	]
+
+	"Returns a new WriteStream on (aCollection)."
+	on: aCollection
+	{	return this.on( (ExtensibleCollection) aCollection );
+	}
+
+	"Returns a new WriteStream with (aCollection)."
+	with: aCollection {
+		return this.on( (ExtensibleCollection) aCollection );
+	}
+
+	"Initializes the platform line separator."
+	initialize
+	[	separatorName (String) := 'line.separator'.
+		lineSeparator := primitive StringFrom: 
+			(java.lang.System getProperty: separatorName primitiveString).
+		^nil
+	]
+
+	"Returns the platform line separator."
+	lineSeparator
+	[	^lineSeparator
+	]
+]
+class: 
+[
+	"Contains the platform line separator."
+	static lineSeparator (String).
+
+	"Constructs a new WriteStream given (aCollection)."
+	protected WriteStream: aCollection (ExtensibleCollection)
+	{	super( (Collection) aCollection );
+	}
+
+"writing"
+
+	"Appends a new line sequence to the stream."
+	cr
+	[	self nextPutAll: lineSeparator.
+	]
+
+	"Updates the backing store."
+	flush
+	[	^self
+	]
+
+	"Appends an (element) to the stream backing store."
+	nextPut: element
+	[	self contents add: element.
+		position := position + 1.
+	]
+
+	"Appends (elements) to the stream backing store."
+	nextPutAll: elements
+	[	self contents addAll: elements.
+		position := position + elements size.
+	]
+
+	"Appends a space to the stream."
+	space
+	[	self nextPut: Character space.
+	]
+
+	"Appends a tab to the stream."
+	tab
+	[	self nextPut: Character tab.
+	]
+]

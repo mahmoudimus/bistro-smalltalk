@@ -1,0 +1,161 @@
+"Bag.bist"
+package: smalltalk.collection;
+
+"Represents a counted set of objects, each of which may occur multiple times. 
+This initial implementation needs further optimization - e.g., using hashes to 
+improve performance.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Collection subclass: Bag
+implements: ExtensibleCollection ExcisableCollection
+metaclass:
+[
+"creating instances"
+
+	"Returns a new empty Bag."
+	new
+	[	^self new: 10
+	]
+
+	"Returns a new empty Bag with the supplied (capacity)."
+	new: capacity
+	[	^Bag basicNew: (capacity as: Number)
+	]
+]
+class:
+[
+	"Contains the set elements."
+	contents (Dictionary).
+
+	"Constructs a new (empty) Bag."
+	protected Bag
+	[	contents := Dictionary new.
+	]
+
+	"Constructs a new Bag with the given (capacity)."
+	protected Bag: capacity (Number)
+	[	contents := Dictionary new: capacity.
+	]
+
+	"Returns the receiver contents."
+	protected (Dictionary) contents
+	[	^contents
+	]
+
+"accessing"
+
+	"Returns the number of elements contained in the receiver."
+	size
+	[	^contents size
+	]
+
+	"Returns the number of occurrences of an (element)."
+	occurrencesOf: element
+	[	^contents at: element ifAbsent: [ 0 ]
+	]
+
+"adding elements"
+
+	"Returns an (element) after adding it to the receiver."
+	add: element [
+		contents at: element put: (self occurrencesOf: element) + 1.
+		^element
+	]
+
+	"Returns an (element) after adding it to the receiver with a (count)."
+	add: element withOccurrences: count [
+		contents at: element put: (count as: SmallInteger).
+		^element
+	]
+
+	"Returns a collection of (elements) after adding them to the receiver."
+	addAll: elements 
+	[	elements do: [ :element | self add: element ].
+		^elements
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection (Bag)
+	[	^contents = aCollection contents
+	]
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection
+	[	[ ^self = (aCollection as: Bag) ]
+			catch: [ :e (java.lang.ClassCastException) | ^false ]
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	[	^contents hashCode
+	]
+
+"converting"
+
+	"Returns a Bag that contains the receiver elements."
+	asBag
+	[	^self
+	]
+
+	"Returns a Set that contains the receiver elements."
+	asSet
+	[	^contents keys
+	]
+
+"removing elements"
+
+	"Returns an (element) after removing it from the receiver."
+	remove: element 
+	[	^self remove: element 
+			ifAbsent: [ ^self elementNotFound ]
+	]
+
+	"Returns an (element) after removing it from the receiver, 
+	or evaluates (aBlock) if the (element) is absent."
+	remove: element ifAbsent: aBlock (ZeroArgumentBlock) [
+		count (SmallInteger) := self occurrencesOf: element.
+		count = 0 ifTrue: [ ^aBlock value ].
+		count = 1
+			ifTrue: [ contents removeKey: element ]
+			ifFalse: [ count := count - 1 ].
+
+		^element
+	]
+
+	"Returns (elements) after removing the first occurrence of each
+	from the receiver."
+	removeAll: elements 
+	[	elements do: [ :element | self remove: element ].
+		^elements
+	]
+
+	"Removes elements selected by the supplied (criteria) from the receiver."
+	removeAllSuchThat: criteria 
+	[	result := self class new: 10.
+		self do: [ :element |
+			(criteria value: element) ifTrue: [
+				result add: element.
+				self remove: element
+			]
+		].
+		^result
+	]
+
+"enumerating"
+
+	"Evaluates (aBlock) with each receiver element."
+	do: aBlock (OneArgumentBlock)
+	[	contents keysAndValuesDo: [ :element :count |
+			n (SmallInteger) := count.
+			n timesRepeat: [ aBlock value: element ]
+		]
+	]
+
+"streaming"
+
+	"Returns a new stream for appending to the receiver."
+	writeStream
+	[	^'smalltalk.stream.WriteStream' resolvedToClass on: self
+	]
+]

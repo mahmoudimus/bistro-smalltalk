@@ -1,0 +1,70 @@
+"CollectionStream.bist"
+package: smalltalk.stream;
+import: smalltalk.collection.Collection;
+
+"Supports streaming over a collection.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract PositionableStream subclass: CollectionStream
+metaclass: []
+class:
+[
+	"Refers to the collection streamed over."
+	contents (Collection).
+
+	"The current position within the collection."
+	position (SmallInteger).
+
+	"Constructs a new CollectionStream."
+	protected CollectionStream: aCollection (Collection)
+	[	contents := aCollection.
+		position := 0.
+	]
+
+"accessing"
+
+	"Returns the entire contents of the stream."
+	contents
+	[	^contents
+	]
+
+"testing"
+
+	"Indicates whether the end of the stream was reached."
+	atEnd
+	[	^position = contents size
+	]
+
+	"Indicates whether the collection is empty."
+	isEmpty
+	[	^contents isEmpty
+	]
+
+"managing"
+
+	"Closes the stream."
+	close
+	[	^self setToEnd
+	]
+
+"positioning"
+
+	"Returns the current position within the collection."
+	position
+	[	^position
+	]
+
+	"Establishes the current position within the collection."
+	position: aPosition
+	[	position := aPosition.
+	]
+
+	"Resets the position to the beginning of the stream."
+	reset
+	[	self position: 0.
+	]
+
+	"Repositions to the end of the stream."
+	setToEnd
+	[	position := contents size.
+	]
+]

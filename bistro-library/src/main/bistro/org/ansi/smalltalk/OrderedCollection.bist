@@ -1,0 +1,56 @@
+"OrderedCollection.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk OrderedCollection."
+InitializableCollection, ExtensibleCollection, 
+SequencedContractibleCollection, SequencedCollection
+subtype: OrderedCollection
+metatype: []
+type: [
+
+"adding elements"
+
+	"Returns an (element) after adding it to the receiver at the position
+	after the supplied (target) element."
+	(Object) add: element (Object) after: target (Object) []
+
+	"Returns an (element) after adding it to the receiver at the position 
+	after (index)."
+	(Object) add: element (Object) afterIndex: index (Integer) []
+
+	"Returns an (element) after adding it to the receiver at the position
+	before the supplied (target) element."
+	(Object) add: element (Object) before: target (Object) []
+
+	"Returns an (element) after adding it to the receiver at the position 
+	before (index)."
+	(Object) add: element (Object) beforeIndex: index (Integer) []
+
+	"Returns (elements) after inserting them in the receiver at the position
+	after the supplied (target) element."
+	(Object) addAll: elements (Collection) after: target (Object) []
+
+	"Returns (elements) after inserting them in the receiver at the position
+	after (index)."
+	(Object) addAll: elements (Collection) afterIndex: index (Integer) []
+
+	"Returns (elements) after inserting them in the receiver at the position
+	before the supplied (target) element."
+	(Object) addAll: elements (Collection) before: target (Object) []
+
+	"Returns (elements) after inserting them in the receiver at the position
+	before (index)."
+	(Object) addAll: elements (Collection) beforeIndex: index (Integer) []
+
+	"Returns (elements) after inserting them at the beginning of the receiver."
+	(Object) addAllFirst: elements (Collection) []
+
+	"Returns (elements) after appending them to the end of the receiver."
+	(Object) addAllLast: elements (Collection) []
+
+	"Returns an (element) after inserting it at the beginning of the receiver."
+	(Object) addFirst: element (Object) []
+
+	"Returns an (element) after appending it to the end of the receiver."
+	(Object) addLast: element (Object) []
+]

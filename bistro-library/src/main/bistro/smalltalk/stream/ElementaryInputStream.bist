@@ -1,0 +1,212 @@
+"ElementaryInputStream.bist"
+package: smalltalk.stream;
+import: java.io.Reader;
+import: java.io.InputStream;
+import: java.io.InputStreamReader;
+import: java.io.BufferedReader;
+import: java.io.IOException;
+import: smalltalk.magnitude.LongInteger;
+import: smalltalk.collection.Array;
+
+"Reads characters and strings from an elementary Java input stream.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+PositionableStream subclass: ElementaryInputStream
+implements: ReadableStream
+metaclass:
+[
+	"Returns a new stream for reading from (aReader)."
+	from: aReader (Reader)
+	[	^ElementaryInputStream basicNew: aReader
+	]
+
+	"Returns a new stream for reading from an (inputStream)."
+	from: inputStream (InputStream)
+	[	^self from: (InputStreamReader basicNew: inputStream)
+	]
+]
+class:
+[
+	"Holds the next value from peeking ahead in the stream."
+	peek (SmallInteger).
+
+	"Tracks the position in the stream."
+	position (LongInteger).
+
+	"Refers to the primitive stream reader."
+	iStream (Reader).
+
+	"Constructs a new ElementaryInputStream."
+	ElementaryInputStream: aReader (Reader)
+	[	iStream := aReader.
+		self reset.
+	]
+
+	"Returns the primitive stream reader."
+	protected (Reader) primitiveStream
+	[	^iStream
+	]
+
+"accessing"
+
+	"Returns the entire contents of the stream."
+	contents
+	[	result := self class emptyString.
+		location := self position.
+		self reset.
+		c := self next.
+		[ self atEnd ] whileFalse: [
+			result add: c.
+			c := self next.
+		].
+		self reset.
+		self position: location.
+		^result
+	]
+
+"managing"
+
+	"Closes the primitive stream."
+	close
+	[	[ iStream close. ] catch: [ :e (IOException) | ]
+	]
+
+"positioning"
+
+	"Returns the current position within the stream."
+	position
+	[	^position
+	]
+
+	"Establishes the current position within the stream."
+	position: count
+	[	self reset.
+		self skip: count.
+	]
+
+	"Resets the position to the beginning of the stream."
+	reset
+	[	[	self canReset ifTrue: [
+				[ iStream reset. ] catch: [ :e (IOException) | ]
+			].
+			position := LongInteger zero.
+			peek := primitive IntegerFrom: iStream read.
+		]
+		catch: [ :e (IOException) |
+			UnhandledJavaException raise: e.
+		]
+	]
+
+	"Repositions to the end of the stream."
+	setToEnd
+	[	[ self atEnd ] whileFalse: [ self next ].
+	]
+
+"enumerating"
+
+	"Evaluates (aBlock) with each element remaining in the stream."
+	do: aBlock (OneArgumentBlock)
+	[	[ self atEnd ] whileFalse: [ aBlock value: self next ].
+	]
+
+"positioning"
+
+	"Skips the next (count) elements in the stream."
+	skip: count
+	[	count timesRepeat: [ self next ].
+	]
+
+	"Advances the stream to read the element 
+	after the next occurrence of (anObject)."
+	skipTo: anObject
+	[	[ self next = anObject ] whileFalse.
+	]
+
+"reading"
+
+	"Returns the next element from the stream."
+	next
+	[	self atEnd ifTrue: [ ^nil ].
+		[	result := peek asCharacter.
+			peek := primitive IntegerFrom: iStream read.
+			position += 1.
+			^result
+		]
+		catch: [ :e (IOException) |
+			UnhandledJavaException raise: e.
+		]
+	]
+
+	"Returns the next (count) elements from the stream."
+	next: count (SmallInteger)
+        {   if (Boolean.$class.booleanFrom(atEnd())) return Object.primitive.literalNil();
+            try {
+                int length = count.primitiveInteger();
+                int offset = 1;
+                char[] buffer = Array.$class.ofCharacters(count);
+                char first = peek.primitiveCharacter();
+                Array.$class.put_at_in(first, Object.primitive.IntegerFrom(0), buffer);
+                iStream.read(buffer, offset, length - offset);
+                peek = (SmallInteger)Object.primitive.IntegerFrom(iStream.read());
+                position.$incremented(count);
+                return Object.primitive.StringFrom(new java.lang.String(buffer));
+            }
+            catch (IOException ex) {
+                return $class().emptyString();
+            }
+        }
+
+	"Returns the next (count) elements from the stream."
+	next: count
+	[	^self next: (count as: Integer) asSmallInteger
+	]
+
+	"Returns the next line from the stream."
+	nextLine
+	[	^self upTo: WriteStream lineSeparator last
+	]
+
+	"Indicates whether the next element of the stream equals (anObject)."
+	nextMatchFor: anObject
+	[	^self next = anObject
+	]
+
+	"Returns the next element from the stream without advancing its position."
+	peek
+	[	self atEnd ifTrue: [ ^nil ].
+		^peek
+	]
+
+	"Indicates whether the next element from the stream equals (anObject)."
+	peekFor: anObject
+	[	^self peek = anObject
+	]
+
+	"Returns the elements from the stream up to, but not 
+	including, the next occurrence of (anObject)."
+	upTo: anObject
+	[	result := self class emptyString.
+		[ self atEnd ] whileFalse: [
+			element := self next.
+			element = anObject ifTrue: [ ^result ].
+			result add: element.
+		].
+		^result
+	]
+
+"testing"
+
+	"Indicates whether the primitive stream supports resets."
+	canReset
+	[	^primitive BooleanFrom: iStream markSupported
+	]
+
+	"Indicates whether the end of the stream was reached."
+	atEnd
+	[	^peek < 0
+	]
+
+	"Indicates whether the collection is empty."
+	isEmpty
+	[	^position = LongInteger zero and: [ self atEnd ]
+	]
+]

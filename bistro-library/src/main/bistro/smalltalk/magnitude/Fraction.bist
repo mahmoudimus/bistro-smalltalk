@@ -1,0 +1,239 @@
+"Fraction.bist"
+package: smalltalk.magnitude;
+
+"Provides an exact representation for rational numbers.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Rational subclass: Fraction
+metaclass:
+[
+	"Returns a new Fraction for the supplied arguments."
+	protected basic: numerator (SmallInteger) over: denominator (SmallInteger)
+	{	return new Fraction( numerator, denominator );
+	}
+
+	"Returns a new rationalized Fraction for the supplied arguments."
+	rationalized: numerator over: denominator
+	[	num (SmallInteger) := numerator truncated.
+		den (SmallInteger) := denominator truncated.
+
+		d (SmallInteger) := den abs.
+		n (SmallInteger) := den negative 
+			ifTrue: [ num negated ] ifFalse: [ num ].
+
+		gcd (SmallInteger) := n gcd: d.
+		d = gcd ifTrue: [ ^n // gcd ].
+		gcd = 1 ifTrue: [ ^self basic: n over: d ].
+		n := n // gcd.
+		d := d // gcd.
+		^self basic: n over: d
+	]
+
+	"Returns a new rationalized Fraction for the supplied arguments."
+	numerator: numerator denominator: denominator
+	[	^self rationalized: numerator over: denominator
+	]
+
+	"Returns a Fraction whose value is (aNumber)."
+	coerce: aNumber (Number)
+	[	^aNumber asFraction
+	]
+
+	"Initializes class variables."
+	initialize
+	[	generality := 40.
+	]
+]
+class:
+[
+	"Used for numeric coercions."
+	static generality (SmallInteger).
+
+	"The numerator of a fraction."
+	numerator (SmallInteger).
+
+	"The denominator of a fraction."
+	denominator (SmallInteger).
+
+	"Constructs a new Fraction."
+	protected Fraction: aNumerator (SmallInteger) : aDenominator (SmallInteger)
+	{	numerator   = aNumerator;
+		denominator = aDenominator;
+	}
+
+	"Constructs a new Fraction."
+	protected Fraction
+	{	numerator   = (SmallInteger) primitive.IntegerFrom( 0 );
+		denominator = (SmallInteger) primitive.IntegerFrom( 0 );
+	}
+
+"accessing"
+
+	"Returns the numerator."
+	numerator
+	[	^numerator
+	]
+
+	"Returns the denominator."
+	denominator
+	[	^denominator
+	]
+
+"arithmetic"
+
+	"Returns the sum of the receiver and (aNumber)."
+	+ aNumber (Rational)
+	[	denominator = aNumber denominator ifTrue: [ 
+			^self class 
+				numerator: numerator + aNumber numerator
+				denominator: denominator
+		].
+		^self class
+			numerator: 
+				(numerator * aNumber denominator) + 
+				(denominator * aNumber numerator)
+			denominator:
+				(denominator * aNumber denominator)
+	]
+
+	"Returns the product of the receiver and (aNumber)."
+	* aNumber (Rational)
+	[	^self class
+			numerator: (numerator * aNumber numerator)
+			denominator: (denominator * aNumber denominator)
+	]
+
+	"Returns the ratio of the receiver and (aNumber)."
+	/ aNumber (Rational)
+	[	^self class
+			numerator: (numerator * aNumber denominator)
+			denominator: (denominator * aNumber numerator)
+	]
+
+	"Returns the sum of the receiver and (aNumber)."
+	+ aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber + self ]
+			ifFalse: [ self + (aNumber as: Rational) ]
+	]
+
+	"Returns the product of the receiver and (aNumber)."
+	* aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber * self ]
+			ifFalse: [ self * (aNumber as: Rational) ]
+	]
+
+	"Returns the product of the receiver and (aNumber)."
+	/ aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ (self coerceTo: aNumber class) / aNumber ]
+			ifFalse: [ self / (aNumber as: Rational) ]
+	]
+
+"converting"
+
+	"Converts the receiver to a primitive byte value."
+	(byte) primitiveByte
+	{	return (byte) primitiveLong();
+	}
+
+	"Converts the receiver to a primitive char value."
+	(char) primitiveCharacter
+	{	return (char) primitiveLong();
+	}
+
+	"Converts the receiver to a primitive int value."
+	(int) primitiveInteger
+	{	return (int) primitiveLong();
+	}
+
+	"Converts the receiver to a primitive long value."
+	(long) primitiveLong
+	{	double d = primitiveDouble();
+		return (long)( d < 0 ? 
+			java.lang.Math.ceil( d ) : java.lang.Math.floor( d )
+		);
+	}
+
+	"Converts the receiver to a primitive float value."
+	(float) primitiveFloat
+	{	return numerator.primitiveFloat() / denominator.primitiveFloat();
+	}
+
+	"Converts the receiver to a primitive double value."
+	(double) primitiveDouble
+	{	return numerator.primitiveDouble() / denominator.primitiveDouble();
+	}
+
+	"Converts the receiver to an elementary double."
+	(java.lang.Double) elementaryDouble
+	{	return new java.lang.Double( primitiveDouble() );
+	}
+
+	"Converts the receiver to an elementary number."
+	(java.lang.Number) elementaryNumber
+	{	return this.elementaryDouble();
+	}
+
+	"Converts the receiver to a fractional approximation."
+	asFraction 
+	[	^self
+	]
+
+	"Returns the level of generality used in coercion."
+	generality
+	[	^generality
+	]
+
+	"Converts the receiver to a fixed point number."
+	withScale: scale
+	[	^Fixed
+			numerator: numerator
+			denominator: denominator
+			scale: scale
+	]
+
+"mathematics"
+
+	"Returns the arithmetic inverse of the receiver."
+	negated
+	[	^self class 
+			numerator: numerator negated 
+			denominator: denominator
+	]
+
+	"Returns the multiplicative inverse of the receiver."
+	reciprocal
+	[	^self class 
+			numerator: denominator 
+			denominator: numerator
+	]
+
+"truncation"
+
+	"Returns the least integer more than or equal to the receiver."
+	ceiling
+	{	return new SmallInteger( (int)
+			java.lang.Math.ceil( primitiveDouble() )
+		);
+	}
+
+	"Returns the greatest integer less than or equal to the receiver."
+	floor
+	{	return new SmallInteger( (int)
+			java.lang.Math.floor( primitiveDouble() )
+		);
+	}
+
+"printing"
+
+	"Returns a printable representation of the receiver."
+	printString
+	{	return primitive.StringFrom(
+			new String( 
+				numerator.primitiveInteger() + " / " + 
+				denominator.primitiveInteger()
+			)
+		);
+	}
+]

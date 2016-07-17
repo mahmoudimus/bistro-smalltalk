@@ -1,0 +1,14 @@
+"Valuable.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Valuable."
+Object subtype: Valuable
+metatype: []
+type: [
+
+	"Returns the number of arguments required by the receiver."
+	(Integer) argumentCount []
+
+	"Returns the result of evaluating the receiver with the supplied (arguments)."
+	(Any) valueWithArguments: arguments (SequencedReadableCollection) []
+]

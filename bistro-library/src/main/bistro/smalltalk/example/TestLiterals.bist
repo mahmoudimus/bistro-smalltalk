@@ -1,0 +1,23 @@
+"TestLiterals.bist"
+package: smalltalk.example;
+
+"Tests literals and their primitive conversions.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: TestLiterals
+class: [
+
+	"Reports the results of thread tests on the console."
+	static (void) main: args (java.lang.String[]) [
+		TestLiterals basicNew testLiterals.
+	]
+
+	testLiterals [
+		any (java.lang.Object) := nil asPrimitive.
+		aBool (boolean) := true asPrimitive.
+		aChar (char) := $x asPrimitive.
+		anInt (int) := 10 asPrimitive.
+		aFloat (float) := 10.0 asPrimitive.
+		aString (java.lang.String) := 'Hello World' asPrimitive.
+		aString := #testLiterals asPrimitive.
+	]
+]

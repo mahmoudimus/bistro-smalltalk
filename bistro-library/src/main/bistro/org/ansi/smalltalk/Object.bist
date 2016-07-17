@@ -1,0 +1,128 @@
+"Object.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Object."
+Any subtype: Object
+metatype: [
+
+"accessing hierarchy"
+
+	"Returns all the subclasses of this behavior."
+	(Collection) allSubclasses []
+
+	"Returns all the superclasses of this behavior."
+	(Collection) allSuperclasses []
+
+	"Returns the immediate subclasses of this behavior."
+	(Collection) subclasses []
+
+	"Returns the receiver superclass, or nil."
+	(Object) superclass []
+
+"creating instances"
+
+	"Returns a new instance of the receiver."
+	(Object) new []
+
+"identifying class"
+
+	"Returns the name of the receiver."
+	(ReadableString) name []
+]
+type:
+[
+"accessing"
+
+	"Returns the class of the receiver."
+	(ClassDescription) class []
+
+	"Returns the receiver."
+	(Object) yourself []
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (comparand)."
+	(Boolean) = comparand (Object) []
+
+	"Indicates whether the receiver is (comparand)."
+	(Boolean) == comparand (Object) []
+
+	"Indicates whether the receiver is not equivalent to (comparand)."
+	(Boolean) ~= comparand (Object) []
+
+	"Indicates whether the receiver differs from (comparand)."
+	(Boolean) ~~ comparand (Object) []
+
+	"Returns an integer value that may be used for equivalence tests."
+	(Integer) hash []
+
+	"Returns an integer value that may be used for identity tests."
+	(Integer) identityHash []
+
+"copying"
+
+	"Returns a copy of the receiver, typically shallow."
+	(Object) copy []
+
+"performing"
+
+	"Performs a method in the receiver named (selector) with all the supplied (arguments)."
+	(Any) 
+	perform: selector (Selector)
+	withArguments: arguments (Array) []
+
+	"Performs a method in the receiver named (selector) with the supplied arguments."
+	(Any) 
+	perform: selector (Selector)
+	with: firstArgument (Any) 
+	with: secondArgument (Any) 
+	with: thirdArgument (Any) []
+
+	"Performs a method in the receiver named (selector) with the supplied arguments."
+	(Any) 
+	perform: selector (Selector)
+	with: firstArgument (Any) 
+	with: secondArgument (Any) []
+
+	"Performs a method in the receiver named (selector) with the supplied (argument)."
+	(Any) 
+	perform: selector (Selector)
+	with: argument (Any) []
+
+	"Performs a method in the receiver named (selector)."
+	(Any) 
+	perform: selector (Selector) []
+
+"printing"
+
+	"Prints a representation of the receiver on (target)."
+	(Object) printOn: target (PuttableStream) []
+
+	"Returns a printable representation of the receiver."
+	(ReadableString) printString []
+
+"handling errors"
+
+	"Signals a MessageNotUnderstood exception."
+	(Object) doesNotUnderstand: message (FailedMessage) []
+
+	"Reports (signalerText) as an error message."
+	(Object) error: signalerText (ReadableString) []
+
+"testing behavior"
+
+	"Indicates whether the receiver is of the kind indicated by (candidateClass)."
+	(Boolean) isKindOf: candidateClass (Object) []
+
+	"Indicates whether the receiver class is (candidateClass)."
+	(Boolean) isMemberOf: candidateClass (Object) []
+
+	"Indicates whether the receiver is nil."
+	(Boolean) isNil []
+
+	"Indicates whether the receiver is not nil."
+	(Boolean) notNil []
+
+	"Indicates whether the receiver has a method named (selector)."
+	(Boolean) respondsTo: selector (Selector) []
+]

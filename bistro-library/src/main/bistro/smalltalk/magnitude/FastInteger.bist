@@ -1,0 +1,68 @@
+"FastInteger.bist"
+package: smalltalk.magnitude;
+
+"Represents an integer value, especially for a fast integer arithmetic.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+SmallInteger subclass: FastInteger
+metaclass: [
+
+	"Returns a new FastInteger from (anInteger)."
+	(FastInteger) fromInteger: anInteger (Integer) {
+		return new FastInteger( anInteger.primitiveInteger() );
+	}
+]
+class: [
+
+	"Constructs a new SmallInteger given a (primitiveInteger)."
+	protected FastInteger: primitiveInteger (int) {
+		super( primitiveInteger );
+	}
+
+"cumulative math - final"
+
+	"Returns the receiver after adding (aNumber)."
+	final += aNumber (int) {
+		primitiveValue += aNumber;
+		return this;
+	}
+
+	"Returns the receiver after subtracting (aNumber)."
+	final -= aNumber (int) {
+		primitiveValue -= aNumber;
+		return this;
+	}
+
+	"Returns the receiver after multiplying (aNumber)."
+	final *= aNumber (int) {
+		primitiveValue *= aNumber;
+		return this;
+	}
+
+	"Returns the receiver after dividing it by (aNumber)."
+	final /= aNumber (int) {
+		primitiveValue /= aNumber;
+		return this;
+	}
+
+"cumulative math"
+
+	"Returns the receiver after adding (aNumber)."
+	+= aNumber
+	[	^self += (aNumber as: SmallInteger) primitiveInteger
+	]
+
+	"Returns the receiver after subtracting (aNumber)."
+	-= aNumber
+	[	^self -= (aNumber as: SmallInteger) primitiveInteger
+	]
+
+	"Returns the receiver after multiplying (aNumber)."
+	*= aNumber
+	[	^self *= (aNumber as: SmallInteger) primitiveInteger
+	]
+
+	"Returns the receiver after dividing it by (aNumber)."
+	/= aNumber
+	[	^self /= (aNumber as: SmallInteger) primitiveInteger
+	]
+]

@@ -1,0 +1,26 @@
+"IndexedCollection.bist"
+package: smalltalk.collection;
+
+"Supports element access by index.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: IndexedCollection
+metatype: []
+type:
+[
+	"Returns the element at (index)."
+	at: index []
+
+	"Returns the element at (index), or evaluates (aBlock),
+	if the receiver does not include an (index)."
+	at: index ifAbsent: aBlock (ZeroArgumentBlock) []
+
+	"Indicates whether the collection includes (index)."
+	includesIndex: index []
+
+	"Returns the index of an (element)."
+	indexOf: element []
+
+	"Returns the index of an (element), or evaluates (aBlock)
+	if the receiver does not contain (element)."
+	indexOf: element ifAbsent: aBlock (ZeroArgumentBlock) []
+]

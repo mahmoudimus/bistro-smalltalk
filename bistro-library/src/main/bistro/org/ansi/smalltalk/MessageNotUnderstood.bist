@@ -1,0 +1,14 @@
+"MessageNotUnderstood.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk MessageNotUnderstood."
+Error subtype: MessageNotUnderstood
+metatype: []
+type: [
+
+	"Returns the message not understood."
+	(FailedMessage) message []
+
+	"Returns the message receiver."
+	(Object) receiver []
+]

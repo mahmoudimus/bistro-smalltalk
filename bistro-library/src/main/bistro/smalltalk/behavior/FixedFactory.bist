@@ -1,0 +1,12 @@
+"FixedFactory.bist"
+package: smalltalk.behavior;
+
+"Supports behavior for creating fixed point decimal numbers.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: FixedFactory
+metatype:
+[
+	"Returns a Fixed point number whose value is represented by (fixedString)."
+	FixedFrom: fixedString (java.lang.String) []
+]
+type: []

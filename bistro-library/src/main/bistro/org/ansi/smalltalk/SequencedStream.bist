@@ -1,0 +1,37 @@
+"SequencedStream.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk SequencedStream."
+Object subtype: SequencedStream
+metatype: []
+type: [
+
+"accessing"
+
+	"Returns the entire contents of the stream."
+	(SequencedReadableCollection) contents []
+
+"testing"
+
+	"Indicates whether the collection is empty."
+	(Boolean) isEmpty []
+
+"managing"
+
+	"Closes the stream."
+	(Object) close []
+
+"positioning"
+
+	"Returns the current position within the collection."
+	(Integer) position []
+
+	"Establishes the current position within the collection."
+	(Object) position: aPosition (Integer) []
+
+	"Resets the position to the beginning of the stream."
+	(Object) reset []
+
+	"Repositions to the end of the stream."
+	(Object) setToEnd []
+]

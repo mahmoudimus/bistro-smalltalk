@@ -1,0 +1,7 @@
+"Any.bist"
+package: org.ansi.smalltalk;
+
+"Defines the signature for the ANSI Smalltalk type that accepts Any other."
+nil subtype: Any
+metatype: []
+type: []

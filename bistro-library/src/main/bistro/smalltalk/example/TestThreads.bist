@@ -1,0 +1,77 @@
+"TestThreads.bist"
+package: smalltalk.example;
+import: smalltalk.stream.Transcript;
+import: smalltalk.magnitude.Time;
+import: smalltalk.behavior.Scheduler;
+
+"Regression tests the thread and synchronization support.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: TestThreads
+metaclass: []
+class:
+[
+	"Reports the results of thread tests on the console."
+	static (void) main: args (java.lang.String[])
+	[	TestThreads basicNew testThreads.
+	]
+
+	"Tests threads and their synchronization."
+	testThreads
+	[	n (FastInteger) := 0 asFastInteger.
+		b (ZeroArgumentBlock) := UndefinedObject nullValue.
+		Transcript printLine: 'main thread start'.
+
+		"fork threads with delays"
+		1 to: 3 do: [ :x |
+			b :=
+			[	t := Time now.
+				i := 0.
+				n acquireMonitorDuring: [
+					i := primitive IntegerFrom: n primitiveInteger.
+					n += 1.
+				].
+				Scheduler wait: 5000.
+				self report: t index: i.
+			]
+			fork.
+			Transcript
+				print: 'forked ';
+				printLine: b threadName.
+
+			Scheduler wait: 1000.
+		].
+		Scheduler wait: 8000.
+
+		"fork threads and synchronize them"
+		1 to: 3 do: [ :x |
+			[	t := Time now.
+				i := 0.
+				n acquireMonitorDuring: [
+					i := primitive IntegerFrom: n primitiveInteger.
+					n += 1.
+				].
+				n waitForChangeIfInterrupted: [].
+				self report: t index: i.
+			]
+			fork.
+		].
+		Scheduler wait: 1000.
+		n awakenAllWaitingThreads.
+
+		Transcript printLine: 'main thread done'.
+	]
+
+	"Report thread information."
+	report: startTime index: threadID
+	[	Transcript printLine: (
+			String class new writeStream
+				nextPutAll: 'thread ';
+				nextPutAll: threadID printString;
+				nextPutAll: ' ';
+				nextPutAll: startTime printString;
+				nextPutAll: ' to ';
+				nextPutAll: Time now printString;
+				contents
+		).
+	]
+]

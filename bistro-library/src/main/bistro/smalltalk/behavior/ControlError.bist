@@ -1,0 +1,8 @@
+"ControlError.bist"
+package: smalltalk.behavior;
+
+"Represents a control error raised by a thread.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Error subclass: ControlError
+metaclass: []
+class: []

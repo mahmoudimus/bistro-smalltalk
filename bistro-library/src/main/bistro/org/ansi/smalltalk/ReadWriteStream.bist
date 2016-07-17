@@ -1,0 +1,7 @@
+"ReadWriteStream.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ReadWriteStream."
+ReadStream, WriteStream subtype: ReadWriteStream
+metatype: []
+type: []

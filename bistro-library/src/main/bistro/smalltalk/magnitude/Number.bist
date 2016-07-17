@@ -1,0 +1,362 @@
+"Number.bist"
+package: smalltalk.magnitude;
+
+"Supports basic arithmetic and mathemetical operations.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Magnitude subclass: Number
+implements: Arithmetic
+metaclass:
+[
+	"Returns a new instance of this class with a value of (aNumber)."
+	coerce: aNumber (Number)
+	[	^self error: 'Concrete derived metaclasses must override this method.'
+	]
+
+	"Returns a new instance of this class with a value of (aNumber)."
+	coerce: aNumber
+	[	^self coerce: (aNumber as: Number)
+	]
+
+	"Returns the additive identity."
+	zero
+	[	^self coerce: 0
+	]
+
+	"Returns the multiplicative identity."
+	unity
+	[	^self coerce: 1
+	]
+]
+class:
+[
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aNumber)."
+	wrapped abstract = aNumber (Number) []
+
+	"Indicates whether the receiver is less than (aNumber)."
+	wrapped abstract < aNumber (Number) []
+
+	"Indicates whether the receiver is more than (aNumber)."
+	wrapped > aNumber (Number)
+	[	^aNumber < self
+	]
+
+"converting"
+
+	"Converts the receiver to a primitive byte value."
+	abstract (byte) primitiveByte []
+
+	"Converts the receiver to a primitive char value."
+	abstract (char) primitiveCharacter []
+
+	"Converts the receiver to a primitive int value."
+	abstract (int) primitiveInteger []
+
+	"Converts the receiver to a primitive short value."
+	(short) primitiveShort [
+		^self primitiveInteger as: short
+	]
+
+	"Converts the receiver to a primitive long value."
+	abstract (long) primitiveLong []
+
+	"Converts the receiver to a primitive float value."
+	abstract (float) primitiveFloat []
+
+	"Converts the receiver to a primitive double value."
+	abstract (double) primitiveDouble []
+
+	"Converts the receiver to an elementary number."
+	abstract (java.lang.Number) elementaryNumber []
+
+	"Converts the receiver to a fractional approximation."
+	abstract asFraction []
+
+	"Converts the receiver to a large integer."
+	(LargeInteger) asLargeInteger
+	[	^(LargeInteger coerce: self) as: LargeInteger
+	]
+
+	"Converts the receiver to a long integer."
+	(LongInteger) asLongInteger
+	[	^(LongInteger coerce: self) as: LongInteger
+	]
+
+	"Converts the receiver to a small integer."
+	(SmallInteger) asSmallInteger
+	[	^(SmallInteger coerce: self) as: SmallInteger
+	]
+
+	"Converts the receiver to a rational approximation."
+	asRational
+	[	^self asFraction
+	]
+
+	"Returns a floating point approximation of the receiver."
+	asFloat
+	[	^primitive FloatFrom: self primitiveFloat
+	]
+
+	"Returns a single precision floating point approximation of the receiver."
+	asFloatE
+	[	^primitive FloatFrom: self primitiveFloat
+	]
+
+	"Returns a double precision floating point approximation of the receiver."
+	asFloatD
+	[	^primitive DoubleFrom: self primitiveDouble
+	]
+
+	"Returns the result of narrowing the receiver to an integer."
+	asInteger
+	[	^primitive IntegerFrom: self primitiveInteger
+	]
+
+	"Returns a point of the receiver at itself."
+	asPoint
+	[	^self @ self
+	]
+
+	"Converts the receiver to a fixed point number."
+	asScaledDecimal: scale
+	[	^self asFraction withScale: scale
+	]
+
+	"Converts the receiver to a fixed point number."
+	asFixedPoint: scale
+	[	^self asFraction withScale: scale
+	]
+
+	"Returns the receiver converted to a (numberClass)."
+	coerceTo: numberClass
+	{	return ((Number.mClass)numberClass).coerce( this );
+	}
+
+	"Returns the level of generality used in coercion."
+	abstract generality []
+
+"arithmetic"
+
+	"Returns the sum of the receiver and (aNumber)."
+	wrapped abstract + aNumber (Number) []
+
+	"Returns the product of the receiver and (aNumber)."
+	wrapped abstract * aNumber (Number) []
+
+	"Returns the ratio of the receiver and (aNumber)."
+	wrapped abstract / aNumber (Number) []
+
+	"Returns the difference between the receiver and (aNumber)."
+	- aNumber
+	[	^self + aNumber negated
+	]
+
+	"Returns the integer ratio of the receiver and (aNumber)."
+	// aNumber
+	[	^(self / aNumber) floor
+	]
+
+	"Returns the remainder left from dividing the receiver by (aNumber)."
+	\\ aNumber
+	[	^(self - (self // aNumber * aNumber))
+	]
+
+	"Returns the remainder left from dividing the receiver by (aNumber)."
+	% aNumber
+	[	^self \\ aNumber
+	]
+
+"arithmetic exceptions"
+
+	"Signals a zero divide exception."
+	zeroDivide [
+		ZeroDivide dividend: self.
+	]
+
+"geometry"
+
+	"Returns a point with the receiver as X and (aNumber) as Y."
+	@ aNumber
+	[	^'smalltalk.geometry.Point' resolvedToClass x: self y: aNumber
+	]
+
+"mathematics"
+
+	"Returns the result of raising the receiver to (aNumber) power."
+	** aNumber
+	[	^self raisedTo: aNumber
+	]
+
+	"Returns the absolute value of the receiver."
+	abs
+	[	self < self class zero ifTrue: [ ^self negated ].
+		^self
+	]
+
+	"Returns the fractional part of the receiver."
+	fractionPart
+	[	^self - self truncated
+	]
+
+	"Returns the integral part of the receiver."
+	integerPart
+	[	^self truncated
+	]
+
+	"Returns the arithmetic inverse of the receiver."
+	negated
+	[	^self class zero - self
+	]
+
+	"Returns the multiplicative inverse of the receiver."
+	reciprocal
+	[	^self class unity / self
+	]
+
+	"Returns the quotient from dividing the receiver by (aNumber)."
+	quo: aNumber
+	[	^(self / aNumber) truncated
+	]
+
+	"Returns the remainder left from dividing the receiver by (aNumber)."
+	rem: aNumber
+	[	^self - (self truncatedTo: aNumber)
+	]
+
+	"Returns the result of raising the receiver to (aNumber) power."
+	raisedTo: aNumber
+	[	^self raisedTo: (aNumber as: Number) primitiveDouble
+	]
+
+	"Returns the result of raising the receiver to (aNumber) power."
+	raisedTo: power (double)
+	[	^(((self asFloatD as: Double) raisedTo: power) as: Double) narrowGenerality
+	]
+
+	"Returns the result of raising the receiver to (anInteger) power."
+	raisedToInteger: anInteger
+	[	^self raisedTo: (anInteger as: Number) primitiveDouble
+	]
+
+	"Returns the arithmetic sign of the receiver."
+	sign
+	[	self strictlyPositive ifTrue: [ ^1 ].
+		self negative ifTrue: [ ^-1 ].
+		^0
+	]
+
+	"Returns the square root of the receiver."
+	sqrt
+	{	double rootD = java.lang.Math.sqrt( primitiveDouble() );
+		long rootL = (long) rootD;
+		if (((double) rootL) == rootD) {
+			int rootI = (int) rootL;
+			if (((long) rootI) == rootL) {
+				return new SmallInteger( rootI );
+			} else {
+				return new LongInteger( rootL );
+			}
+		} else {
+			float rootF = (float) rootD;
+			if (((double) rootF) == rootD) {
+				return new smalltalk.magnitude.Float( rootF );
+			} else {
+				return new smalltalk.magnitude.Double( rootD );
+			}
+		}
+	}
+
+	"Returns the square of the receiver."
+	squared
+	[	^self * self
+	]
+
+"truncation"
+
+	"Returns the least integer more than or equal to the receiver."
+	abstract ceiling []
+
+	"Returns the greatest integer less than or equal to the receiver."
+	abstract floor []
+
+	"Returns the nearest integer between the receiver and zero."
+	truncated
+	[	^self < 0 ifTrue: [ self ceiling ] ifFalse: [ self floor ]
+	]
+
+	"Returns the nearest multiple of (aNumber) between the receiver and zero."
+	truncatedTo: aNumber
+	[	^(self quo: aNumber) * aNumber
+	]
+
+"rounding"
+
+	"Returns the integer nearest to the receiver."
+	rounded
+	[	^(self + (self sign / 2)) truncated
+	]
+
+	"Returns the multiple of (aNumber) nearest to the receiver."
+	roundTo: aNumber
+	[	^(self / aNumber) rounded * aNumber
+	]
+
+"testing"
+
+	"Indicates whether the receiver is less than zero."
+	negative
+	[	^self < self class zero
+	]
+
+	"Indicates whether the receiver is more than or equal to zero."
+	positive
+	[	^self >= self class zero
+	]
+
+	"Indicates whether the receiver is more than zero."
+	strictlyPositive
+	[	^self > self class zero
+	]
+
+"intervals"
+
+	"Returns a reference to the Interval class."
+	protected intervalClass
+	[	^'smalltalk.collection.Interval' resolvedToClass
+	]
+
+	"Returns the interval between the receiver and (aNumber)."
+	to: aNumber
+	[	^self intervalClass from: self to: aNumber
+	]
+
+	"Returns the interval between the receiver and (aNumber) separated by (delta)."
+	to: aNumber by: delta
+	[	^self intervalClass from: self to: aNumber by: delta
+	]
+
+	"Evaluates (aBlock) with an index, which varies by (delta)
+	from the receiver to (aNumber)."
+	to: aNumber by: delta do: aBlock (OneArgumentBlock)
+	[	index (Number) := self.
+		delta > 0 ifTrue: [
+			[ index <= aNumber ] whileTrue: [
+				aBlock value: index.
+				index := index + delta
+			]
+		]
+		ifFalse: [
+			[ aNumber <= index ] whileTrue: [
+				aBlock value: index.
+				index := index + delta
+			]
+		]
+	]
+
+	"Evaluates (aBlock) with an index, which varies by one
+	from the receiver to (aNumber)."
+	to: aNumber do: aBlock (OneArgumentBlock)
+	[	self to: aNumber by: 1 do: aBlock
+	]
+]

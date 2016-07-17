@@ -1,0 +1,33 @@
+"ReadableString.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ReadableString."
+Magnitude, SequencedReadableCollection subtype: ReadableString
+metatype: []
+type: [
+
+"copying elements"
+
+	"Returns a copy of the receiver converted to lower case."
+	(ReadableString) asLowercase []
+
+	"Returns a string copy of the receiver."
+	(ReadableString) asString []
+
+	"Returns a symbol copy of the receiver."
+	(Symbol) asSymbol []
+
+	"Returns a copy of the receiver converted to upper case."
+	(ReadableString) asUppercase []
+
+"parsing subcollections"
+
+	"Returns an array of the substrings separated 
+	by the supplied (separators) from the receiver."
+	(Array) subStrings: separators (SequencedReadableCollection) []
+
+"testing"
+
+	"Indicates whether the receiver collates the same as (aString)."
+	(Boolean) sameAs: aString (ReadableString) []
+]

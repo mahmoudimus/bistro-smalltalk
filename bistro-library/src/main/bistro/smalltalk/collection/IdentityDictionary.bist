@@ -1,0 +1,59 @@
+"IdentityDictionary.bist"
+package: smalltalk.collection;
+
+"Represents an identity mapped set of associations between key-value pairs. Supports
+instantiation with a primitive java.util.Map. Uses a java.util.IdentityHashMap
+as the primitive contents.
+@author Copyright 2002 Nikolas S. Boyd. All rights reserved."
+Dictionary subclass: IdentityDictionary
+metaclass:
+[
+	"Returns a new empty IdentityDictionary with the supplied (capacity)."
+	new: capacity
+	{	return new IdentityDictionary( (Number) capacity );
+	}
+
+	"Returns a new IdentityDictionary with a (primitiveMap) as its contents."
+	from: primitiveMap (java.util.Map)
+	[	^IdentityDictionary basicNew: primitiveMap
+	]
+]
+class:
+[
+	"Constructs a new (empty) IdentityDictionary."
+	protected IdentityDictionary
+	[	contents := java.util.IdentityHashMap basicNew.
+	]
+
+	"Constructs a new IdentityDictionary given its initial (capacity)."
+	protected IdentityDictionary: capacity (Number)
+	[	contents := java.util.IdentityHashMap basicNew: capacity primitiveInteger.
+	]
+
+	"Constructs a new IdentityDictionary with a (primitiveMap)."
+	protected IdentityDictionary: primitiveMap (java.util.Map)
+	[	contents := java.util.IdentityHashMap basicNew: primitiveMap size.
+		contents putAll: primitiveMap.
+	]
+
+"accessing elements"
+
+	"Returns the keys contained in the receiver."
+	keys
+	[	^IdentitySet from: contents keySet
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection (IdentityDictionary)
+	[	^primitive BooleanFrom: 
+			(contents equals: aCollection primitiveContents)
+	]
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection
+	[	[ ^self = (aCollection as: IdentityDictionary) ]
+			catch: [ :e (java.lang.ClassCastException) | ^false ]
+	]
+]

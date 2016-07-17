@@ -1,0 +1,273 @@
+"MethodCache.bist"
+package: smalltalk.behavior;
+
+import: java.util.HashSet;
+import: java.util.HashMap;
+import: java.lang.Class;
+import: java.lang.reflect.Method;
+import: java.lang.reflect.Constructor;
+import: smalltalk.behavior.Object;
+import: smalltalk.Name;
+
+"Maintains a cache of references to compiled Java methods, and 
+provides access to methods by name (and argument types).
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+
+nil subclass: MethodCache
+class: [
+
+	"Contains an empty String array."
+	static emptyArray (String[]).
+
+	"Contains references to the block classes."
+	static blockClasses (Class[]).
+
+	"Returns a Class array for a method that ends with a block argument.
+	@param methodArgumentCount the number of method arguments.
+	@param blockArgumentCount the number of block arguments.
+	@return a Class array for a method that ends with a block argument."
+	protected static (Class[])
+	classesWithBlock: methodArgumentCount (int) : blockArgumentCount (int) {
+		synchronized( MethodCache.class ) {
+			if (blockClasses == null) {
+				emptyArray = new String[0];
+				blockClasses = new Class[] {
+					ZeroArgumentBlock.class, 
+					OneArgumentBlock.class, 
+					TwoArgumentBlock.class
+				};
+			}
+		}
+		Class result[] = objectClassArray( methodArgumentCount );
+		result[ methodArgumentCount - 1 ] = blockClasses[ blockArgumentCount ];
+		return result;
+	}
+
+	"Indicates the size of the object type cache."
+	static cacheSize (int) := 11 asPrimitive.
+
+	"Contains a cache of prebuilt argument class arrays."
+	static objectClasses (Class[][]).
+
+	"Returns a Class array that contains (argumentCount) Object classes.
+	@param argumentCount the number of method arguments.
+	@return a Class array that contains (argumentCount) Object classes."
+	protected static (Class[]) objectClassArray: argumentCount (int) {
+		Class result[] = new Class[ argumentCount ];
+		for( int i = 0; i < argumentCount; i++ ) result[i] = Object.class;
+		return result;
+	}
+
+	"Returns a Class array that contains (argumentCount) Object classes.
+	@param argumentCount the number of method arguments.
+	@return a Class array that contains (argumentCount) Object classes."
+	protected static (Class[]) objectClasses: argumentCount (int) {
+		synchronized( MethodCache.class ) {
+			if (objectClasses == null) {
+				objectClasses = new Class[cacheSize][];
+				for( int i = 0; i < cacheSize; i++ ) {
+					objectClasses[i] = objectClassArray(i);
+				}
+			}
+		}
+		return( argumentCount < cacheSize ? 
+			objectClasses[ argumentCount ] : objectClassArray( argumentCount )
+		);
+	}
+
+	"The name tail of messages that handle a missing collection element."
+	static ifAbsent (String) := ':ifAbsent:' asPrimitive.
+
+	"Contains the special selectors that use block arguments."
+	static specialSelectors (HashMap) := HashMap basicNew.
+
+	"Returns the class array for a special (methodName).
+	@param methodName a special method name."
+	protected static (Class[]) specialSelector: methodName (String) {
+		synchronized( MethodCache.class ) {
+			if (specialSelectors.isEmpty()) {
+				specialSelectors.put( "do:", classesWithBlock( 1, 1 ) );
+				specialSelectors.put( "to:do:", classesWithBlock( 2, 1 ) );
+				specialSelectors.put( "from:to:do:", classesWithBlock( 3, 1 ) );
+				specialSelectors.put( "to:by:do:", classesWithBlock( 3, 1 ) );
+
+				specialSelectors.put( "detect:", classesWithBlock( 1, 1 ) );
+				specialSelectors.put( "select:", classesWithBlock( 1, 1 ) );
+				specialSelectors.put( "reject:", classesWithBlock( 1, 1 ) );
+				specialSelectors.put( "collect:", classesWithBlock( 1, 1 ) );
+				specialSelectors.put( "inject:into:", classesWithBlock( 2, 2 ) );
+
+				specialSelectors.put( "ensure:", classesWithBlock( 1, 0 ) );
+				specialSelectors.put( "ifCurtailed:", classesWithBlock( 1, 0 ) );
+			}
+		}
+		return (Class[]) specialSelectors.get( methodName );
+	}
+
+	"Indicates whether the cache has been loaded fully."
+	loaded (boolean).
+
+	"Contains references to the cached methods by name."
+	contents (HashMap).
+
+	"Refers to the Java class whose method references are cached."
+	cacheClass (Class).
+
+	"Constructs a new MethodCache."
+	MethodCache: aClass (Class) {
+		contents = new HashMap();
+		cacheClass = aClass;
+		loaded = false;
+	}
+
+	"Clears the cache of all methods."
+	(void) flush {
+		contents.clear();
+		loaded = false;
+	}
+
+	"Returns a reference to the selected method.
+	@param selector identifies the method.
+	@param argumentCount the number of method arguments.
+	@return a reference to the selected method."
+	final (Method) methodNamed: selector (String) : argumentCount (int) {
+
+		// if found previously, return cached method
+		Method aMethod = (Method) contents.get( selector );
+		if (aMethod != null) return aMethod;
+
+		// check special selectors for argument classes
+		Class arguments[] = specialSelector( selector );
+
+		// determine method argument classes
+		if (arguments == null) {
+			if (selector.endsWith( ifAbsent )) {
+				arguments = classesWithBlock( argumentCount, 1 );
+			} else {
+				arguments = objectClasses( argumentCount );
+			}
+		}
+
+		// find the method and cache its reference
+		String methodName = Name.from( selector );
+		try {
+			aMethod = cacheClass.getMethod( methodName, arguments );
+			contents.put( selector, aMethod );
+			return aMethod;
+		} catch( NoSuchMethodException e ) {
+			System.err.println( 
+				cacheClass.getName() + " does not understand " + selector +
+				" with " + argumentCount + " argument(s)"
+			);
+			return null;
+		}
+	}
+
+	"Returns a reference to the selected constructor.
+	@param argumentCount the number of constructor arguments.
+	@return a reference to the selected constructor."
+	final (Constructor) constructorFor: argumentCount (int) {
+		Class arguments[] = objectClasses( argumentCount );
+		try {
+			return cacheClass.getConstructor( arguments );
+		} catch( NoSuchMethodException e ) {
+			System.err.println( 
+				cacheClass.getName() + " does not construct with " + 
+				argumentCount + " argument(s)"
+			);
+			return null;
+		}
+	}
+
+	"Indicates whether a method qualifies as a special method.
+	@param methodName identifies a method.
+	@param types identifies the method argument types."
+	protected (boolean) qualifiesAsSpecial: methodName (String) : types (Class[]) {
+		Class[] arguments = specialSelector( methodName );
+		if (arguments == null) return false;
+		if (types.length != arguments.length) return false;
+		for( int t = 0; t < types.length; t++ ) {
+			if (types[t] != arguments[t]) return false;
+		}
+		return true;
+	}
+
+	"Indicates whether a method qualifies as a method ending in ifAbsent:.
+	@param methodName identifies a method.
+	@param types identifies the method argument types."
+	protected (boolean) qualifiesAsAbsentia: methodName (String) : types (Class[]) {
+		if (!methodName.endsWith( ifAbsent )) return false;
+		Class[] arguments = classesWithBlock( types.length, 1 );
+		for( int i = 0; i < types.length; i++ ) {
+			if (types[i] != arguments[i]) return false;
+		}
+		return true;
+	}
+
+	"Indicates whether a method qualifies as a normal method.
+	@param methodName identifies a method.
+	@param types identifies the method argument types."
+	protected (boolean) qualifiesAsNormal: methodName (String) : types (Class[]) {
+		for( int t = 0; t < types.length; t++ ) {
+			if (types[t] != Object.class) return false;
+		}
+		return true;
+	}
+
+	"Loads all the methods for the cacheClass into the cache."
+	(void) loadAllMethods {
+		if (loaded) return;
+		Method[] methods = cacheClass.getMethods();
+		for( int m = 0; m < methods.length; m++ ) {
+			Method method = methods[m];
+			Class[] types = method.getParameterTypes();
+			String methodName = Name.from( method.getName(), types.length );
+			if (qualifiesAsSpecial( methodName, types )
+			||  qualifiesAsAbsentia( methodName, types )
+			||  qualifiesAsNormal( methodName, types )) {
+				contents.put( methodName, method );
+			}
+		}
+		loaded = true;
+	}
+
+	"Loads the methods for the cacheClass into the cache.
+	@return the loaded method names."
+	protected (HashSet) loadMethods {
+		HashSet result = new HashSet();
+		Method[] methods = cacheClass.getDeclaredMethods();
+		for( int m = 0; m < methods.length; m++ ) {
+			Method method = methods[m];
+			Class[] types = method.getParameterTypes();
+			String methodName = Name.from( method.getName(), types.length );
+			if (qualifiesAsSpecial( methodName, types )
+			||  qualifiesAsAbsentia( methodName, types )
+			||  qualifiesAsNormal( methodName, types )) {
+				contents.put( methodName, method );
+				result.add( methodName );
+			}
+		}
+		return result;
+	}
+
+	"Returns the names of all the public methods of the cacheClass."
+	(Object) allSelectors {
+		loadAllMethods();
+		String[] selectors = (String[]) contents.keySet().toArray( emptyArray );
+		Object[] result = new Object[ selectors.length ];
+		for( int i = 0; i < selectors.length; i++ ) {
+			result[i] = Object.primitive.SymbolFrom( selectors[i] );
+		}
+		return Object.primitive.ArrayFrom( result );
+	}
+
+	"Returns the names of the public methods defined by the cacheClass."
+	(Object) selectors {
+		String[] selectors = (String[]) loadMethods().toArray( emptyArray );
+		Object[] result = new Object[ selectors.length ];
+		for( int i = 0; i < selectors.length; i++ ) {
+			result[i] = Object.primitive.SymbolFrom( selectors[i] );
+		}
+		return Object.primitive.ArrayFrom( result );
+	}
+]

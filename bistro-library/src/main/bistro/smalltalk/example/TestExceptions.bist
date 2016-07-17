@@ -1,0 +1,61 @@
+"TestExceptions.bist"
+package: smalltalk.example;
+import: smalltalk.stream.Transcript;
+import: smalltalk.magnitude.ZeroDivide;
+
+"Regression tests the exception support.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: TestExceptions
+metaclass: []
+class:
+[
+	"Reports the results of thread tests on the console."
+	static (void) main: args (java.lang.String[])
+	[	TestExceptions basicNew tests.
+	]
+
+	tests [
+		self tieStreams.
+		[	self testExceptions.
+		]
+		catch: [ :e (java.lang.Throwable) !
+			Transcript printLine: (primitive StringFrom: e getMessage).
+			e printStackTrace.
+		].
+	]
+
+	"Ties the standard error stream to the standard output stream."
+	(void) tieStreams {
+		System.setErr( System.out );
+	}
+
+	"Tests exceptions and their handling."
+	testExceptions [
+		Transcript printLine: 'testing exceptions...'.
+		[	[	[	self signalException.
+					Transcript printLine: 'reached after resumption'.
+				]
+				on: ZeroDivide do: [ :exception !
+					Transcript printLine: 'handled ', exception description.
+					Transcript printLine: 'resignaling as Warning'.
+					exception resignalAs: Warning new.
+				].
+			]
+			on: Warning do: [ :exception !
+				Transcript printLine: 'handled ', exception description.
+				Transcript printLine: 'passing ', exception description.
+				exception pass.
+			].
+		]
+		on: Warning do: [ :exception !
+			Transcript printLine: 'received passed ', exception description.			
+		].
+		Transcript printLine: 'done'.
+	]
+
+	"Signals an exception."
+	signalException [
+		Transcript printLine: 'signaling ZeroDivide'.
+		^1 / 0
+	]
+]

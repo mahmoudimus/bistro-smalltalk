@@ -1,0 +1,118 @@
+"ElementaryOutputStream.bist"
+package: smalltalk.stream;
+import: java.io.Writer;
+import: java.io.OutputStream;
+import: java.io.OutputStreamWriter;
+import: java.io.IOException;
+import: smalltalk.magnitude.LongInteger;
+
+"Writes characters and strings onto an elementary Java output stream.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Stream subclass: ElementaryOutputStream
+implements: WriteableStream
+metaclass:
+[
+	"Returns a new stream for writing to (aWriter)."
+	from: aWriter (Writer)
+	[	^ElementaryOutputStream basicNew: aWriter
+	]
+
+	"Returns a new stream for writing to an (outputStream)."
+	from: outputStream (OutputStream)
+	[	^self from: (OutputStreamWriter basicNew: outputStream)
+	]
+]
+class:
+[
+	"Tracks the position in the stream."
+	position (LongInteger).
+
+	"Refers to the primitive stream reader."
+	oStream (Writer).
+
+	"Constructs a new ElementaryOutputStream."
+	ElementaryOutputStream: aWriter (Writer)
+	[	oStream := aWriter.
+		position := LongInteger zero.
+	]
+
+	"Returns the primitive stream reader."
+	protected (Writer) primitiveStream
+	[	^oStream
+	]
+
+"managing"
+
+	"Closes the primitive stream."
+	close
+	[	[ oStream close. ] catch: [ :e (IOException) | ]
+	]
+
+"positioning"
+
+	"Returns the current position within the stream."
+	position
+	[	^position
+	]
+
+"writing"
+
+	"Appends a new line sequence to the stream."
+	cr
+	[	self nextPutAll: WriteStream lineSeparator.
+	]
+
+	"Updates the backing store."
+	flush
+	[	[ oStream flush. ] 
+		catch: [ :e (IOException) | 
+			UnhandledJavaException raise: e.
+		]
+	]
+
+	"Appends an (element) to the stream backing store."
+	nextPut: element (Character)
+	[	position += 1.
+		[	oStream write: element primitiveInteger.
+		]
+		catch: [ :e (IOException) | 
+			UnhandledJavaException raise: e.
+		]
+	]
+
+	"Appends an (element) to the stream backing store."
+	nextPut: element
+	[	self nextPutAll: (element as: Character).
+	]
+
+	"Appends (elements) to the stream backing store."
+	nextPutAll: elements (String)
+	[	position += elements size.
+		[	oStream write: elements primitiveString.
+		]
+		catch: [ :e (IOException) | 
+			UnhandledJavaException raise: e.
+		]
+	]
+
+	"Appends (elements) to the stream backing store."
+	nextPutAll: elements
+	[	self nextPutAll: (elements as: String).
+	]
+
+	"Appends a (line) of characters to the stream."
+	nextPutLine: line
+	[	self nextPutAll: line.
+		self cr.
+	]
+
+	"Appends a space to the stream."
+	space
+	[	self nextPut: Character space.
+	]
+
+	"Appends a tab to the stream."
+	tab
+	[	self nextPut: Character tab.
+	]
+]

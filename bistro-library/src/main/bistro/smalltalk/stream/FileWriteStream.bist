@@ -1,0 +1,44 @@
+"FileWriteStream.bist"
+package: smalltalk.stream;
+import: java.io.RandomAccessFile;
+
+"Supports reading from a stream of values.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract FileStream subclass: FileWriteStream
+implements: WriteableStream
+metaclass: []
+class: 
+[
+	"Constructs a new FileWriteStream given a (primitiveFile)."
+	protected FileWriteStream: primitiveFile (RandomAccessFile)
+	{	super( primitiveFile );
+	}
+
+"writing"
+
+	"Appends a new line sequence to the stream."
+	cr
+	[	self nextPutAll: WriteStream lineSeparator.
+	]
+
+	"Updates the backing store."
+	flush
+	[	^self
+	]
+
+	"Appends a space to the stream."
+	space
+	[	self nextPut: Character space.
+	]
+
+	"Appends a tab to the stream."
+	tab
+	[	self nextPut: Character tab.
+	]
+
+	"Appends a (line) of characters to the stream."
+	nextPutLine: line
+	[	self nextPutAll: line.
+		self cr.
+	]
+]

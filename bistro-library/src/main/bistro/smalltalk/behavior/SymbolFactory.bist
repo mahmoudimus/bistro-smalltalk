@@ -1,0 +1,15 @@
+"SymbolFactory.bist"
+package: smalltalk.behavior;
+
+"Supports behavior for converting between primitive strings and Symbols.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: SymbolFactory
+metatype:
+[
+	"Returns a Symbol whose value is (primitiveString)."
+	SymbolFrom: primitiveString (java.lang.String) []
+
+	"Returns the primitive string value indicated by (aSymbol)."
+	(java.lang.String) symbolFrom: aSymbol []
+]
+type: []

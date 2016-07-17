@@ -1,0 +1,82 @@
+"MessageSend.bist"
+package: smalltalk.behavior;
+
+"Represents a Smalltalk message, including the selector and message arguments.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Message subclass: MessageSend
+metaclass: []
+class:
+[
+	"Identifies a message receiver."
+	receiver.
+
+	"Constructs a new MessageSend."
+	MessageSend: aReceiver : 
+	methodSelector (java.lang.String) : 
+	methodArguments (Object[]) [
+		self super: methodSelector : methodArguments.
+		receiver := aReceiver.
+	]
+
+	"Returns the message receiver."
+	receiver [
+		^receiver
+	]
+
+	"Returns the selected method from the receiver class method dictionary."
+	protected (java.lang.reflect.Constructor) receiverConstructor {
+		return ((Behavior) receiver).methodDictionary
+			.constructorFor( arguments.length );
+	}
+
+	"Returns the selected method from the receiver class method dictionary."
+	protected (java.lang.reflect.Method) receiverMethod {
+		return receiver.$class().methodDictionary
+			.methodNamed( selector, arguments.length );
+	}
+
+	"Returns an appropriate exception for rethrowing."
+	protected (java.lang.RuntimeException) 
+	appropriated: exception (java.lang.Throwable) {
+		if (exception instanceof MethodExit) {
+			return (MethodExit) exception;
+		}
+		if (exception instanceof UnhandledJavaException) {
+			return (UnhandledJavaException) exception;
+		}
+		return new UnhandledJavaException( exception );
+	}
+
+	"Returns the result of sending a message to the message receiver."
+	perform {
+		try {
+			java.lang.reflect.Method m = receiverMethod();
+			if (m == null) return receiver.doesNotUnderstand( this );
+			return (Object) m.invoke( receiver, arguments );
+		} catch( IllegalAccessException e ) {
+			throw appropriated( e );
+		} catch( java.lang.reflect.InvocationTargetException e ) {
+			throw appropriated( e.getTargetException() );
+		}
+	}
+
+	"Returns a new instance of the message receiver."
+	construct {
+		int count = arguments.length;
+		try {
+			if (arguments.length == 0) {
+				return (Object)((Behavior) receiver)
+					.primitiveClass().newInstance();
+			}
+			java.lang.reflect.Constructor c = receiverConstructor();
+			if (c == null) return receiver.doesNotUnderstand( this );
+			return (Object) c.newInstance( arguments );
+		} catch( InstantiationException e ) {
+			throw appropriated( e );
+		} catch( IllegalAccessException e ) {
+			throw appropriated( e );
+		} catch( java.lang.reflect.InvocationTargetException e ) {
+			throw appropriated( e.getTargetException() );
+		}
+	}
+]

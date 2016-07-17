@@ -1,0 +1,8 @@
+"Error.bist"
+package: smalltalk.behavior;
+
+"Represents an error raised by a thread.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Exception subclass: Error
+metaclass: []
+class: []

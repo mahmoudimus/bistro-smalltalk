@@ -1,0 +1,7 @@
+"Error.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Error."
+Exception subtype: Error
+metatype: []
+type: []

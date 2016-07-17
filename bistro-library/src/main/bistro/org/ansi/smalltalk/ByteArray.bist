@@ -1,0 +1,7 @@
+"ByteArray.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ByteArray."
+InitializableCollection, SequencedCollection subtype: ByteArray
+metatype: []
+type: []

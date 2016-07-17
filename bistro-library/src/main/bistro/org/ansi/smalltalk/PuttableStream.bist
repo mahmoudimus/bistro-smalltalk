@@ -1,0 +1,30 @@
+"PuttableStream.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk PuttableStream."
+Object subtype: PuttableStream
+metatype: []
+type: [
+
+"appending special characters"
+
+	"Appends a new line sequence to the stream."
+	(Object) cr []
+
+	"Appends a space to the stream."
+	(Object) space []
+
+	"Appends a tab to the stream."
+	(Object) tab []
+
+"appending elements"
+
+	"Updates the backing store."
+	(Object) flush []
+
+	"Appends an (element) to the stream backing store."
+	(Object) nextPut: element (Object) []
+
+	"Appends (elements) to the stream backing store."
+	(Object) nextPutAll: elements (Collection) []
+]

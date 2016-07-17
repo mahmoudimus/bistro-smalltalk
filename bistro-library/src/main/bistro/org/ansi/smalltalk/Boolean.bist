@@ -1,0 +1,53 @@
+"Boolean.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Boolean."
+Object subtype: Boolean
+metatype: []
+type:
+[
+"comparing"
+
+	"Indicates whether the receiver and (operand) are logically equivalent."
+	(Boolean) eqv: operand (Boolean) []
+
+"operating logically"
+
+	"Returns the result of the logical AND of the receiver and (operand)."
+	(Boolean) & operand (Boolean) []
+
+	"Returns the result of the logical OR of the receiver and (operand)."
+	(Boolean) | operand (Boolean) []
+
+	"Indicates whether both the receiver and the value of (aBlock) are true."
+	(Boolean) and: aBlock (NiladicBlock) []
+
+	"Indicates the logical opposite of the receiver."
+	(Boolean) not []
+
+	"Indicates whether either the receiver or the value of (aBlock) is true."
+	(Boolean) or: aBlock (NiladicBlock) []
+
+	"Indicates whether the receiver and (operand) are opposites."
+	(Boolean) xor: operand (Boolean) []
+
+"selecting alternatives"
+
+	"Returns the result of evaluating (operand) if the receiver indicates true.
+	Returns nil if the receiver indicates false."
+	(Any) ifTrue: operand (NiladicBlock) []
+
+	"Returns the result of evaluating (trueOperand) if the receiver indicates true.
+	Returns the result of evaluating (falseOperand) if the receiver indicates false."
+	(Any) ifTrue: trueOperand (NiladicBlock) 
+	ifFalse: falseOperand (NiladicBlock) []
+
+	"Returns the result of evaluating (operand) if the receiver indicates false.
+	Returns nil if the receiver indicates true."
+	(Any) ifFalse: operand (NiladicBlock) []
+
+	"Returns the result of evaluating (falseOperand) if the receiver indicates false.
+	Returns the result of evaluating (trueOperand) if the receiver indicates true."
+	(Any) ifFalse: falseBlock (NiladicBlock) 
+	ifTrue: trueOperand (NiladicBlock) []
+]

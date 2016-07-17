@@ -1,0 +1,23 @@
+"NiladicValuable.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk NiladicValuable."
+Valuable subtype: NiladicValuable
+metatype: []
+type: [
+
+	"Returns the result of evaluating the receiver."
+	(Any) value []
+
+	"Evaluates the receiver until the result is true."
+	(Object) whileFalse []
+
+	"Evaluates (aBlock) while the result of evaluating the receiver is true."
+	(Object) whileFalse: aBlock (NiladicValuable) []
+
+	"Evaluates the receiver until the result is false."
+	(Object) whileTrue []
+
+	"Evaluates (aBlock) while the result of evaluating the receiver is false."
+	(Object) whileTrue: aBlock (NiladicValuable) []
+]

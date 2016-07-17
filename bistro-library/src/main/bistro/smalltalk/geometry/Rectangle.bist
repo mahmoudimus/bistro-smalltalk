@@ -1,0 +1,280 @@
+"Rectangle.bist"
+package: smalltalk.geometry;
+
+"Represents a rectangle.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: Rectangle
+metaclass:
+[
+	"Returns a new zero area Rectangle on the origin."
+	new
+	[	^Rectangle basicNew
+	]
+
+	"Returns a new Rectangle located at (origin) with (extent)."
+	origin: origin extent: extent
+	{	return new Rectangle( (Point) origin, (Point) extent );
+	}
+
+	"Returns a new Rectangle located at (origin) with (corner)."
+	origin: origin corner: corner
+	[	^Rectangle basicNew 
+			origin: origin; 
+			corner: corner; 
+			yourself
+	]
+]
+class:
+[
+	"Refers to the origin."
+	origin (Point).
+
+	"Refers to the extent."
+	extent (Point).
+
+	"Constructs a new empty Rectangle."
+	protected Rectangle
+	[	origin := 0 @ 0.
+		extent := 0 @ 0.
+	]
+
+	"Constructs a new Rectangle at (originPoint)."
+	protected Rectangle: originPoint (Point) : extentPoint (Point)
+	[	origin := originPoint.
+		extent := extentPoint.
+	]
+
+"accessing basic corners"
+
+	"Returns the origin."
+	origin
+	[	^origin
+	]
+
+	"Establishes the origin."
+	origin: originPoint (Point)
+	[	origin := originPoint.
+	]
+
+	"Establishes the origin."
+	origin: originPoint
+	{	return origin( (Point) originPoint );
+	}
+
+	"Returns the corner."
+	corner
+	[	^(origin x + extent x) @ (origin y + extent y)
+	]
+
+	"Establishes the corner."
+	corner: cornerPoint (Point)
+	[	self extent: cornerPoint - origin.
+	]
+
+	"Establishes the corner."
+	corner: cornerPoint
+	{	return corner( (Point) cornerPoint );
+	}
+
+"accessing positions"
+
+	"Returns the position of the top."
+	top
+	[	^self origin y
+	]
+
+	"Returns the position of the bottom."
+	bottom
+	[	^self corner y
+	]
+
+	"Returns the position of the left side."
+	left
+	[	^self origin x
+	]
+
+	"Returns the position of the right side."
+	right
+	[	^self corner x
+	]
+
+"accessing centers"
+
+	"Returns the center."
+	center
+	[	^self origin + (self extent // 2)
+	]
+
+	"Returns the top center."
+	topCenter
+	[	^self center x @ self top
+	]
+
+	"Returns the bottom center."
+	bottomCenter
+	[	^self center x @ self bottom
+	]
+
+	"Returns the center of the left side."
+	leftCenter
+	[	^self left @ self center y
+	]
+
+	"Returns the center of the left side."
+	rightCenter
+	[	^self right @ self center y
+	]
+
+"accessing corners"
+
+	"Returns the bottom left corner."
+	bottomLeft
+	[	^self left @ self bottom
+	]
+
+	"Returns the bottom right corner."
+	bottomRight
+	[	^self right @ self bottom
+	]
+
+	"Returns the left top corner."
+	leftTop
+	[	^self left @ self top
+	]
+
+	"Returns the left bottom corner."
+	leftBottom
+	[	^self bottomLeft
+	]
+
+	"Returns the right top corner."
+	rightTop
+	[	^self right @ self top
+	]
+
+	"Returns the right bottom corner."
+	rightBottom
+	[	^self bottomRight
+	]
+
+	"Returns the top left corner."
+	topLeft
+	[	^self leftTop
+	]
+
+	"Returns the top right corner."
+	topRight
+	[	^self rightTop
+	]
+
+"accessing dimensions"
+
+	"Returns the extent."
+	extent
+	[	^extent
+	]
+
+	"Establishes the extent."
+	extent: extentPoint (Point)
+	[	extent := extentPoint.
+	]
+
+	"Establishes the extent."
+	extent: extentPoint
+	{	return extent( (Point) extentPoint );
+	}
+
+	"Returns the width."
+	width
+	[	^extent x
+	]
+
+	"Establishes the width."
+	width: width
+	[	extent x: width.
+	]
+
+	"Returns the height."
+	height
+	[	^extent y
+	]
+
+	"Establishes the height."
+	height: height
+	[	extent y: height.
+	]
+
+	"Returns the rectangle area."
+	area
+	[	^self width * self height
+	]
+
+"comparing"
+
+	"Indicates whether the receiver equals (aRectangle)."
+	= aRectangle (Rectangle)
+	[	^origin = aRectangle origin and:
+		[extent = aRectangle extent]
+	]
+
+	"Indicates whether the receiver equals (aRectangle)."
+	= aRectangle
+	[	[ ^self = (aRectangle as: Rectangle) ]
+			catch: [ :e (java.lang.ClassCastException) | ^false ]
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return origin.hashCode() ^ extent.hashCode();
+	}
+
+"converting"
+
+	"Returns a primitive rectangle equivalent to the receiver."
+	(java.awt.Rectangle) primitiveRectangle
+	[	^java.awt.Rectangle basicNew: 
+			origin primitivePoint : 
+			extent primitiveDimension
+	]
+
+"printing"
+
+	"Returns a printable representation of the receiver."
+	printString
+	[	^origin printString , ' extent: ' , extent printString
+	]
+
+"testing"
+
+	"Indicates whether the receiver encloses (aRectangle)."
+	contains: aRectangle (Rectangle)
+	[	^self origin <= aRectangle origin and:
+		[self corner >= aRectangle corner]
+	]
+
+	"Indicates whether the receiver encloses (aRectangle)."
+	contains: aRectangle
+	{	return this.contains( (Rectangle) aRectangle );
+	}
+
+	"Indicates whether the receiver encloses (aPoint)."
+	containsPoint: aPoint (Point)
+	[	^aPoint between: self origin and: self corner
+	]
+
+	"Indicates whether the receiver encloses (aPoint)."
+	containsPoint: aPoint
+	{	return this.containsPoint( (Point) aPoint );
+	}
+
+	"Indicates whether the receiver overlaps (aRectangle)."
+	intersects: aRectangle (Rectangle)
+	[	^self origin <= aRectangle corner and:
+		[aRectangle origin <= self corner]
+	]
+
+	"Indicates whether the receiver overlaps (aRectangle)."
+	intersects: aRectangle
+	{	return this.intersects( (Rectangle) aRectangle );
+	}
+]

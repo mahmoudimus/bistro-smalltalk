@@ -1,0 +1,15 @@
+"BooleanFactory.bist"
+package: smalltalk.behavior;
+
+"Supports behavior converting between primitive booleans and Booleans.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: BooleanFactory
+metatype:
+[
+	"Returns the Boolean whose value is (primitiveBoolean)."
+	(Boolean) BooleanFrom: primitiveBoolean (boolean) []
+
+	"Returns the primitive boolean value indicated by (aBoolean)."
+	(boolean) booleanFrom: aBoolean []
+]
+type: []

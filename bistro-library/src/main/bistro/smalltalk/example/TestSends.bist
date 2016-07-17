@@ -1,0 +1,36 @@
+"TestSends.bist"
+package: smalltalk.example;
+
+import: java.lang.System;
+import: smalltalk.stream.Transcript;
+
+"Tests message optimization and structured names.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subclass: TestSends
+class:
+[
+	"Reports the results of thread tests on the console."
+	static (void) main: args (java.lang.String[]) [
+		TestSends basicNew testSends.
+	]
+
+	member.
+	c (Character).
+
+	(void) testSends [
+		('Hello World' asPrimitive substring: 6 asPrimitive) substring: 1 asPrimitive.
+		Transcript printLine: 'x' asPrimitive.
+		Transcript printLine: self.member.
+		Transcript printLine: '' asPrimitive + System currentTimeMillis.
+                n (SmallInteger) := 5.
+                m (LongInteger) := n asLongInteger.
+		x (long) := m primitiveLong.
+		(x == 5) assert.
+		(c = member) assert: [ 'test assertion' ].
+		(6 = 5) assert.
+	]
+
+	(void) member: member [
+		self.member := member.
+	]
+]

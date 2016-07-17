@@ -1,0 +1,15 @@
+"ExtensibleCollection.bist"
+package: smalltalk.collection;
+
+"Supports element addition.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: ExtensibleCollection
+metatype: []
+type:
+[
+	"Adds an (element) to the receiver."
+	add: element []
+
+	"Adds a collection of (elements) to the receiver."
+	addAll: elements []
+]

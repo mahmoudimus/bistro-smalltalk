@@ -1,0 +1,49 @@
+"GettableStream.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk GettableStream."
+Object subtype: GettableStream
+metatype: []
+type: [
+
+"accessing elements"
+
+	"Returns the next element from the stream after advancing its position."
+	(Object) next []
+
+	"Returns the next element from the stream without advancing its position."
+	(Object) peek []
+
+"accessing sequences"
+
+	"Evaluates (aBlock) with each element remaining in the stream."
+	(Object) do: aBlock (MonadicValuable) []
+
+	"Returns the next (count) elements from the stream."
+	(SequencedReadableCollection) next: count (Integer) []
+
+	"Returns the next line from the stream."
+	(ReadableString) nextLine []
+
+	"Skips the next (count) elements."
+	(Object) skip: count (Integer) []
+
+	"Returns the elements from the stream up to, but not including, 
+	the next occurrence of (anObject)."
+	(SequencedReadableCollection) upTo: anObject (Object) []
+
+"testing"
+
+	"Indicates whether the stream has reached its end."
+	(Boolean) atEnd []
+
+	"Indicates whether the next element of the stream equals (anObject)."
+	(Boolean) nextMatchFor: anObject (Object) []
+
+	"Indicates whether the next element from the stream equals (anObject)."
+	(Boolean) peekFor: anObject (Object) []
+
+	"Advances the stream to read the element after the next 
+	occurrence of (anObject)."
+	(Boolean) skipTo: anObject (Object) []
+]

@@ -1,0 +1,44 @@
+"TextFileWriteStream.bist"
+package: smalltalk.stream;
+import: smalltalk.collection.CharacterString;
+import: java.io.RandomAccessFile;
+import: java.io.IOException;
+
+"Supports writing characters sequentially into a text file.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+FileWriteStream subclass: TextFileWriteStream
+metaclass:
+[
+	"Opens a new instance of the receiver on a (primitiveFile)."
+	protected on: primitiveFile (RandomAccessFile)
+	[	^TextFileWriteStream basicNew: primitiveFile
+	]
+]
+class: 
+[
+	"Constructs a new TextFileWriteStream."
+	protected TextFileWriteStream: primitiveFile (RandomAccessFile)
+	{	super( primitiveFile );
+	}
+
+"accessing"
+
+	"Returns the next (count) elements from the stream."
+	next: count
+	[	^self nextString: (count as: Integer) asSmallInteger
+	]
+
+"writing"
+
+	"Appends an (element) to the stream backing store."
+	nextPut: element
+	[	[ file writeByte: (element as: Character) primitiveInteger. ]
+		catch: [ :e (IOException) | ].
+	]
+
+	"Appends (elements) to the stream backing store."
+	nextPutAll: elements
+	[	[ file writeBytes: (elements as: CharacterString) primitiveString. ]
+		catch: [ :e (IOException) | ].
+	]
+]

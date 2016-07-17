@@ -1,0 +1,15 @@
+"ArrayFactory.bist"
+package: smalltalk.behavior;
+
+"Supports behavior for converting between primitive arrays and Arrays.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: ArrayFactory
+metatype:
+[
+	"Returns an Array which contains a (primitiveArray)."
+	ArrayFrom: primitiveArray (Object[]) []
+
+	"Returns the primitive array contained within (anArray)."
+	(Object[]) arrayFrom: anArray []
+]
+type: []

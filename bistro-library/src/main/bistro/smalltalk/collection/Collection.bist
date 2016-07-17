@@ -1,0 +1,380 @@
+"Collection.bist"
+package: smalltalk.collection;
+
+"Defines the common protocols supported by all collections.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Object subclass: Collection
+metaclass:
+[
+"creating instances"
+
+	"Returns a new collection that contains (anObject)."
+	with: anObject
+	[	result := self new.
+		result add: anObject.
+		^result
+	]
+
+	"Returns a new collection that contains the supplied objects."
+	with: object1st
+	with: object2nd
+	[	result := self new.
+		result add: object1st.
+		result add: object2nd.
+		^result
+	]
+
+	"Returns a new collection that contains the supplied objects."
+	with: object1st
+	with: object2nd
+	with: object3rd
+	[	result := self new.
+		result add: object1st.
+		result add: object2nd.
+		result add: object3rd.
+		^result
+	]
+
+	"Returns a new collection that contains the supplied objects."
+	with: object1st
+	with: object2nd
+	with: object3rd
+	with: object4th
+	[	result := self new.
+		result add: object1st.
+		result add: object2nd.
+		result add: object3rd.
+		result add: object4th.
+		^result
+	]
+
+	"Returns a new collection that contains (aCollection) of objects."
+	withAll: aCollection
+	[	result := self new: aCollection size.
+		result addAll: aCollection.
+		^result
+	]
+]
+class: [
+
+	"Establishes any hash invariants. Subclasses override this if needed."
+	rehash [
+	]
+
+"accessing"
+
+	"Returns the number of elements that can be held by the receiver."
+	capacity
+	[	^self size
+	]
+
+	"Returns the number of elements contained in the receiver."
+	size [
+		tally (FastInteger) := 0 asFastInteger.
+		self do: [ :element | tally += 1 asPrimitive. ].
+		^tally
+	]
+
+	"Returns the number of elements in the receiver that are equal to (anObject)."
+	occurrencesOf: anObject [
+		tally (FastInteger) := 0 asFastInteger.
+		self do: [ :element | anObject = element ifTrue: [ tally += 1 asPrimitive. ]].
+		^tally
+	]
+
+"converting"
+
+	"Returns an Array that contains the receiver elements."
+	asArray
+	[	result := Array new: self size.
+		index (FastInteger) := 1 asFastInteger.
+		self do: [ :element |
+			result at: index put: element.
+			index += 1 asPrimitive.
+		].
+		^result
+	]
+
+	"Returns a Bag that contains the receiver elements."
+	asBag
+	[	^(Bag new: self size) 
+			addAll: self; 
+			yourself
+	]
+
+	"Returns an OrderedCollection that contains the receiver elements."
+	asOrderedCollection
+	[	result := OrderedCollection new: self size.
+		self do: [ :element | result addLast: element ].
+		^result
+	]
+
+	"Returns a Set that contains the receiver elements."
+	asSet
+	[	^(Set new: self size) 
+			addAll: self; 
+			yourself
+	]
+
+	"Returns a SortedCollection that contains the receiver elements."
+	asSortedCollection
+	[	^(SortedCollection new: self size) 
+			addAll: self; 
+			yourself
+	]
+
+	"Returns a SortedCollection that contains the receiver elements."
+	asSortedCollection: sortBlock (TwoArgumentBlock)
+	[	^(SortedCollection new: self size)
+			sortBlock: sortBlock;
+			addAll: self; 
+			yourself
+	]
+
+	"Returns a SortedCollection that contains the receiver elements."
+	asSortedCollection: sortBlock
+	[	sorter (TwoArgumentBlock) := sortBlock.
+		^self asSortedCollection: sorter
+	]
+
+"enumerating"
+
+	"Returns a new collection created passing the receiver elements
+	through a (filterBlock)."
+	collect: filterBlock (OneArgumentBlock)
+	[	result := self species new.
+		self do: [ :element |
+			result add: ( filterBlock value: element )
+		].
+		^result
+	]
+
+	"Returns an element that satisfies a (testBlock)."
+	detect: testBlock (OneArgumentBlock)
+	[	^self detect: testBlock ifNone: [ self elementNotFound ]
+	]
+
+	"Returns an element that satisfies a (testBlock), or evaluates
+	(exceptionBlock) if the receiver contains no such element."
+	detect: testBlock (OneArgumentBlock)
+	ifNone: exceptionBlock (ZeroArgumentBlock)
+	[	self do: [ :element |
+			( testBlock value: element ) ifTrue: [ ^element ]
+		].
+		^exceptionBlock value
+	]
+
+	"Returns an element that satisfies a (testBlock), or evaluates
+	(exceptionBlock) if the receiver contains no such element."
+	detect: testBlock
+	ifNone: exceptionBlock
+	[	test (OneArgumentBlock) := testBlock.
+		none (ZeroArgumentBlock) := exceptionBlock.
+		^self detect: test ifNone: none
+	]
+
+	"Evaluates (aBlock) with each receiver element."
+	abstract do: aBlock (OneArgumentBlock) []
+
+	"Evaluates (aBlock) with each receiver element and evaluates 
+	(separateBlock) in between the elements."
+	do: aBlock (OneArgumentBlock)
+	separatedBy: separateBlock (ZeroArgumentBlock)
+	[	first := true.
+		self do: [ :element |
+			first ifTrue: [ first := false ] ifFalse: [ separateBlock value ].
+			aBlock value: element
+		]
+	]
+
+	"Evaluates (aBlock) with each receiver element and evaluates 
+	(separateBlock) in between the elements."
+	do: aBlock
+	separatedBy: separateBlock
+	[	block (OneArgumentBlock) := aBlock.
+		tween (ZeroArgumentBlock) := separateBlock.
+		^self do: block separatedBy: tween
+	]
+
+	"Evaluates a (binaryBlock) with each receiver element and the
+	result of the previous evaluation, starting with (value)."
+	inject: value into: binaryBlock (TwoArgumentBlock)
+	[	nextValue := value.
+		self do: [ :element |
+			nextValue := binaryBlock value: nextValue value: element
+		].
+		^nextValue
+	]
+
+	"Returns a new collection that contains the elements not selected by a (testBlock)."
+	reject: testBlock (OneArgumentBlock)
+	[	^self select: [ :element | ( testBlock value: element ) == false ]
+	]
+
+	"Returns a new collection that contains the elements selected by a (testBlock)."
+	select: testBlock (OneArgumentBlock)
+	[	result := self species new.
+		self do: [ :element |
+			( testBlock value: element ) ifTrue: [ result add: element ]
+		].
+		^result
+	]
+
+"reporting errors"
+
+	"Reports an error when the receiver is empty."
+	emptyCollectionError
+	[	self error: 'This collection is empty'.
+	]
+
+	"Reports an error when an improper index is supplied."
+	indexError
+	[	self error: 'Improper index for this collection'.
+	]
+
+	"Reports an error when an index is out of bounds."
+	indexRangeError
+	[	self error: 'Supplied index is out of bounds'.
+	]
+
+	"Reports an error when an element is absent from the receiver."
+	elementNotFound
+	[	self error: 'Desired collection element not found'.
+	]
+
+	"Reports an error when an element type is not appropriate."
+	elementClassError
+	[	self error: 'Collection does not hold supplied kind of element'.
+	]
+
+	"Reports an error when two collections are not comparable."
+	compatibilityError
+	[	self error: 'Collections are not comparable'
+	]
+
+	"Reports an error when a collection is immutable."
+	immutabilityError
+	[	self error: 'Collection contents cannot be changed'
+	]
+
+"testing"
+
+	"Indicates whether the receiver is a (kind of) Collection."
+	isCollection
+	[	^true
+	]
+
+	"Indicates whether all receiver elements satisfy a (testBlock)."
+	allSatisfy: testBlock (OneArgumentBlock)
+	[	self do: [ :element |
+			( testBlock value: element ) ifFalse: [ ^false ]
+		].
+		^true
+	]
+
+	"Indicates whether all receiver elements satisfy a (testBlock)."
+	allSatisfy: testBlock
+	[	test (OneArgumentBlock) := testBlock.
+		^self allSatisfy: test
+	]
+
+	"Indicates whether any receiver element satisfies a (testBlock)."
+	anySatisfy: testBlock (OneArgumentBlock)
+	[	self do: [ :element |
+			( testBlock value: element ) ifTrue: [ ^true ]
+		].
+		^false
+	]
+
+	"Indicates whether any receiver element satisfies a (testBlock)."
+	anySatisfy: testBlock
+	[	test (OneArgumentBlock) := testBlock.
+		^self anySatisfy: test
+	]
+
+	"Indicates whether any receiver element satisfies a (testBlock)."
+	contains: testBlock (OneArgumentBlock)
+	[	self detect: testBlock ifNone: [ ^false ].
+		^true
+	]
+
+	"Indicates whether any receiver element satisfies a (testBlock)."
+	contains: testBlock
+	[	test (OneArgumentBlock) := testBlock.
+		^self contains: test
+	]
+
+	"Indicates whether the receiver includes (anObject)."
+	includes: anObject
+	[	self do: [ :element | element = anObject ifTrue: [ ^true ] ].
+		^false
+	]
+
+	"Indicates whether the receiver is empty."
+	isEmpty
+	[	^self size = 0
+	]
+
+	"Indicates whether the receiver is not empty."
+	notEmpty
+	[	^self isEmpty == false
+	]
+
+	"Checks whether the receiver has any elements."
+	emptyCheck
+	[	self isEmpty ifTrue: [ ^self emptyCollectionError ]
+	]
+
+	"Checks an (index) against the collection bounds."
+	(int) checkIndex: index
+	{	try {
+			Number aNumber = (Number) index;
+			Number size = (Number) this.size();
+			int i = aNumber.primitiveInteger() - 1;
+			if (i >= 0 && i < size.primitiveInteger()) {
+				return i;
+			} else {
+				this.indexRangeError();
+			}
+		} catch( java.lang.ClassCastException e ) {
+			this.indexError();
+		}
+		return -1;
+	}
+
+	"Checks an (index) against the collection bounds, including insertions
+	against the end points."
+	(int) checkRange: index
+	{	try {
+			Number aNumber = (Number) index;
+			Number size = (Number) this.size();
+			int i = aNumber.primitiveInteger() - 1;
+			if (i >= 0 && i <= size.primitiveInteger()) {
+				return i;
+			} else {
+				System.out.print( i + " " );
+				this.indexRangeError();
+			}
+		} catch( java.lang.ClassCastException e ) {
+			this.indexError();
+		}
+		return -1;
+	}
+
+	"Checks an (index) against the collection bounds."
+	(int) checkIndex: index ifAbsent: aBlock (ZeroArgumentBlock)
+	{	try {
+			Number aNumber = (Number) index;
+			Number size = (Number) this.size();
+			int i = aNumber.primitiveInteger() - 1;
+			if (i >= 0 && i < size.primitiveInteger()) {
+				return i;
+			} else {
+				aBlock.value();
+			}
+		} catch( java.lang.ClassCastException e ) {
+			this.indexError();
+		}
+		return -1;
+	}
+]

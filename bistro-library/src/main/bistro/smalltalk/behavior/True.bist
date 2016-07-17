@@ -1,0 +1,89 @@
+"True.bist"
+package: smalltalk.behavior;
+
+"Indicates verity.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Boolean subclass: True
+metaclass:
+[
+	"The singleton instance of the literal true."
+	public literal (Boolean).
+
+	"Initializes the literal true."
+	initialize
+	{	literal = new True();
+		return this;
+	}
+]
+class:
+[
+	"Returns the primitive boolean value indicated by the receiver."
+	(boolean) primitiveBoolean
+	{	return true;
+	}
+
+	"Evaluates (trueBlock) if the receiver indicates true."
+	ifTrue: trueBlock (ZeroArgumentBlock)
+	[	^trueBlock value
+	]
+
+	"Evaluates (trueBlock) if the receiver indicates true.
+	Otherwise, evaluates (falseBlock)."
+	ifTrue: trueBlock (ZeroArgumentBlock)
+	ifFalse: falseBlock (ZeroArgumentBlock)
+	[	^trueBlock value
+	]
+
+	"Evaluates (falseBlock) if the receiver indicates false."
+	ifFalse: falseBlock (ZeroArgumentBlock)
+	[	^nil
+	]
+
+	"Evaluates (falseBlock) if the receiver indicates false.
+	Otherwise, evaluates (trueBlock)."
+	ifFalse: falseBlock (ZeroArgumentBlock)
+	ifTrue: trueBlock (ZeroArgumentBlock)
+	[	^nil
+	]
+
+"operating logically"
+
+	"Indicates whether both the receiver and the value of (aBlock) are true."
+	& aBoolean [
+		^aBoolean
+	]
+
+	"Indicates whether either the receiver or the value of (aBlock) is true."
+	| aBoolean [
+		^self
+	]
+
+	"Indicates whether both the receiver and the value of (aBlock) are true."
+	and: aBlock (ZeroArgumentBlock) [
+		^aBlock value
+	]
+
+	"Indicates whether either the receiver or the value of (aBlock) is true."
+	or: aBlock (ZeroArgumentBlock) [
+		^self
+	]
+
+	"Indicates the opposite of the receiver."
+	not [
+		^false
+	]
+
+"printing"
+
+	"Returns a printable representation of the receiver."
+	printString
+	[	^'true'
+	]
+
+"testing behavior"
+
+	"Indicates whether the receiver is a kind of literal."
+	isLiteral
+	[	^true
+	]
+]

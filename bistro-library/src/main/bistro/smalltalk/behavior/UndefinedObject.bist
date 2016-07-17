@@ -1,0 +1,108 @@
+"UndefinedObject.bist"
+package: smalltalk.behavior;
+
+"Indicates no value - i.e., an undefined object.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: UndefinedObject
+metaclass:
+[
+	"The singleton instance of the literal nil."
+	public literal (UndefinedObject).
+
+	"Initializes the literal nil."
+	initialize
+	{	literal = new UndefinedObject();
+		return this;
+	}
+
+	"Returns a primitive null."
+	(java.lang.Object) nullValue
+	{	return null;
+	}
+]
+class:
+[
+"accessing"
+
+	"Returns the primitive value indicated by the receiver."
+	primitiveValue
+	{	return null;
+	}
+
+	(java.lang.Object) asPrimitive {
+		return null;
+	}
+
+"comparing"
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return 0;
+	}
+
+"copying"
+
+	"Returns a deep copy of the receiver."
+	deepCopy
+	[	^self
+	]
+
+	"Returns a shallow copy of the receiver."
+	shallowCopy
+	[	^self
+	]
+
+"testing"
+
+	"Indicates whether the receiver is nil."
+	isNil
+	[	^true
+	]
+
+	"Indicates whether the receiver is not nil."
+	notNil
+	[	^false
+	]
+
+"selecting alternatives"
+
+	"Evaluates (nilBlock) if the receiver is nil.
+	Otherwise, returns nil."
+	ifNil: nilBlock (ZeroArgumentBlock)
+	[	^nilBlock value
+	]
+
+	"Evaluates (nilBlock) if the receiver is nil.
+	Otherwise, evaluates (extantBlock)."
+	ifNil: nilBlock (ZeroArgumentBlock)
+	ifExtant: extantBlock (ZeroArgumentBlock)
+	[	^nilBlock value
+	]
+
+	"Evaluates (extantBlock) if the receiver exists (i.e., is not nil).
+	Otherwise, returns nil."
+	ifExtant: extantBlock (ZeroArgumentBlock)
+	[	^self
+	]
+
+	"Evaluates (extantBlock) if the receiver exists (i.e., is not nil).
+	Otherwise, evaluates (nilBlock)."
+	ifExtant: extantBlock (ZeroArgumentBlock)
+	ifNil: nilBlock (ZeroArgumentBlock)
+	[	^nilBlock value
+	]
+
+"printing"
+
+	"Returns a printable representation of the receiver."
+	printString
+	[	^'nil'
+	]
+
+"testing behavior"
+
+	"Indicates whether the receiver is a kind of literal."
+	isLiteral
+	[	^true
+	]
+]

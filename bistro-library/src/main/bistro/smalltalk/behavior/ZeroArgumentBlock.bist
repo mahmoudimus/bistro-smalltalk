@@ -1,0 +1,97 @@
+"ZeroArgumentBlock.bist"
+package: smalltalk.behavior;
+
+"Supports the instantiation and evaluation of blocks with no arguments.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+BlockClosure subclass: ZeroArgumentBlock
+metaclass: []
+class:
+[
+	"Returns the block argument count."
+	argumentCount [
+		^0
+	]
+
+"evaluating"
+
+	"Evaluates the receiver with no arguments."
+	value
+	[	^nil
+	]
+
+"handling exceptions"
+
+	"Evaluate the receiver and the supplied (terminationBlock), even if
+	the evaluation of the receiver is curtailed by an exception."
+	ensure: terminationBlock (ZeroArgumentBlock)
+	{	Object result = primitive.literalNil();
+		try {
+			result = this.value();
+		} finally {
+			terminationBlock.value();
+		}
+		return result;
+	}
+
+	"Evaluate the receiver. If the receiver is curtailed by an exception,
+	evaluate the (exceptionBlock)."
+	ifCurtailed: exceptionBlock (ZeroArgumentBlock)
+	{	Object result = primitive.literalNil();
+		try {
+			if (false) throw new java.lang.Throwable();
+			result = this.value();
+		} catch( java.lang.Throwable e ) {
+			exceptionBlock.value();
+		}
+		return result;
+	}
+
+	"Evaluates the receiver. If the receiver is curtailed by an (exception),
+	evaluates the (handlerBlock) with the exception as its argument."
+	on: exception do: handlerBlock [
+		^ExceptionHandler 
+			handle: exception 
+			with: handlerBlock 
+			during: self
+	]
+
+"looping"
+
+	"Evaluates (aBlock) while the result of evaluating the receiver is true."
+	whileTrue: aBlock (ZeroArgumentBlock)
+	{	Object result = null;
+		while( primitive.booleanFrom( this.value() ) ) result = aBlock.value();
+		return result;
+	}
+
+	"Evaluates (aBlock) while the result of evaluating the receiver is false."
+	whileFalse: aBlock (ZeroArgumentBlock)
+	{	Object result = null;
+		while( !primitive.booleanFrom( this.value() ) ) result = aBlock.value();
+		return result;
+	}
+
+	"Evaluates the receiver while its result is true."
+	whileTrue
+	{	while( primitive.booleanFrom( this.value() ) ) {}
+		return primitive.literalNil();
+	}
+
+	"Evaluates the receiver while its result is false."
+	whileFalse
+	{	while( !primitive.booleanFrom( this.value() ) ) {}
+		return primitive.literalNil();
+	}
+
+"multithreading"
+
+	"Forks a thread at (priority) to evaluate the receiver."
+	forkAt: priority
+	[	thread (Thread) := Scheduler fork: self at: priority hashCode.
+	]
+
+	"Forks a thread at normal priority to evaluate the receiver."
+	fork
+	[	thread (Thread) := Scheduler fork: self at: Scheduler normalPriority hashCode.
+	]
+]

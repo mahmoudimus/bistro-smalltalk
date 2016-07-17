@@ -1,0 +1,14 @@
+"Interval.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Interval."
+SequencedReadableCollection subtype: Interval
+metatype: [
+
+	"Returns a new Interval from (start) to (stop)."
+	(Interval) from: start (Integer) to: stop (Integer) []
+
+	"Returns a new Interval from (start) to (stop) by (step)."
+	(Interval) from: start (Integer) to: stop (Integer) by: step (Integer) []
+]
+type: []

@@ -1,0 +1,7 @@
+"String.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk String."
+InitializableCollection, ReadableString, SequencedCollection subtype: String
+metatype: []
+type: []

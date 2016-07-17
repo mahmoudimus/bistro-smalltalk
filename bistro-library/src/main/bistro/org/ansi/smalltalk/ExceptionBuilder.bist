@@ -1,0 +1,13 @@
+"ExceptionBuilder.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ExceptionBuilder."
+ExceptionDescription, ExceptionSignaler subtype: ExceptionBuilder
+metatype: []
+type: [
+
+"describing an exception"
+
+	"Establishes (aMessage) for this exception."
+	(ExceptionBuilder) messageText: aMessage (ReadableString) []
+]

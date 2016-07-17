@@ -1,0 +1,22 @@
+"ClassDescription.bist"
+package: smalltalk.behavior;
+
+"Identifies and locates classes within a class hierarchy.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Behavior subclass: ClassDescription
+metaclass: []
+class:
+[
+	"This class is currently a placeholder.
+	It will eventually support descriptive methods."
+
+	"Constructs a new ClassDescription."
+	protected ClassDescription
+	{	super();
+	}
+
+"accessing"
+
+	"Returns the name of the behavior."
+	abstract name []
+]

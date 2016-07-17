@@ -1,0 +1,54 @@
+"TextFileReadStream.bist"
+package: smalltalk.stream;
+import: java.io.RandomAccessFile;
+import: java.io.IOException;
+import: smalltalk.magnitude.Character;
+
+"Supports reading characters sequentially from a text file.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+FileReadStream subclass: TextFileReadStream
+metaclass:
+[
+	"Opens a new instance of the receiver on a (primitiveFile)."
+	protected on: primitiveFile (RandomAccessFile)
+	[	^TextFileReadStream basicNew: primitiveFile
+	]
+]
+class:
+[
+	"Constructs a new TextFileReadStream."
+	protected TextFileReadStream: primitiveFile (RandomAccessFile)
+	{	super( primitiveFile );
+	}
+
+"reading"
+
+	"Returns the next element from the stream."
+	next
+	[	[ ^Character from: file readUnsignedByte ]
+		catch: [ :e (IOException) | ^Character null ]
+	]
+
+	"Returns the next (count) elements from the stream."
+	next: count
+	[	^self nextString: (count as: Integer) asSmallInteger
+	]
+
+	"Returns the next line from the stream."
+	nextLine
+	[	[ ^primitive StringFrom: file readLine ]
+		catch: [ :e (IOException) | ^self class emptyString ]
+	]
+
+	"Returns the elements from the stream up to, but not 
+	including, the next occurrence of (anObject)."
+	upTo: anObject
+	[	result := self class emptyString.
+		[ self atEnd ] whileFalse: [
+			c := self next.
+			c = anObject ifTrue: [ ^result ].
+			result at: result size + 1 put: c.
+		].
+		^result
+	]
+]

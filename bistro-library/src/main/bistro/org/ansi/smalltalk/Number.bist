@@ -1,0 +1,145 @@
+"Number.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Number."
+Magnitude subtype: Number
+metatype: []
+type: [
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aNumber)."
+	(Boolean) = aNumber (Number) []
+
+	"Indicates whether the receiver is less than (aNumber)."
+	(Boolean) < aNumber (Number) []
+
+	"Indicates whether the receiver is more than (aNumber)."
+	(Boolean) > aNumber (Number) []
+
+"converting"
+
+	"Converts the receiver to a fractional approximation."
+	(Rational) asFraction []
+
+	"Returns a floating point approximation of the receiver."
+	(Float) asFloat []
+
+	"Returns a single precision floating point approximation of the receiver."
+	(Float) asFloatE []
+
+	"Returns a double precision floating point approximation of the receiver."
+	(Float) asFloatD []
+
+	"Returns the result of narrowing the receiver to an integer."
+	(Integer) asInteger []
+
+	"Converts the receiver to a fixed point number."
+	(ScaledDecimal) asScaledDecimal: scale (Integer) []
+
+"arithmetic"
+
+	"Returns the sum of the receiver and (aNumber)."
+	(Number) + aNumber (Number) []
+
+	"Returns the difference between the receiver and (aNumber)."
+	(Number) - aNumber (Number) []
+
+	"Returns the product of the receiver and (aNumber)."
+	(Number) * aNumber (Number) []
+
+	"Returns the ratio of the receiver and (aNumber)."
+	(Number) / aNumber (Number) []
+
+	"Returns the integer ratio of the receiver and (aNumber)."
+	(Integer) // aNumber (Number) []
+
+	"Returns the remainder left from dividing the receiver by (aNumber)."
+	(Number) \\ aNumber (Number) []
+
+"mathematics"
+
+	"Returns the absolute value of the receiver."
+	(Number) abs []
+
+	"Returns the fractional part of the receiver."
+	(Number) fractionPart []
+
+	"Returns the integral part of the receiver."
+	(Number) integerPart []
+
+	"Returns the arithmetic inverse of the receiver."
+	(Number) negated []
+
+	"Returns the multiplicative inverse of the receiver."
+	(Number) reciprocal []
+
+	"Returns the quotient from dividing the receiver by (aNumber)."
+	(Integer) quo: aNumber (Number) []
+
+	"Returns the remainder left from dividing the receiver by (aNumber)."
+	(Number) rem: aNumber (Number) []
+
+	"Returns the result of raising the receiver to (aNumber) power."
+	(Number) raisedTo: aNumber (Number) []
+
+	"Returns the result of raising the receiver to (anInteger) power."
+	(Number) raisedToInteger: anInteger (Integer) []
+
+	"Returns the arithmetic sign of the receiver."
+	(Integer) sign []
+
+	"Returns the square root of the receiver."
+	(Number) sqrt []
+
+	"Returns the square of the receiver."
+	(Number) squared []
+
+"truncation"
+
+	"Returns the least integer more than or equal to the receiver."
+	(Integer) ceiling []
+
+	"Returns the greatest integer less than or equal to the receiver."
+	(Integer) floor []
+
+	"Returns the nearest integer between the receiver and zero."
+	(Integer) truncated []
+
+	"Returns the nearest multiple of (aNumber) between the receiver and zero."
+	(Number) truncatedTo: aNumber (Number) []
+
+"rounding"
+
+	"Returns the integer nearest to the receiver."
+	(Integer) rounded []
+
+	"Returns the multiple of (aNumber) nearest to the receiver."
+	(Number) roundTo: aNumber (Number) []
+
+"testing"
+
+	"Indicates whether the receiver is less than zero."
+	(Boolean) negative []
+
+	"Indicates whether the receiver is more than or equal to zero."
+	(Boolean) positive []
+
+	"Indicates whether the receiver is more than zero."
+	(Boolean) strictlyPositive []
+
+"intervals"
+
+	"Returns the interval between the receiver and (aNumber)."
+	(Interval) to: aNumber (Number) []
+
+	"Returns the interval between the receiver and (aNumber) separated by (delta)."
+	(Interval) to: aNumber (Number) by: delta (Number) []
+
+	"Evaluates (aBlock) with an index, which varies by (delta)
+	from the receiver to (aNumber)."
+	(Object) to: aNumber (Number) by: delta (Number) do: aBlock (MonadicBlock) []
+
+	"Evaluates (aBlock) with an index, which varies by one
+	from the receiver to (aNumber)."
+	(Object) to: aNumber (Number) do: aBlock (MonadicBlock) []
+]

@@ -1,0 +1,43 @@
+"TestGeometry.bist"
+package: smalltalk.example;
+import: smalltalk.geometry.*;
+import: smalltalk.stream.Transcript;
+
+"Regression tests the smalltalk.geometry classes.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: TestGeometry
+metaclass: []
+class:
+[
+	"Reports the results of tests on the console."
+	static (void) main: args (java.lang.String[])
+	[
+		[
+			origin := 10 @ 10.
+			corner := 50 @ 50.
+			Transcript
+				print: corner printTerm; print: ' - ';
+				print: origin printTerm; print: ' = ';
+				printLine: (corner - origin) printTerm.
+
+			Transcript
+				print: corner printTerm; print: ' dotProduct: ';
+				print: origin printTerm; print: ' = ';
+				printLine: ( ( corner as: Point ) dotProduct: origin ) printString.
+
+			r := origin corner: corner.
+			Transcript printLine: r printTerm.
+			Transcript print: 'area =   '; printLine: r area printString.
+			Transcript print: 'center = '; printLine: r center printString.
+			Transcript 
+				printLine: 'corners = '; 
+				printLine: r leftTop printString;
+				printLine: r rightTop printString;
+				printLine: r leftBottom printString;
+				printLine: r rightBottom printString.
+		]
+		catch: [ :e (java.lang.Throwable) |
+			e printStackTrace.
+		]
+	]
+]

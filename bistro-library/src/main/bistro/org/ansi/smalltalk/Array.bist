@@ -1,0 +1,7 @@
+"Array.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Array."
+InitializableCollection, SequencedCollection subtype: Array
+metatype: []
+type: []

@@ -1,0 +1,49 @@
+"Scheduler.bist"
+package: smalltalk.behavior;
+
+"Schedules threads for processing.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: Scheduler
+metaclass:
+[
+	"Waits (duration) before resuming execution."
+	wait: duration
+	{	try {
+			Thread.currentThread().sleep( duration.hashCode() );
+		} catch( InterruptedException e ) {
+		}
+		return this;
+	}
+
+	"Forks a new thread to process (aBlock) with the supplied (priority)."
+	(Thread) fork: aBlock (ZeroArgumentBlock) at: priority (int)
+	{	Thread thread = new Thread(
+			new Runnable() {
+				public void run( ) {
+					aBlock.value();
+				}
+			}
+		);
+		thread.setPriority( priority );
+		thread.start();
+		return thread;
+	}
+
+"priorities"
+
+	"Returns the minimum thread priority."
+	minimumPriority
+	{	return primitive.IntegerFrom( Thread.MIN_PRIORITY );
+	}
+
+	"Returns the normal thread priority."
+	normalPriority
+	{	return primitive.IntegerFrom( Thread.NORM_PRIORITY );
+	}
+
+	"Returns the maximum thread priority."
+	maximumPriority
+	{	return primitive.IntegerFrom( Thread.MAX_PRIORITY );
+	}
+]
+class: []

@@ -1,0 +1,93 @@
+"TestIntegers.bist"
+package: smalltalk.example;
+import: smalltalk.magnitude.Time;
+import: smalltalk.stream.Transcript;
+
+"Compares addition versus increment.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: TestIntegers
+class: [
+
+	"Reports the results of integer tests on the console."
+	static (void) main: args (java.lang.String[]) [
+		TestIntegers basicNew testIntegers.
+	]
+
+	unity (SmallInteger) := 1.
+
+	testIntegers [
+		self testFlyweight.
+		self testFullweight.
+		Transcript
+
+			print: '100000 nonweight ops =  ';
+			print: self testNonweight printString;
+			printLine: ' msecs';
+
+			print: '100000 flyweight ops =  ';
+			print: self testFlyweight printString;
+			printLine: ' msecs';
+
+			print: '100000 fullweight ops = ';
+			print: self testFullweight printString;
+			printLine: ' msecs';
+
+			print: '100000 nonweight ops =  ';
+			print: self testNonweight printString;
+			printLine: ' msecs';
+
+			print: '100000 flyweight ops =  ';
+			print: self testFlyweight printString;
+			printLine: ' msecs';
+
+			print: '100000 fullweight ops = ';
+			print: self testFullweight printString;
+			printLine: ' msecs';
+
+			print: '100000 nonweight ops =  ';
+			print: self testNonweight printString;
+			printLine: ' msecs';
+
+			print: '100000 flyweight ops =  ';
+			print: self testFlyweight printString;
+			printLine: ' msecs';
+
+			print: '100000 fullweight ops = ';
+			print: self testFullweight printString;
+			printLine: ' msecs'.
+	]
+
+	fullweightSample {
+		return primitive.IntegerFrom( java.lang.Short.MAX_VALUE + 2 );
+	}
+
+	testFlyweight [
+		test (SmallInteger) := 0 + 1.
+		^Time millisecondsToRun: [
+			100000 timesRepeat: [
+				test := test - unity.
+				test := test + unity.
+			]
+		]
+	]
+
+	testFullweight [
+		test (SmallInteger) := self fullweightSample.
+		^Time millisecondsToRun: [
+			100000 timesRepeat: [
+				test := test + unity.
+				test := test - unity.
+			]
+		]
+	]
+
+	testNonweight [
+		test (FastInteger) := self fullweightSample asFastInteger.
+		^Time millisecondsToRun: [
+			100000 timesRepeat: [
+				test += unity.
+				test -= unity.
+			]
+		]
+	]
+]

@@ -1,0 +1,308 @@
+"OrderedCollection.bist"
+package: smalltalk.collection;
+
+"Represents an ordered, variable sized collection of objects.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+ArrayedCollection subclass: OrderedCollection
+implements: ExtensibleCollection ExcisableCollection ContractibleCollection OrderedCollectionFactory
+metaclass: 
+[
+"converting"
+
+	"Returns an OrderedCollection which contains the elements in a (primitiveArray)."
+	OrderedCollectionFrom: primitiveArray (Object[]) {
+		OrderedCollection result = new OrderedCollection( 
+			(Number) primitive.IntegerFrom( primitiveArray.length ) 
+		);
+		for( int i = 0; i < primitiveArray.length; i++ ) {
+			result.add( primitiveArray[i] );
+		}
+		return result;
+	}
+
+	"Returns a primitive array that contains the elements from (anOrderedCollection)."
+	(Object[]) arrayedCollectionFrom: anOrderedCollection [
+		^primitive arrayFrom: anOrderedCollection asArray
+	]
+
+"creating"
+
+	"Returns a new empty OrderedCollection."
+	new
+	[	^self new: 10
+	]
+
+	"Returns a new empty OrderedCollection with the supplied (capacity)."
+	new: capacity
+	{	return new OrderedCollection( (Number) capacity );
+	}
+
+	"Returns a new OrderedCollection with a (primitiveList) as its contents."
+	from: primitiveList (java.util.List)
+	[	^OrderedCollection basicNew: primitiveList
+	]
+
+	"Returns a new OrderedCollection with synchronized access to a (primitiveList)."
+	synchronizedFrom: primitiveList (java.util.List)
+	[	^OrderedCollection basicNew: (
+			java.util.Collections synchronizedList: primitiveList
+		)
+	]
+]
+class: 
+[
+	"Contains the collection elements."
+	contents (java.util.List).
+
+	"Constructs a new (empty) OrderedCollection."
+	protected OrderedCollection
+	[	contents := java.util.ArrayList basicNew.
+	]
+
+	"Constructs a new OrderedCollection."
+	protected OrderedCollection: capacity (Number)
+	[	contents := java.util.ArrayList basicNew: capacity primitiveInteger.
+	]
+
+	"Constructs a new OrderedCollection with a (primitiveList)."
+	protected OrderedCollection: primitiveList (java.util.List)
+	[	contents := primitiveList.
+	]
+
+"accessing"
+
+	"Returns the primitive contents of the receiver."
+	(java.util.List) primitiveContents
+	[	^contents
+	]
+
+	"Returns the number of elements contained in the receiver."
+	size
+	[	^primitive IntegerFrom: contents size
+	]
+
+"accessing elements"
+
+	"Returns the element at (index), or evaluates (aBlock),
+	if the receiver does not include an (index)."
+	at: index ifAbsent: aBlock (ZeroArgumentBlock)
+	[	i (int) := self checkIndex: index ifAbsent: aBlock.
+		result (smalltalk.behavior.Object) := contents get: i.
+		^result
+	]
+
+	"Returns (element) after storing it at (index) in the receiver."
+	at: index put: element
+	[	i (int) := self checkRange: index.
+		(primitive IntegerFrom: i) < self size
+			ifTrue: [ contents set: i : element. ]
+			ifFalse: [ contents add: element. ].
+
+		^element
+	]
+
+"adding elements"
+
+	"Returns an (element) after adding it to the receiver."
+	add: element
+	[	^self addLast: element
+	]
+
+	"Returns a collection of (elements) after adding them to the receiver."
+	addAll: elements 
+	[	elements do: [ :element | self add: element ].
+		^elements
+	]
+
+	"Returns an (element) after adding it to the receiver at the position
+	after the supplied (target) element."
+	add: element after: target
+	[	^self add: element afterIndex: (
+			self indexOf: target ifAbsent: [ ^self elementNotFound ]
+		)
+	]
+
+	"Returns an (element) after adding it to the receiver at the position 
+	after (index)."
+	add: element afterIndex: index [
+		i (int) := self checkRange: index + 1.
+		contents add: i : element.
+		^element
+	]
+
+	"Returns an (element) after adding it to the receiver at the position
+	before the supplied (target) element."
+	add: element before: target
+	[	^self add: element beforeIndex: (
+			self indexOf: target ifAbsent: [ ^self elementNotFound ]
+		)
+	]
+
+	"Returns an (element) after adding it to the receiver at the position 
+	before (index)."
+	add: element beforeIndex: index [
+		i (int) := self checkRange: index.
+		contents add: i : element.
+		^element
+	]
+
+	"Returns (elements) after inserting them in the receiver at the position
+	after the supplied (target) element."
+	addAll: elements after: target
+	[	^self addAll: elements afterIndex: (
+			self indexOf: target ifAbsent: [ ^self elementNotFound ]
+		)
+	]
+
+	"Returns (elements) after inserting them in the receiver at the position
+	after (index)."
+	addAll: elements afterIndex: index
+	[	elements inject: index into: [ :i :e | 
+			self add: e afterIndex: i. 
+			i + 1 
+		].
+		^elements
+	]
+
+	"Returns (elements) after inserting them in the receiver at the position
+	before the supplied (target) element."
+	addAll: elements before: target
+	[	^self addAll: elements beforeIndex: (
+			self indexOf: target ifAbsent: [ ^self elementNotFound ]
+		)
+	]
+
+	"Returns (elements) after inserting them in the receiver at the position
+	before (index)."
+	addAll: elements beforeIndex: index
+	[	elements inject: index into: [ :i :e | 
+			self add: e beforeIndex: i. 
+			i + 1 
+		].
+		^elements
+	]
+
+	"Returns (elements) after inserting them at the beginning of the receiver."
+	addAllFirst: elements
+	[	elements reverseDo: [ :element | self addFirst: element ].
+		^elements
+	]
+
+	"Returns (elements) after appending them to the end of the receiver."
+	addAllLast: elements
+	[	elements do: [ :element | self addLast: element ].
+		^elements
+	]
+
+	"Returns an (element) after inserting it at the beginning of the receiver."
+	addFirst: element
+	[	self add: element beforeIndex: 1.
+		^element
+	]
+
+	"Returns an (element) after appending it to the end of the receiver."
+	addLast: element
+	[	contents add: element.
+		^element
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection (OrderedCollection)
+	[	^primitive BooleanFrom: 
+			(contents equals: aCollection primitiveContents)
+	]
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection
+	[	[ ^self = (aCollection as: OrderedCollection) ]
+			catch: [ :e (java.lang.ClassCastException) | ^false ]
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	[	^contents hashCode
+	]
+
+"removing elements"
+
+	"Returns the element at (index) after removing it from the receiver."
+	removeAtIndex: index ifAbsent: aBlock (ZeroArgumentBlock)
+	[	i (int) := self checkIndex: index ifAbsent: aBlock.
+		^(contents remove: i) as: smalltalk.behavior.Object
+	]
+
+	"Returns the element at (index) after removing it from the receiver."
+	removeAtIndex: index 
+	[	^self removeAtIndex: index 
+			ifAbsent: [ ^self indexRangeError ]
+	]
+
+	"Returns an (element) after removing it from the receiver."
+	remove: element 
+	[	^self remove: element 
+			ifAbsent: [ ^self elementNotFound ]
+	]
+
+	"Returns an (element) after removing it from the receiver, 
+	or evaluates (aBlock) if the (element) is absent."
+	remove: element ifAbsent: aBlock (ZeroArgumentBlock) 
+	[	^self removeAtIndex: ( 
+			self indexOf: element ifAbsent: aBlock
+		)
+	]
+
+	"Returns (elements) after removing the first occurrence of each
+	from the receiver."
+	removeAll: elements 
+	[	elements do: [ :element | self remove: element ].
+		^elements
+	]
+
+	"Removes elements selected by the supplied (criteria) from the receiver."
+	removeAllSuchThat: criteria 
+	[	result := self class new: 10.
+		1 to: self size do: [ :index |
+			element := self at: index.
+			(criteria value: element) ifTrue: [
+				result add: element.
+				self removeAtIndex: index
+			]
+		].
+		^result
+	]
+
+	"Returns the first element of the receiver after removing it."
+	removeFirst
+	[	self emptyCheck.
+		^(contents remove: 0 asPrimitive) as: smalltalk.behavior.Object
+	]
+
+	"Returns the last element of the receiver after removing it."
+	removeLast
+	[	self emptyCheck.
+		^(contents remove: contents size - 1) as: smalltalk.behavior.Object
+	]
+
+	"Removes the first (count) elements from the receiver."
+	removeFirst: count 
+	[	result := self class new: count.
+		count timesRepeat: [ result add: self removeFirst ].
+		^result
+	]
+
+	"Removes the last (count) elements from the receiver."
+	removeLast: count
+	[	result := self class new: count.
+		count timesRepeat: [ result add: self removeLast ].
+		^result
+	]
+
+"streaming"
+
+	"Returns a new stream for appending to the receiver."
+	writeStream
+	[	^'smalltalk.stream.WriteStream' resolvedToClass on: self
+	]
+]

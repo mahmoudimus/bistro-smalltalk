@@ -1,0 +1,47 @@
+"Magnitude.bist"
+package: smalltalk.magnitude;
+
+"Supports comparisons between (typically scalar) magnitudes.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Object subclass: Magnitude
+implements: Comparison
+metaclass: []
+class:
+[
+"comparing"
+
+	"Indicates whether the receiver is less than or equal to (aMagnitude)."
+	<= aMagnitude
+	[	^((aMagnitude as: Magnitude) < self) == false
+	]
+
+	"Indicates whether the receiver is more than (aMagnitude)."
+	> aMagnitude
+	[	^(aMagnitude as: Magnitude) < self
+	]
+
+	"Indicates whether the receiver is more than or equal to (aMagnitude)."
+	>= aMagnitude
+	[	^(self < aMagnitude) == false
+	]
+
+	"Indicates whether the receiver is between (minimum) and (maximum)."
+	between: minimum and: maximum
+	[	^( minimum <= self ) and: [ self <= maximum ]
+	]
+
+	"Indicates whether the receiver is inside (minimum) and (maximum)."
+	inside: minimum and: maximum
+	[	^( minimum < self ) and: [ self < maximum ]
+	]
+
+	"Returns the greater of the receiver and (aMagnitude)."
+	max: aMagnitude
+	[	^self > aMagnitude ifTrue: [ self ] ifFalse: [ aMagnitude ]
+	]
+
+	"Returns the lesser of the receiver and (aMagnitude)."
+	min: aMagnitude
+	[	^self < aMagnitude ifTrue: [ self ] ifFalse: [ aMagnitude ]
+	]
+]

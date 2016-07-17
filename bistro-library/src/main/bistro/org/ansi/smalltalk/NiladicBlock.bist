@@ -1,0 +1,19 @@
+"NiladicBlock.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk NiladicBlock."
+NiladicValuable subtype: NiladicBlock
+metatype: []
+type: [
+
+	"Evaluates the (terminationBlock) after evaluating the receiver."
+	(Any) ensure: terminationBlock (NiladicBlock) []
+
+	"Evaluates the (terminationBlock) if an exception occurs 
+	during the evaluation of the receiver."
+	(Any) ifCurtailed: terminationBlock (NiladicBlock) []
+
+	"Evaluates (aBlock) if the (exception) is signaled during 
+	the evaluation of the receiver."
+	(Any) on: exception (ExceptionSelector) do: aBlock (MonadicBlock) []
+]

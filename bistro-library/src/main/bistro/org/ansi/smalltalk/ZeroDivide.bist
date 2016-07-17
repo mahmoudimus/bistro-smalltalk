@@ -1,0 +1,15 @@
+"ZeroDivide.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ZeroDivide."
+Error subtype: ZeroDivide
+metatype: [
+
+	"Signals the occurrence of a division by zero."
+	(Object) dividend: aDividend (Number) []
+]
+type: [
+
+	"Returns the number that was being divided by zero."
+	(Number) dividend []
+]

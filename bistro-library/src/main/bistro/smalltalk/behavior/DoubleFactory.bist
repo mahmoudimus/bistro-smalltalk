@@ -1,0 +1,15 @@
+"DoubleFactory.bist"
+package: smalltalk.behavior;
+
+"Supports behavior for converting between primitive doubles and Doubles.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: DoubleFactory
+metatype:
+[
+	"Returns a Double whose value is (primitiveDouble)."
+	DoubleFrom: primitiveDouble (double) []
+
+	"Returns the primitive double value indicated by (aDouble)."
+	(double) doubleFrom: aDouble []
+]
+type: []

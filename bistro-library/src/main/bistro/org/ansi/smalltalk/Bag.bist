@@ -1,0 +1,12 @@
+"Bag.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Bag."
+InitializableCollection, ExtensibleCollection
+subtype: Bag
+metatype: []
+type: [
+
+	"Returns an (element) after adding it to the receiver with a (count)."
+	(Object) add: element (Object) withOccurrences: count (Integer) []
+]

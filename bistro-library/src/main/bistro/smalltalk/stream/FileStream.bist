@@ -1,0 +1,220 @@
+"FileStream.bist"
+package: smalltalk.stream;
+import: smalltalk.magnitude.LongInteger;
+import: smalltalk.collection.ByteArray;
+import: smalltalk.collection.Dictionary;
+import: java.io.RandomAccessFile;
+import: java.io.FileNotFoundException;
+import: java.io.IOException;
+
+"Supports reading and writing a file.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract PositionableStream subclass: FileStream
+metaclass:
+[
+	"Indicates read mode (to a RandomAccessFile)."
+	protected readMode (String) := 'r'.
+
+	"Indicates write mode (to a RandomAccessFile)."
+	protected writeMode (String) := 'rw'.
+
+	"Maps open modes and types to their concrete stream class names."
+	protected openingMap (Dictionary).
+
+	"Initializes the stream class name map."
+	protected initialize
+	[	openingMap := Dictionary new.
+		openingMap
+			at: 'rtext' put: 'smalltalk.stream.TextFileReadStream';
+			at: 'rwtext' put: 'smalltalk.stream.TextFileWriteStream';
+			at: 'rbinary' put: 'smalltalk.stream.BinaryFileReadStream';
+			at: 'rwbinary' put: 'smalltalk.stream.BinaryFileWriteStream';
+			yourself.
+
+		^self
+	]
+
+	"Opens a new instance of the receiver on a (primitiveFile)."
+	protected on: primitiveFile (RandomAccessFile)
+	[	^nil
+	]
+
+	"Returns the stream class to instantiate when opening a file of type
+	(fileType) for mode (fileMode)."
+	protected streamClass: fileMode (String) type: fileType (Symbol)
+	[	modeType (String) := fileMode , fileType.
+		className (String) := openingMap at: fileMode , fileType.
+		^className resolvedToClass
+	]
+
+	"Returns a primitive file named (fileName)."
+	protected (java.io.File) fileNamed: fileName (String) mode: fileMode (String)
+	{	java.lang.String name = fileName.primitiveString();
+		java.io.File file = new java.io.File( name );
+		if (fileMode == readMode && !file.exists()) {
+			fileNotFound(fileName);
+			return null;
+		}
+		return file;
+	}
+	
+	"Signals a file not found exception."
+	fileNotFound: aFilePath [
+		FileNotFound filePath: aFilePath.
+	]
+
+	"Returns a primitive random access file."
+	protected (RandomAccessFile) randomFile: file (java.io.File) mode: mode (String)
+	{	try {
+			if (file == null) return null;
+			return new RandomAccessFile( file, mode.primitiveString() );
+		} catch( IOException e ) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	"Returns a file stream on a file of type (fileType) 
+	named (fileName) opened in (fileMode)."
+	protected open: fileName (String) 
+	mode: fileMode (String) type: fileType (Symbol)
+	{	java.io.File file = this.fileNamed_mode( fileName, fileMode );
+		RandomAccessFile rFile = this.randomFile_mode( file, fileMode );
+		FileStream.mClass streamClass = 
+			(FileStream.mClass) this.streamClass_type( fileMode, fileType );
+
+		if (rFile == null || streamClass == null) return primitive.literalNil();
+		return streamClass.on( rFile );
+	}
+
+	"Returns a new FileReadStream on (fileName) of type (fileType).
+	The fileType must be #binary or #text."
+	read: fileName type: fileType
+	[	^self 
+			open: (fileName as: String)
+			mode: readMode
+			type: (fileType as: Symbol)
+	]
+
+	"Returns a new FileReadStream on (fileName)."
+	read: fileName
+	[	^self read: fileName type: #text
+	]
+
+	"Returns a new FileWriteStream on (fileName) of type (fileType).
+	The fileType must be #binary or #text."
+	write: fileName type: fileType
+	[	^self 
+			open: (fileName as: String)
+			mode: writeMode
+			type: (fileType as: Symbol)
+	]
+
+	"Returns a new FileWriteStream on (fileName)."
+	write: fileName
+	[	^self write: fileName type: #text
+	]
+]
+class:
+[
+	"Refers to the primitive file."
+	file (RandomAccessFile).
+
+	"Constructs a new FileStream given its (primitiveFile)."
+	protected FileStream: primitiveFile (RandomAccessFile)
+	[	file := primitiveFile.
+	]
+
+"accessing"
+
+	"Returns the entire contents of the stream."
+	contents
+	[	position := self position.
+		self reset.
+		result := self next: self length.
+		self position: position.
+		^result
+	]
+
+	"Returns the next (count) bytes from the stream."
+	protected nextBytes: count (SmallInteger)
+	[	result (ByteArray) := ByteArray new: count.
+		[ file readFully: result primitiveContents. ]
+		catch: [ :e (IOException) | ].
+		^result
+	]
+
+	"Returns the next (count) characters from the stream."
+	protected nextString: count (SmallInteger)
+	[	^primitive StringFrom: (
+			java.lang.String basicNew: 
+				((self nextBytes: count) as: ByteArray) primitiveContents
+		)
+	]
+
+	"Returns the next (count) elements from the stream."
+	abstract next: count []
+
+"testing"
+
+	"Indicates whether the end of the stream was reached."
+	atEnd
+	[	[	length (long) := file length.
+			position (long) := file getFilePointer.
+			^primitive BooleanFrom: position == length
+		]
+		catch: [ :e (IOException) | ^true ]
+	]
+
+	"Indicates whether the file is empty."
+	isEmpty
+	[	[	length (long) := file length.
+			^primitive BooleanFrom: length == 0
+		]
+		catch: [ :e (IOException) | ^true ]
+	]
+
+"managing"
+
+	"Closes the primitive file."
+	close
+	[	[ file close. ] 
+		catch: [ :e (IOException) | ].
+	]
+
+"positioning"
+
+	"Returns the current length of the file."
+	length
+	[	[ ^LongInteger from: file length ]
+		catch: [ :e (IOException) | ^0 ]
+	]
+
+	"Returns the current position within the file."
+	position
+	[	[ ^LongInteger from: file getFilePointer ]
+		catch: [ :e (IOException) | ^0 ]
+	]
+
+	"Establishes the current position within the file."
+	position: position (LongInteger)
+	[	[ file seek: position primitiveLong. ]
+		catch: [ :e (IOException) | ]
+	]
+
+	"Establishes the current position within the file."
+	position: position
+	[	self position: (position as: Integer) asLongInteger.
+	]
+
+	"Resets the position to the beginning of the file."
+	reset
+	[	self position: 0.
+	]
+
+	"Repositions to the end of the file."
+	setToEnd
+	[	[ file seek: file length. ]
+		catch: [ :e (IOException) | ]
+	]
+]

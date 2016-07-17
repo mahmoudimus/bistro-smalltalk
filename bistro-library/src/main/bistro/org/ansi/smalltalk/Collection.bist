@@ -1,0 +1,94 @@
+"Collection.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Collection."
+Object subtype: Collection
+metatype:
+[
+"creating instances"
+
+	"Returns a new collection that can hold (count) objects."
+	(Collection) new: count (Integer) []
+]
+type:
+[
+"accessing"
+
+	"Returns the number of elements in the receiver that are equal to (anObject)."
+	(Integer) occurrencesOf: anObject (Object) []
+
+	"Establishes any hash invariants."
+	(Object) rehash []
+
+	"Returns the number of elements contained in the receiver."
+	(Integer) size []
+
+"converting"
+
+	"Returns an Array that contains the receiver elements."
+	(Array) asArray []
+
+	"Returns a Bag that contains the receiver elements."
+	(Bag) asBag []
+
+	"Returns an OrderedCollection that contains the receiver elements."
+	(OrderedCollection) asOrderedCollection []
+
+	"Returns a Set that contains the receiver elements."
+	(Set) asSet []
+
+	"Returns a SortedCollection that contains the receiver elements."
+	(SortedCollection) asSortedCollection []
+
+	"Returns a SortedCollection that contains the receiver elements."
+	(SortedCollection) asSortedCollection: sortBlock (DyadicValuable) []
+
+"enumerating"
+
+	"Returns a new collection created passing the receiver elements
+	through a (filterBlock)."
+	(Collection) collect: filterBlock (MonadicValuable) []
+
+	"Returns an element that satisfies a (testBlock)."
+	(Object) detect: testBlock (MonadicValuable) []
+
+	"Returns an element that satisfies a (testBlock), or evaluates
+	(exceptionBlock) if the receiver contains no such element."
+	(Object) detect: testBlock (MonadicValuable)
+	ifNone: exceptionBlock (NiladicValuable) []
+
+	"Evaluates (aBlock) with each receiver element."
+	(Object) do: aBlock (MonadicValuable) []
+
+	"Evaluates (aBlock) with each receiver element and evaluates 
+	(separateBlock) in between the elements."
+	(Object) do: aBlock (MonadicValuable)
+	separatedBy: separateBlock (NiladicValuable) []
+
+	"Evaluates a (binaryBlock) with each receiver element and the
+	result of the previous evaluation, starting with (value)."
+	(Object) inject: value (Object) into: binaryBlock (DyadicValuable) []
+
+	"Returns a new collection that contains the elements not selected by a (testBlock)."
+	(Collection) reject: testBlock (MonadicValuable) []
+
+	"Returns a new collection that contains the elements selected by a (testBlock)."
+	(Collection) select: testBlock (MonadicValuable) []
+
+"testing"
+
+	"Indicates whether all receiver elements satisfy a (testBlock)."
+	(Boolean) allSatisfy: testBlock (MonadicBlock) []
+
+	"Indicates whether any receiver element satisfies a (testBlock)."
+	(Boolean) anySatisfy: testBlock (MonadicBlock) []
+
+	"Indicates whether the receiver includes (anObject)."
+	(Boolean) includes: anObject (Object) []
+
+	"Indicates whether the receiver is empty."
+	(Boolean) isEmpty []
+
+	"Indicates whether the receiver is not empty."
+	(Boolean) notEmpty []
+]

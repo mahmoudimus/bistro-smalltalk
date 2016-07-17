@@ -1,0 +1,19 @@
+"TwoArgumentBlock.bist"
+package: smalltalk.behavior;
+
+"Supports the instantiation and evaluation of blocks with two arguments.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+BlockClosure subclass: TwoArgumentBlock
+metaclass: []
+class:
+[
+	"Returns the block argument count."
+	argumentCount [
+		^2
+	]
+
+	"Evaluates the receiver with two arguments."
+	value: firstObject value: secondObject 
+	[	^nil
+	]
+]

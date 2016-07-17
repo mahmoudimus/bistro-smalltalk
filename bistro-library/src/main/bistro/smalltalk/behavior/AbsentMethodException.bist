@@ -1,0 +1,20 @@
+"AbsentMethodException.bist"
+package: smalltalk.behavior;
+
+"Indicates that the VM was unable to locate a method dynamically.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+
+RuntimeException subclass: AbsentMethodException
+class: [
+
+	"Constructs a new AbsentMethodException."
+	AbsentMethodException {
+		super();
+	}
+
+	"Constructs a new AbsentMethodException.
+	@param message an exception message."
+	AbsentMethodException:  message (java.lang.String) {
+		super( message );
+	}
+]

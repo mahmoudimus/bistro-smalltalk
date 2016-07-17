@@ -1,0 +1,168 @@
+"Set.bist"
+package: smalltalk.collection;
+
+"Represents a set of objects, each of which occurs only once. Supports
+instantiation with a primitive java.util.Set. Uses a java.util.HashSet as
+the default primitive contents.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Collection subclass: Set
+implements: ExtensibleCollection ExcisableCollection
+metaclass:
+[
+	"Returns a new empty Set with the supplied (capacity)."
+	new
+	[	^self new: 10
+	]
+
+	"Returns a new empty Set with the supplied (capacity)."
+	new: capacity
+	[	c (Number) := capacity.
+		^Set basicNew: c
+	]
+
+	"Returns a new Set with a (primitiveSet) as its contents."
+	from: primitiveSet (java.util.Set)
+	[	^Set basicNew: primitiveSet
+	]
+
+	"Returns a new Set with synchronized access to a (primitiveSet) as its contents."
+	synchronizedFrom: primitiveSet (java.util.Set)
+	[	^Set basicNew: (java.util.Collections synchronizedSet: primitiveSet)
+	]
+]
+class:
+[
+	"Contains the set elements."
+	contents (java.util.Set).
+
+	"Constructs a new (empty) Set."
+	protected Set
+	[	contents := java.util.HashSet basicNew.
+	]
+
+	"Constructs a new Set given its initial (capacity)."
+	protected Set: capacity (Number)
+	[	contents := java.util.HashSet basicNew: capacity primitiveInteger.
+	]
+
+	"Constructs a new Set with a (primitiveSet)."
+	protected Set: primitiveSet (java.util.Set)
+	[	contents := primitiveSet.
+	]
+
+"accessing"
+
+	"Returns the primitive contents of the receiver."
+	(java.util.Set) primitiveContents
+	[	^contents
+	]
+
+	"Returns the number of elements contained in the receiver."
+	size
+	[	^primitive IntegerFrom: contents size
+	]
+
+"adding elements"
+
+	"Returns an (element) after adding it to the receiver."
+	add: element
+	[	contents add: element.
+		^element
+	]
+
+	"Returns a collection of (elements) after adding them to the receiver."
+	addAll: elements
+	[	elements do: [ :element | self add: element ].
+		^elements
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection (Set)
+	[	^primitive BooleanFrom: 
+			(contents equals: aCollection primitiveContents)
+	]
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection
+	[	[ ^self = (aCollection as: Set) ]
+			catch: [ :e (java.lang.ClassCastException) | ^false ]
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	[	^contents hashCode
+	]
+
+"converting"
+
+	"Returns a Set that contains the elements of the receiver."
+	asSet
+	[	^self
+	]
+
+"enumerating"
+
+	"Evaluates (aBlock) with each receiver element."
+	do: aBlock (OneArgumentBlock)
+	{	// optimizes iteration over the elements
+		java.util.Iterator it = contents.iterator();
+		while( it.hasNext() ) aBlock.value( (Object) it.next() );
+		return this;
+	}
+
+"removing elements"
+
+	"Returns an (element) after removing it from the receiver."
+	remove: element 
+	[	^self remove: element 
+			ifAbsent: [ ^self elementNotFound ]
+	]
+
+	"Returns an (element) after removing it from the receiver, 
+	or evaluates (aBlock) if the (element) is absent."
+	remove: element ifAbsent: aBlock (ZeroArgumentBlock)
+	[	removed (boolean) := contents remove: element.
+		(primitive BooleanFrom: removed) ifFalse: aBlock.
+		^element
+	]
+
+	"Returns (elements) after removing the first occurrence of each
+	from the receiver."
+	removeAll: elements 
+	[	elements do: [ :element | self remove: element ].
+		^elements
+	]
+
+	"Removes elements selected by the supplied (criteria) from the receiver."
+	removeAllSuchThat: criteria 
+	[	result := self class new: 10.
+		self do: [ :element |
+			(criteria value: element) ifTrue: [
+				result add: element.
+				self remove: element
+			]
+		].
+		^result
+	]
+
+"streaming"
+
+	"Returns a new stream for appending to the receiver."
+	writeStream
+	[	^'smalltalk.stream.WriteStream' resolvedToClass on: self
+	]
+
+"testing"
+
+	"Indicates whether the receiver is empty."
+	isEmpty
+	[	^primitive BooleanFrom: contents isEmpty
+	]
+
+	"Indicates whether the receiver includes (anObject)."
+	includes: anObject
+	[	^primitive BooleanFrom: (contents contains: anObject)
+	]
+]

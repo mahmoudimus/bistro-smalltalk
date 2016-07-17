@@ -1,0 +1,90 @@
+"Association.bist"
+package: smalltalk.magnitude;
+
+"Represents a key-value pair.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Magnitude subclass: Association
+implements: Comparison
+metaclass: 
+[
+"creating instances"
+
+	"Returns a new instance that associates a (key) and a (value)."
+	key: aKey value: aValue
+	[	^Association basicNew: aKey : aValue
+	]
+]
+class:
+[
+	"Refers to the key."
+	key.
+
+	"Refers to the value."
+	value.
+
+	"Constructs a new Association."
+	protected Association: aKey : aValue
+	[	self key: aKey value: aValue.
+	]
+
+	"Constructs a new Association."
+	protected Association
+	[	key := nil.
+		value := nil.
+	]
+
+
+"accessing"
+
+	"Returns the association key."
+	key
+	[	^key
+	]
+
+	"Establishes the association key."
+	key: aKey
+	[	key := aKey.
+	]
+
+	"Establishes the association key and value."
+	key: aKey value: aValue
+	[	key := aKey.
+		value := aValue.
+	]
+
+	"Returns the association value."
+	value
+	[	^value
+	]
+
+	"Establishes the association value."
+	value: aValue
+	[	value := aValue.
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (anObject)."
+	= anAssociation
+	[	^self species == anAssociation species 
+		and: [ self key = anAssociation key 
+		and: [ self value = anAssociation value ]]
+	]
+
+	"Indicates whether the receiver is less than (aMagnitude)."
+	< anAssociation
+	[	^self key < anAssociation key
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	[	^key hashCode
+	]
+
+"printing"
+
+	"Returns a printable representation of the receiver."
+	printString
+	[	^key printString , ' >> ' , value printString
+	]
+]

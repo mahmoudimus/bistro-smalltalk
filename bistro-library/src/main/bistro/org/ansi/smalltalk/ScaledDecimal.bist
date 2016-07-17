@@ -1,0 +1,13 @@
+"ScaledDecimal.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ScaledDecimal."
+Number subtype: ScaledDecimal
+metatype: []
+type:
+[
+"accessing"
+
+	"Returns the scale."
+	(Integer) scale []
+]

@@ -1,0 +1,11 @@
+"MonadicValuable.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk MonadicValuable."
+Valuable subtype: MonadicValuable
+metatype: []
+type: [
+
+	"Returns the result of evaluating the receiver."
+	(Any) value: argument (Any) []
+]

@@ -1,0 +1,24 @@
+"ExtensibleCollection.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ExtensibleCollection."
+Collection subtype: ExtensibleCollection
+metatype: []
+type:
+[
+	"Adds an (element) to the receiver."
+	(Object) add: element (Object) []
+
+	"Adds a collection of (elements) to the receiver."
+	(Object) addAll: elements (Collection) []
+
+	"Removes an (element) from the receiver."
+	(Object) remove: element (Object) []
+
+	"Removes an (element) from the receiver, or evaluates (aBlock)
+	if the (element) is absent."
+	(Object) remove: element (Object) ifAbsent: aBlock (NiladicValuable) []
+
+	"Removes a collection of (elements) from the receiver."
+	(Object) removeAll: elements (Collection) []
+]

@@ -1,0 +1,299 @@
+"ExceptionHandler.bist"
+package: smalltalk.behavior;
+import: java.util.Collections;
+import: java.util.HashMap;
+import: java.util.Map;
+
+"Handles an exception raised by a thread.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: ExceptionHandler
+metaclass:
+[
+"creating exception handlers"
+
+	"Returns a new exception handler and activates it during the evaluation of (aBlock)."
+	handle: exceptionClass with: handlerBlock during: aBlock [
+		result (ExceptionHandler) := ExceptionHandler basicNew.
+		^result exception: exceptionClass;
+			response: handlerBlock;
+			activateDuring: aBlock
+	]
+
+"initializing"
+
+	"Initializes this metaclass."
+	protected initialize [
+		self initializeRegistry.
+	]
+
+"managing exception handlers"
+
+	"Contains the exception environment for each active thread."
+	private handlerRegistry (Map).
+
+	"Initializes the exception handler registry."
+	private initializeRegistry {
+		handlerRegistry = Collections.synchronizedMap( new HashMap() );
+		return this;
+	}
+
+	"Returns the exception handler for the current thread, or nil if none exists."
+	environmentForCurrentThread {
+		Object result = (Object) handlerRegistry.get( Thread.currentThread() );
+		if (result == null) {
+			return primitive.literalNil();
+		} else {
+			return result;
+		}
+	}
+
+	"Establishes the supplied (exceptionHandler) as the environment for the current thread."
+	environment: exceptionHandler {
+		handlerRegistry.put( Thread.currentThread(), exceptionHandler );
+		return this;
+	}
+
+"reevaluating"
+
+	"Returns the value that indicates that the protected block should be reevaluated."
+	retryToken [
+		^self
+	]
+]
+class:
+[
+"accessing the exception (class) handled"
+
+	"Identifies the exception handled by this exception handler."
+	exception.
+
+	"Returns the class of exception handled by the receiver."
+	exception [
+		^exception
+	]
+
+	"Establishes the kind (class) of exception handled."
+	exception: exceptionClass [
+		exception := exceptionClass.
+	]
+
+"accessing the current exception environment"
+
+	"Returns the current exception environment."
+	environment [
+		^self class environmentForCurrentThread
+	]
+
+	"Establishes the current exception environment."
+	environment: exceptionHandler [
+		self class environment: exceptionHandler.
+	]
+
+"accessing the previous exception environment"
+
+	"Identifies the previous exception environment."
+	previous.
+
+	"Returns the exception environment that was active before the receiver was activated."
+	previous [
+		^previous
+	]
+
+	"Establishes the exception environment that was active before the receiver was activated."
+	previous: aValue [
+		previous := aValue.
+	]
+
+"accessing the protected block."
+
+	"Handles the exception raised."
+	responseBlock.
+
+	"Returns the block to evaluate if this handler is activated."
+	protected response [
+		^responseBlock
+	]
+
+	"Establishes (aBlock) to evaluate if this handler is activated."
+	protected response: aBlock [
+		responseBlock := aBlock.
+	]
+
+"activating a handler"
+
+	"Activates the receiver during the evaluation of (aBlock)."
+	protected activateDuring: aBlock (ZeroArgumentBlock) [
+		result := nil.
+		environment := self environment.
+		self previous: environment.
+		self retryBlock: aBlock.
+		[	self environment: self.
+			[	result := self evaluateProtectedBlock: self retryBlock.
+				result == self class retryToken
+			]
+			whileTrue: [].
+		]
+		ensure: [
+			self environment: environment.
+		].
+		^result
+	]
+
+	"Activates the receiver during the evaluation of (aBlock)."
+	protected activateDuring: aBlock [
+		^self activateDuring: (aBlock as: ZeroArgumentBlock)
+	]
+
+"evaluating blocks"
+
+	"Evaluates (aBlock) after establishing a continuation block."
+	protected evaluateProtectedBlock: aBlock (ZeroArgumentBlock) [
+		self continuation: [ :result | ^result ].
+		^aBlock value
+	]
+
+	"Evaluates (aBlock) after establishing a continuation block."
+	protected evaluateProtectedBlock: aBlock [
+		^self evaluateProtectedBlock:
+			(aBlock as: ZeroArgumentBlock)
+	]
+
+	"Evaluates (aBlock) after establishing a continuation for the result."
+	protected evaluateResponseBlock: aBlock (OneArgumentBlock) with: anException [
+		self resultContinuation: [ :result | ^result ].
+		^aBlock value: anException
+	]
+
+	"Evaluates (aBlock) after establishing a continuation for the result value."
+	protected evaluateResponseBlock: aBlock for: anException [
+		aBlock argumentCount = 0 ifTrue: [ ^aBlock value ] ifFalse: [ 
+			^self evaluateResponseBlock: (aBlock as: OneArgumentBlock) with: anException
+		]
+	]
+
+"handling an exception"
+
+	"Returns a handler that will handle (anException)."
+	handlerFor: anException [
+		handler := self.
+		environment := self environment.
+
+		"use default environment if an exception occurs while searching for handler "
+		self environment: nil.
+		[ handler isNil ] whileFalse: [
+			(handler exception handles: anException) ifTrue: [
+	 			self environment: environment.
+				^handler
+			].
+			handler := handler previous.
+		].
+		^nil
+	]
+
+	"Finds and activates an exception handler for (anException)."
+	findHandler: anException [
+		environment := self environment.
+		handler := self handlerFor: anException.
+		handler isNil ifFalse: [ ^handler handle: anException ].
+		self environment: anException signalEnvironment.
+		result := anException defaultAction.
+		self environment: environment.
+		^result
+	]
+
+	"Handles (anException)."
+	handle: anException [
+		result := nil.
+		environment := self environment.
+		[	self environment: self previous.
+			anException activeHandler: self.
+			result := self evaluateResponseBlock: 
+				self response for: anException.
+		]
+		ensure: [
+			anException activeHandler: nil.
+			self environment: environment.
+		].
+		anException isResumable ifTrue: [ ^result ].
+		self continuation value: result. "never returns"
+	]
+
+	"Activates any enclosing handlers which handle (anException)."
+	passFrom: anException [
+		currentResultContinuation := self resultContinuation.
+		result := anException handle.
+		anException activeHandler: self.
+		self resultContinuation: currentResultContinuation.
+		^result
+	]
+
+"reevaluating"
+
+	"Identifies the activity during reevaluation."
+	retryBlock (ZeroArgumentBlock).
+
+	"Abort the current exception processing and reattempt evaluation of the protected block."
+	retry [
+		self continuation value: self class retryToken. "never returns"
+	]
+
+	"Abort the current exception processing and reattempt it using (aBlock)."
+	retry: aBlock [
+		self retryBlock: aBlock.
+		self retry.
+	]
+
+	"Returns the block which the handler will retry if needed."
+	protected retryBlock [
+		^retryBlock
+	]
+
+	"Establishes (aBlock) which the handler will retry if needed."
+	protected retryBlock: aBlock [
+		retryBlock := aBlock.
+	]
+
+"terminating block execution"
+
+	"Terminates execution of the protected block."
+	continuation.
+
+	"Returns the value of continuation."
+	protected continuation [
+		^continuation
+	]
+
+	"Establishes the value of continuation."
+	protected continuation: aValue [
+		continuation := aValue
+	]
+
+	"Returns the the supplied (result) as the value of the block 
+	that is protected by this handler."
+	return: result [
+		self continuation value: result. "never returns"
+	]
+
+"terminating handler execution"
+
+	"Terminates execution of the handler block."
+	resultContinuation (OneArgumentBlock).
+
+	"Returns a block whose evaluation will terminate execution of the handler block. 
+	Its argument is the value to be return by the exception handler."
+	protected resultContinuation [
+		^resultContinuation
+	]
+
+	"Established (aBlock) whose evaluation will terminate execution of the handler block. 
+	Its argument is the value to be return by the exception handler."
+	protected resultContinuation: aBlock [
+		resultContinuation := aBlock.
+	]
+
+	"Return the supplied (result) as the value of the message
+	that signaled the exception processed by this handler."
+	resume: result [
+		self resultContinuation value: result. "never returns"
+	]
+]

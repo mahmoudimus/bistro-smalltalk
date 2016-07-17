@@ -1,0 +1,68 @@
+"Metaclass.bist"
+package: smalltalk.behavior;
+import: smalltalk.Smalltalk;
+
+"Supports metabehavior for classes.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+ClassDescription subclass: Metaclass
+metaclass: 
+[
+"creating metaclasses"
+
+	"Returns a new instance of Metaclass, but this will never be used."
+	new
+	{	return new Metaclass();
+	}
+]
+class:
+[
+	"Refers to the instance class."
+	protected instanceClass (Class).
+
+	"Constructs a new Metaclass given (aClass)."
+	Metaclass: aClass (Class)
+	{	super();
+		instanceClass = aClass;
+		if (aClass != null) {
+			methodDictionary = new MethodCache( instanceClass.getClass() );
+		}
+	}
+
+	"Constructs a new Metaclass, but this will never be used."
+	Metaclass
+	{	this( null ); // keep the compiler happy
+	}
+
+"accessing"
+
+	"Returns the associated primitive class."
+	(java.lang.Class) primitiveClass
+	{	return instanceClass.primitiveClass();
+	}
+
+	"Returns the receiver superclass."
+	(Behavior) superclass {
+		java.lang.Class aClass = primitiveClass().getSuperclass();
+		if (aClass == java.lang.Object.class) {
+			return Class.$class;
+		}
+		Behavior aBehavior = (Behavior) Smalltalk.classRegistry.get( aClass );
+		return( aBehavior == null ? null : aBehavior.$class() );
+	}
+
+	"Returns the name of the metaclass."
+	name {
+		return primitive.StringFrom( primitiveClass().getName() + " class " );
+	}
+
+	instanceClass [
+		^instanceClass
+	]
+
+"testing behavior"
+
+	"Indicates whether the receiver is a (kind of) Metaclass."
+	isMetaclass
+	[	^true
+	]
+]

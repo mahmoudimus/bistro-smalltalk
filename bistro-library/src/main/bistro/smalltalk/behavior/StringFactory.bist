@@ -1,0 +1,15 @@
+"StringFactory.bist"
+package: smalltalk.behavior;
+
+"Supports behavior for converting between primitive strings and Strings.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: StringFactory
+metatype:
+[
+	"Returns a String whose value is (primitiveString)."
+	StringFrom: primitiveString (java.lang.String) []
+
+	"Returns the primitive string value indicated by (aString)."
+	(java.lang.String) stringFrom: aString []
+]
+type: []

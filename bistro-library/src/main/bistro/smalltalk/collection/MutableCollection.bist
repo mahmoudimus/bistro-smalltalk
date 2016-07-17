@@ -1,0 +1,19 @@
+"MutableCollection.bist"
+package: smalltalk.collection;
+
+"Supports element access by index.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: MutableCollection
+metatype: []
+type:
+[
+	"Returns (element) after storing it at (index) in the receiver."
+	at: index put: element []
+
+	"Returns (element) after storing it at all the supplied (indices)
+	in the receiver."
+	atAll: indices put: element []
+
+	"Returns (element) after replacing all the elements of the receiver."
+	atAllPut: element []
+]

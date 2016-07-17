@@ -1,0 +1,246 @@
+"Point.bist"
+package: smalltalk.geometry;
+
+"Represents a point on a 2-dimensional plane.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Magnitude subclass: Point
+metaclass: 
+[
+	"Returns a new Point for the supplied x and y positions."
+	x: xPosition y: yPosition
+	{	return new Point( (Number) xPosition, (Number) yPosition );
+	}
+
+	"Returns a new Point."
+	new
+	[	^self x: 0 y: 0
+	]
+]
+class:
+[
+	"Refers to the point's x position."
+	x (Number).
+
+	"Refers to the point's y position."
+	y (Number).
+
+	"Constructs a new Point."
+	protected Point: xPosition (Number) : yPosition (Number)
+	[	x := xPosition.
+		y := yPosition.
+	]
+
+"accessing"
+
+	"Returns the point's x position."
+	x
+	[	^x
+	]
+
+	"Returns the point's y position."
+	y
+	[	^y
+	]
+
+	"Establishes the X position of the receiver."
+	x: xPosition
+	[	x := xPosition.
+	]
+
+	"Establishes the Y position of the receiver."
+	y: yPosition
+	[	y := yPosition.
+	]
+
+"arithmetic"
+
+	"Returns the sum of the receiver and (aPoint)."
+	+ aPoint (Point)
+	[	^self class x: x + aPoint x y: y + aPoint y
+	]
+
+	"Returns the sum of the receiver and (delta)."
+	+ delta
+	[	aPoint (Point) := delta asPoint.
+		^self + aPoint
+	]
+
+	"Returns the difference of the receiver and (aPoint)."
+	- aPoint (Point)
+	[	^self class x: x - aPoint x y: y - aPoint y
+	]
+
+	"Returns the difference of the receiver and (delta)."
+	- delta
+	[	aPoint (Point) := delta asPoint.
+		^self - aPoint
+	]
+
+	"Returns the product of the receiver and (aPoint)."
+	* aPoint (Point)
+	[	^self class x: x * aPoint x y: y * aPoint y
+	]
+
+	"Returns the product of the receiver and (scale)."
+	* scale
+	[	aPoint (Point) := scale asPoint.
+		^self * aPoint
+	]
+
+	"Returns the ratio of the receiver and (aPoint)."
+	/ aPoint (Point)
+	[	^self class x: x / aPoint x y: y / aPoint y
+	]
+
+	"Returns the ratio of the receiver and (scale)."
+	/ scale
+	[	aPoint (Point) := scale asPoint.
+		^self / aPoint
+	]
+
+	"Returns the floor ratio of the receiver and (aPoint)."
+	// aPoint (Point)
+	[	^self class x: x // aPoint x y: y // aPoint y
+	]
+
+	"Returns the floor ratio of the receiver and (scale)."
+	// scale
+	[	aPoint (Point) := scale asPoint.
+		^self // aPoint
+	]
+
+	"Returns the floor ratio of the receiver and (aPoint)."
+	\\ aPoint (Point)
+	[	^self class x: x \\ aPoint x y: y \\ aPoint y
+	]
+
+	"Returns the floor ratio of the receiver and (scale)."
+	\\ scale
+	[	aPoint (Point) := scale asPoint.
+		^self \\ aPoint
+	]
+
+"comparing"
+
+	"Indicates whether the receiver equals (aPoint)."
+	= aPoint (Point)
+	[	^x = aPoint x and: [ y = aPoint y ]
+	]
+
+	"Indicates whether the receiver equals (aMagnitude)."
+	= aMagnitude
+	[	[ ^self = (aMagnitude as: Point) ]
+			catch: [ :e (java.lang.ClassCastException) | ^false ]
+	]
+
+	"Indicates whether the receiver is less than (aMagnitude)."
+	< aMagnitude
+	[	aPoint (Point) := aMagnitude asPoint.
+		^x < aPoint x and: [ y < aPoint y ]
+	]
+
+	"Indicates whether the receiver is less than or equal to (aMagnitude)."
+	<= aMagnitude
+	[	aPoint (Point) := aMagnitude asPoint.
+		^x <= aPoint x and: [ y <= aPoint y ]
+	]
+
+	"Indicates whether the receiver is more than (aMagnitude)."
+	> aMagnitude
+	[	aPoint (Point) := aMagnitude asPoint.
+		^x > aPoint x and: [ y > aPoint y ]
+	]
+
+	"Indicates whether the receiver is more than or equal to (aMagnitude)."
+	>= aMagnitude
+	[	aPoint (Point) := aMagnitude asPoint.
+		^x >= aPoint x and: [ y >= aPoint y ]
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return x.hashCode() ^ y.hashCode();
+	}
+
+"converting"
+
+	"Returns a primitive Point equivalent to the receiver."
+	(java.awt.Point) primitivePoint
+	[	^java.awt.Point basicNew: x primitiveInteger : y primitiveInteger
+	]
+
+	"Returns a primitive Point equivalent to the receiver."
+	(java.awt.Dimension) primitiveDimension
+	[	^java.awt.Dimension basicNew: x primitiveInteger : y primitiveInteger
+	]
+
+	"Returns a point from the receiver."
+	asPoint
+	[	^self
+	]
+
+	"Returns a rectangle formed from the receiver and an (extent)."
+	extent: extent
+	[	^Rectangle origin: self extent: extent
+	]
+
+	"Returns a rectangle formed from the receiver and a (corner)."
+	corner: corner
+	[	^Rectangle origin: self corner: corner
+	]
+
+"mathematics"
+
+	"Returns the absolute value of the receiver."
+	abs
+	[	^x abs @ y abs
+	]
+
+	"Returns the arithmetic inverse of the receiver."
+	negated
+	[	^x negated @ y negated
+	]
+
+	"Returns the dot product of the receiver and (aPoint)."
+	dotProduct: aPoint (Point)
+	[	^(x * aPoint x) + (y * aPoint y)
+	]
+
+	"Returns the dot product of the receiver and (aPoint)."
+	dotProduct: aPoint
+	{	return this.dotProduct( (Point) aPoint );
+	}
+
+"truncation"
+
+	"Returns the nearest integer point between the receiver and zero."
+	truncated
+	[	^x truncated @ y truncated
+	]
+
+	"Returns the nearest multiple of (aNumber) between the receiver and zero."
+	truncatedTo: aNumber
+	[	^(x truncatedTo: aNumber) @ (y truncatedTo: aNumber)
+	]
+
+"rounding"
+
+	"Returns the integer point nearest to the receiver."
+	rounded
+	[	^x rounded @ y rounded
+	]
+
+"positioning"
+
+	"Returns the transpose of the receiver."
+	transpose
+	[	^y @ x
+	]
+
+"printing"
+
+	"Returns a printable representation of the receiver."
+	printString
+	[	^x printString , ' @ ' , y printString
+	]
+]

@@ -1,0 +1,443 @@
+"PrimitiveFactory.bist"
+package: smalltalk.behavior;
+
+import: smalltalk.Smalltalk;
+import: smalltalk.behavior.Object;
+import: smalltalk.behavior.Boolean;
+
+"Provides utilities for instantiating new objects, accessing primitive
+singletons (e.g., nil), and dynamic method resolution.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subclass: PrimitiveFactory
+implements:
+BooleanFactory.mClass CharacterFactory.mClass
+IntegerFactory.mClass FixedFactory.mClass
+FloatFactory.mClass DoubleFactory.mClass
+StringFactory.mClass SymbolFactory.mClass
+ArrayFactory.mClass OrderedCollectionFactory.mClass
+class: [
+
+	"Indicates whether the factory has been initialized."
+	public static initialized (boolean) := false asPrimitive.
+
+	"Refers to the singleton instance of the primitive factory."
+	public static final class (PrimitiveFactory) := PrimitiveFactory basicNew.
+
+	"Refers to the singleton instance nil."
+	private literalNil (UndefinedObject).
+
+	"Refers to the singleton instance true."
+	private literalTrue (Boolean).
+
+	"Refers to the singleton instance false."
+	private literalFalse (Boolean).
+
+	"Refers to the factory class for accessing Booleans."
+	private factoryForBoolean (BooleanFactory.mClass).
+
+	"Refers to the factory class for creating Characters."
+	private factoryForCharacter (CharacterFactory.mClass).
+
+	"Refers to the factory class for creating Integers."
+	private factoryForInteger (IntegerFactory.mClass).
+
+	"Refers to the factory class for creating Fixed numbers."
+	private factoryForFixed (FixedFactory.mClass).
+
+	"Refers to the factory class for creating Floats."
+	private factoryForFloat (FloatFactory.mClass).
+
+	"Refers to the factory class for creating Doubles."
+	private factoryForDouble (DoubleFactory.mClass).
+
+	"Refers to the factory class for creating Strings."
+	private factoryForString (StringFactory.mClass).
+
+	"Refers to the factory class for creating Symbols."
+	private factoryForSymbol (SymbolFactory.mClass).
+
+	"Refers to the factory class for creating Arrays."
+	private factoryForArray (ArrayFactory.mClass).
+
+	"Refers to the factory class for creating OrderedCollections."
+	private factoryForOrderedCollection (OrderedCollectionFactory.mClass).
+
+	"Constructs a new PrimitiveFactory."
+	protected PrimitiveFactory {
+		Object.primitive = this;
+	}
+
+	"Initializes the PrimitiveFactory."
+	(PrimitiveFactory) initialize {
+		if (Smalltalk.running) {
+			literalNil();
+			literalTrue();
+			literalFalse();
+			factoryForBoolean();
+			factoryForCharacter();
+			factoryForInteger();
+			factoryForFixed();
+			factoryForFloat();
+			factoryForDouble();
+			factoryForString();
+			factoryForSymbol();
+			factoryForArray();
+			factoryForOrderedCollection();
+			initialized = true;
+			Metaclass.$class.$class().initialize();
+			Metaclass.$class.initialize();
+			Class.$class.$class().initialize();
+			Class.$class.initialize();
+		}
+		return this;
+	}
+
+	"Refers to the factory class for creating Booleans."
+	private (BooleanFactory.mClass) factoryForBoolean {
+		if (factoryForBoolean == null) {
+			factoryForBoolean = (BooleanFactory.mClass)
+				classFrom( "smalltalk.behavior.Boolean" );
+		}
+		return factoryForBoolean;
+	}
+
+	"Refers to the factory class for creating Characters."
+	private (CharacterFactory.mClass) factoryForCharacter {
+		if (factoryForCharacter == null) {
+			factoryForCharacter = (CharacterFactory.mClass)
+				classFrom( "smalltalk.magnitude.Character" );
+		}
+		return factoryForCharacter;
+	}
+
+	"Refers to the factory class for creating Integers."
+	private (IntegerFactory.mClass) factoryForInteger {
+		if (factoryForInteger == null) {
+			factoryForInteger = (IntegerFactory.mClass)
+				classFrom( "smalltalk.magnitude.SmallInteger" );
+		}
+		return factoryForInteger;
+	}
+
+	"Refers to the factory class for creating Fixed numbers."
+	private (FixedFactory.mClass) factoryForFixed {
+		if (factoryForFixed == null) {
+			factoryForFixed = (FixedFactory.mClass)
+				classFrom( "smalltalk.magnitude.Fixed" );
+		}
+		return factoryForFixed;
+	}
+
+	"Refers to the factory class for creating Floats."
+	private (FloatFactory.mClass) factoryForFloat {
+		if (factoryForFloat == null) {
+			factoryForFloat = (FloatFactory.mClass)
+				classFrom( "smalltalk.magnitude.Float" );
+		}
+		return factoryForFloat;
+	}
+
+	"Refers to the factory class for creating Doubles."
+	private (DoubleFactory.mClass) factoryForDouble {
+		if (factoryForDouble == null) {
+			factoryForDouble = (DoubleFactory.mClass)
+				classFrom( "smalltalk.magnitude.Double" );
+		}
+		return factoryForDouble;
+	}
+
+	"Refers to the factory class for creating Strings."
+	private (StringFactory.mClass) factoryForString {
+		if (factoryForString == null) {
+			factoryForString = (StringFactory.mClass) 
+				classFrom( "smalltalk.collection.String" );
+		}
+		return factoryForString;
+	}
+
+	"Refers to the factory class for creating Symbols."
+	private (SymbolFactory.mClass) factoryForSymbol {
+		if (factoryForSymbol == null) {
+			factoryForSymbol = (SymbolFactory.mClass)
+				classFrom( "smalltalk.collection.Symbol" );
+		}
+		return factoryForSymbol;
+	}
+
+	"Refers to the factory class for creating Arrays."
+	private (ArrayFactory.mClass) factoryForArray {
+		if (factoryForArray == null) {
+			factoryForArray = (ArrayFactory.mClass)
+				classFrom( "smalltalk.collection.Array" );
+		}
+		return factoryForArray;
+	}
+
+	"Refers to the factory class for creating OrderedCollections."
+	private (OrderedCollectionFactory.mClass) factoryForOrderedCollection {
+		if (factoryForOrderedCollection == null) {
+			factoryForOrderedCollection = (OrderedCollectionFactory.mClass)
+				classFrom( "smalltalk.collection.OrderedCollection" );
+		}
+		return factoryForOrderedCollection;
+	}
+
+	"reflection primitives"
+
+	"Returns the singleton metaclass instance associated with (aClass).
+	@param aClass refers to a Bistro class.
+	@return the singleton metaclass instance associated with (aClass)."
+	static (Behavior) classFrom: aClass (java.lang.Class) {
+		try {
+			java.lang.reflect.Field classField = aClass.getField( "$class" );
+			Behavior result = (Behavior) classField.get( null );
+			return result;
+		} catch( NoSuchFieldException e ) {
+			e.printStackTrace();
+			System.err.println(
+				aClass.getName() + " cannot locate $class field" );
+		} catch( IllegalAccessException e ) {
+			e.printStackTrace();
+			System.err.println(
+				aClass.getName() + " cannot access $class field" );
+		}
+		return null;
+	}
+
+	"Returns the singleton metaclass instance indicated by (className).
+	@param className refers to a Bistro class.
+	@return the singleton metaclass instance indicated by (className)."
+	static (Behavior) classFrom: className (java.lang.String) {
+		try {
+			return classFrom( java.lang.Class.forName( className ) );
+		} catch( ClassNotFoundException e ) {
+			e.printStackTrace();
+			System.err.println(
+				"Object cannot find a class named " + className );
+		}
+		return null;
+	}
+
+	"Returns the singleton instance for a literal class named (className).
+	@param className refers to a Bistro literal class.
+	@return the singleton instance for a literal class named (className)."
+	static (Object) literalFrom: className (java.lang.String) {
+		try {
+			java.lang.Object metaClass = classFrom( className );
+			java.lang.Class aClass = metaClass.getClass();
+			java.lang.reflect.Field instanceField = aClass.getField( "literal" );
+			return (Object) instanceField.get( metaClass );
+		} catch( NoSuchFieldException e ) {
+			e.printStackTrace();
+			System.err.println(
+				className + " cannot locate literal." );
+		} catch( IllegalAccessException e ) {
+			e.printStackTrace();
+			System.err.println(
+				className + " cannot access literal." );
+		}
+		return null;
+	}
+
+	"Returns a reference to a method named (methodName) for (aClass).
+	@param methodName identifies a method.
+	@param aClass refers to a Bistro class.
+	@param argumentCount indicates the number of method arguments.
+	@return a reference to a method named (methodName) for (aClass)."
+	final (java.lang.reflect.Method) 
+	methodNamed: methodName (java.lang.String) : behavior (Behavior) : argumentCount (int) {
+		return behavior.methodDictionary.methodNamed( methodName, argumentCount );
+	}
+
+	"Returns a reference to a method named (methodName) for (aClass).
+	@param methodName identifies a method.
+	@param aClass refers to a Bistro class.
+	@param argumentCount indicates the number of method arguments.
+	@return a reference to a method named (methodName) for (aClass)."
+	final (java.lang.reflect.Method) 
+	methodNamed: methodName (Object) : behavior (Behavior) : argumentCount (int) {
+		return methodNamed( symbolFrom( methodName ), behavior, argumentCount );
+	}
+
+	"primitive factory methods"
+
+	"Returns the Boolean whose value is (primitiveBoolean).
+	@param primitiveBoolean a primitive boolean value.
+	@return the Boolean whose value is (primitiveBoolean)."
+	(Boolean) BooleanFrom: primitiveBoolean (boolean) {
+		return factoryForBoolean().BooleanFrom( primitiveBoolean );
+	}
+
+	"Returns the primitive boolean value indicated by (aBoolean).
+	@param aBoolean refers to a Boolean instance.
+	@return the primitive boolean value indicated by (aBoolean)."
+	(boolean) booleanFrom: aBoolean (Object) {
+		return factoryForBoolean().booleanFrom( aBoolean );
+	}
+
+	"Returns a Character whose value is (primitiveCharacter).
+	@param primitiveCharacter a primitive char value.
+	@return a Character whose value is (primitiveCharacter)."
+	(Object) CharacterFrom: primitiveCharacter (char) {
+		return factoryForCharacter().CharacterFrom( primitiveCharacter );
+	}
+
+	"Returns a Character whose value is (primitiveInteger).
+	@param primitiveCharacter a primitive char value.
+	@return a Character whose value is (primitiveInteger)."
+	(Object) CharacterFrom: primitiveInteger (int) {
+		return factoryForCharacter().CharacterFrom( (char) primitiveInteger );
+	}
+
+	"Returns the primitive char value indicated by (aCharacter).
+	@param aCharacter refers to a Character instance.
+	@return the primitive char value indicated by (aCharacter)."
+	(char) charFrom: aCharacter (Object) {
+		return factoryForCharacter().charFrom( aCharacter );
+	}
+
+	"Returns a SmallInteger whose value is (primitiveInteger).
+	@param primitiveInteger a primitive int value.
+	@return a SmallInteger whose value is (primitiveInteger)."
+	(Object) IntegerFrom: primitiveInteger (int) {
+		return factoryForInteger().IntegerFrom( primitiveInteger );
+	}
+
+	"Returns a SmallInteger whose value is (primitiveLong).
+	@param primitiveLong a primitive long value.
+	@return a SmallInteger whose value is (primitiveLong)."
+	(Object) IntegerFrom: primitiveLong (long) {
+		return factoryForInteger().IntegerFrom( (int) primitiveLong );
+	}
+
+	"Returns the primitive int value indicated by (anInteger).
+	@param anInteger refers to a SmallInteger instance.
+	@return the primitive int value indicated by (anInteger)."
+	(int) intFrom: anInteger (Object) {
+		return factoryForInteger().intFrom( anInteger );
+	}
+
+	"Returns a Fixed whose value is (fixedString).
+	@param fixedString represents a fixed point value.
+	@return a Fixed whose value is (fixedString)."
+	(Object) FixedFrom: fixedString (java.lang.String) {
+		return factoryForFixed().FixedFrom( fixedString );
+	}
+
+	"Returns a Float whose value is (primitiveFloat).
+	@param primitiveFloat a primitive float value.
+	@return a Float whose value is (primitiveFloat)."
+	(Object) FloatFrom: primitiveFloat (float) {
+		return factoryForFloat().FloatFrom( primitiveFloat );
+	}
+
+	"Returns the primitive float value indicated by (aFloat).
+	@param aFloat refers to a Float instance.
+	@return the primitive float value indicated by (aFloat)."
+	(float) floatFrom: aFloat (Object) {
+		return factoryForFloat().floatFrom( aFloat );
+	}
+
+	"Returns a Double whose value is (primitiveDouble).
+	@param primitiveDouble a primitive double value.
+	@return a Double whose value is (primitiveDouble)."
+	(Object) DoubleFrom: primitiveDouble (double) {
+		return factoryForDouble().DoubleFrom( primitiveDouble );
+	}
+
+	"Returns the primitive double value indicated by (aDouble).
+	@param aDouble refers to a Double instance.
+	@return the primitive double value indicated by (aDouble)."
+	(double) doubleFrom: aDouble (Object) {
+		return factoryForDouble().doubleFrom( aDouble );
+	}
+
+	"Returns a String whose value is (primitiveString).
+	@param primitiveString a primitive string value.
+	@return a String whose value is (primitiveString)."
+	(Object) StringFrom: primitiveString (java.lang.String) {
+		return factoryForString().StringFrom( primitiveString );
+	}
+
+	"Returns the primitive string value indicated by (aString).
+	@param aString refers to a String instance.
+	@return the primitive string value indicated by (aString)."
+	(java.lang.String) stringFrom: aString (Object) {
+		return factoryForString().stringFrom( aString );
+	}
+
+	"Returns a Symbol whose value is (primitiveString).
+	@param primitiveString a primitive string value.
+	@return a Symbol whose value is (primitiveString)."
+	(Object) SymbolFrom: primitiveString (java.lang.String) {
+		return factoryForSymbol().SymbolFrom( primitiveString );
+	}
+
+	"Returns the primitive string value indicated by (aSymbol).
+	@param aSymbol refers to a Symbol instance.
+	@return the primitive string value indicated by (aSymbol)."
+	(java.lang.String) symbolFrom: aSymbol (Object) {
+		return factoryForSymbol().symbolFrom( aSymbol );
+	}
+
+	"Returns an Array whose value is (primitiveArray).
+	@param primitiveArray a primitive Object array.
+	@return an Array whose value is (primitiveArray)."
+	(Object) ArrayFrom: primitiveArray (Object[]) {
+		return factoryForArray().ArrayFrom( primitiveArray );
+	}
+
+	"Returns the primitive array contained in (anArray).
+	@param anArray refers to an Array instance.
+	@return the primitive array contained in (anArray)."
+	(Object[]) arrayFrom: anArray (Object) {
+		return factoryForArray().arrayFrom( anArray );
+	}
+
+	"Returns an OrderedCollection which contains the elements in a (primitiveArray).
+	@param primitiveArray a primitive Object array.
+	@return an OrderedCollection which contains the elements in a (primitiveArray)."
+	(Object) OrderedCollectionFrom: primitiveArray (Object[]) {
+		return factoryForOrderedCollection().OrderedCollectionFrom( primitiveArray );
+	}
+
+	"Returns a new empty OrderedCollection.
+	@return a new empty OrderedCollection."
+	(Object) emptyOrderedCollection {
+		return factoryForOrderedCollection().OrderedCollectionFrom( new Object[0] );
+	}
+
+	"Returns a primitive array that contains the elements from (anOrderedCollection).
+	@param anOrderedCollection refers to an OrderedCollection instance.
+	@return a primitive array that contains the elements from (anOrderedCollection)."
+	(Object[]) arrayedCollectionFrom: anOrderedCollection (Object) {
+		return factoryForOrderedCollection().arrayedCollectionFrom( anOrderedCollection );
+	}
+
+	"Returns a reference to the singleton instance nil."
+	(UndefinedObject) literalNil {
+		if (literalNil == null) {
+			literalNil = (UndefinedObject)
+			literalFrom( "smalltalk.behavior.UndefinedObject" );
+		}
+		return literalNil;
+	}
+
+	"Returns a reference to the singleton instance true."
+	(Boolean) literalTrue {
+		if (literalTrue == null) {
+			literalTrue = (Boolean)
+			literalFrom( "smalltalk.behavior.True" );
+		}
+		return literalTrue;
+	}
+
+	"Returns a reference to the singleton instance false."
+	(Boolean) literalFalse {
+		if (literalFalse == null) {
+			literalFalse = (Boolean)
+			literalFrom( "smalltalk.behavior.False" );
+		}
+		return literalFalse;
+	}
+]

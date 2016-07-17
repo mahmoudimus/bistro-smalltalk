@@ -1,0 +1,7 @@
+"ExceptionSet.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ExceptionSet."
+ExceptionSelectorInstance subtype: ExceptionSet
+metatype: []
+type: []

@@ -1,0 +1,183 @@
+"Behavior.bist"
+package: smalltalk.behavior;
+import: smalltalk.Smalltalk;
+
+"Provides basic behavior for locating and caching dynamically dispatched methods.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Object subclass: Behavior
+metaclass: []
+class:
+[
+	"Resolves and caches primitive methods."
+	methodDictionary (MethodCache).
+
+	"Contains the immediate subclasses of the receiver."
+	private subclasses (java.util.List).
+
+	"Constructs a new Behavior."
+	protected Behavior
+	{	super();
+		subclasses = new java.util.ArrayList();
+	}
+
+	"Returns the name of this behavior."
+	abstract name []
+
+"accessing hierarchy"
+
+	"Returns all the subclasses of this behavior."
+	allSubclasses [
+		result := primitive emptyOrderedCollection.
+		self allSubclassesDo: [ :each | result add: each ].
+		^result
+	]
+
+	"Returns all the superclasses of this behavior."
+	allSuperclasses [
+		result := primitive emptyOrderedCollection.
+		self allSuperclassesDo: [ :each | result add: each ].
+		^result
+	]
+
+	"Returns the associated primitive class."
+	abstract (java.lang.Class) primitiveClass []
+
+	"Returns the immediate subclasses of this behavior."
+	subclasses {
+		Object result = primitive.emptyOrderedCollection();
+		synchronized( subclasses ) {
+			for( int i = 0; i < subclasses.size(); i++ ) {
+				Object each = (Object) subclasses.get( i );
+				result.perform_with( "add:", each );
+			}
+		}
+		return result;
+	}
+
+	"Returns the receiver superclass."
+	abstract (Behavior) superclass []
+
+	"Returns the receiver and all its derived classes as a collection."
+	withAllSubclasses [
+		^(self allSubclasses)
+			addFirst: self;
+			yourself
+	]
+
+
+	"Returns the receiver and all its superclasses as a collection."
+	withAllSuperclasses [
+		^(self allSuperclasses)
+			addFirst: self;
+			yourself
+	]
+"enumerating"
+
+	"Evaluates (aBlock) with each class derived from this behavior."
+	allSubclassesDo: aBlock [
+		self subclassesDo: aBlock.
+		self subclassesDo: [ :each | each allSubclassesDo: aBlock ].
+	]
+
+	"Evaluates (aBlock) with each superclass of this behavior."
+	allSuperclassesDo: aBlock [
+		aClass := self.
+		current := nil.
+		[	current := aClass superclass.
+			aClass := current.
+			current isNil
+		]
+		whileFalse: [
+			aBlock value: current.
+		].
+	]
+
+	"Evaluates (aBlock) with each subclass of this behavior."
+	subclassesDo: aBlock [
+		self subclasses do: (aBlock as: OneArgumentBlock).
+	]
+
+	"Evaluates (aBlock) with the receiver and each of its derived classes."
+	withAllSubclassesDo: aBlock [
+		aBlock value: self.
+		self allSubclassesDo: aBlock.
+	]
+
+	"Evaluates (aBlock) with the receiver and each of its superclasses."
+	withAllSuperclassesDo: aBlock [
+		aBlock value: self.
+		self allSuperclassesDo: aBlock.
+	]
+
+"initializing"
+
+	"Initializes a behavior during startup."
+	protected initialize {
+		if (!Smalltalk.running) return this;
+		if (primitive == null || !primitive.initialized) return this;
+		Object superclass = this.superclass();
+		if (superclass != null) {
+			if (superclass instanceof Behavior) {
+				Behavior superior = (Behavior) superclass;
+				synchronized( superior.subclasses ) {
+					if (!superior.subclasses.contains( this )) {
+						superior.initialize();
+						superior.subclasses.add( this );
+					}
+				}
+			}
+		}
+		return this;
+	}
+
+"creating instances"
+
+	"Returns a new instance of the receiver."
+	new {
+		return newWith( new Object[]{} );
+	}
+
+	"Returns a new instance of the receiver."
+	newWith: arguments (Object[]) {
+		return new MessageSend( this, "new:", arguments ).construct();
+	}
+
+	"Returns a new instance of the receiver."
+	new: anObject {
+		return newWith( new Object[]{ anObject } );
+	}
+
+        emptyString [
+            ^'smalltalk.collection.String' resolvedToClass new
+        ]
+
+"reflecting behavior"
+
+	"Returns the names of all the public methods of this behavior."
+	allSelectors [
+		^methodDictionary allSelectors asSet
+	]
+
+	"Returns the names of the public methods defined in this behavior."
+	selectors [
+		^methodDictionary selectors asSet
+	]
+
+"testing behavior"
+
+	"Indicates whether the receiver inherits from (aClass)."
+	inheritsFrom: aClass {
+		Behavior aBehavior = (Behavior) aClass;
+		return( 
+			primitive.BooleanFrom(
+				aBehavior.primitiveClass()
+					.isAssignableFrom( this.primitiveClass() ) 
+			)
+		);
+	}
+
+	"Indicates whether the receiver is a (kind of) Behavior."
+	isBehavior
+	[	^true
+	]
+]

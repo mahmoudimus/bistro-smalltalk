@@ -1,0 +1,7 @@
+"Selector.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Selector."
+Object subtype: Selector
+metatype: []
+type: []

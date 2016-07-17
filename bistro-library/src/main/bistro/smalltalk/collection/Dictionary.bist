@@ -1,0 +1,312 @@
+"Dictionary.bist"
+package: smalltalk.collection;
+
+"Represents a mapped set of associations between key-value pairs. Supports
+instantiation with a primitive java.util.Map. Uses a java.util.Hashtable as
+the default primitive contents.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Collection subclass: Dictionary
+implements: IndexedCollection MutableCollection ExtensibleCollection
+metaclass:
+[
+	"Returns a new empty Dictionary."
+	new
+	[	^self new: 10
+	]
+
+	"Returns a new empty Dictionary with the supplied (capacity)."
+	new: capacity
+	{	return new Dictionary( (Number) capacity );
+	}
+
+	"Returns a new Dictionary with a (primitiveMap) as its contents."
+	from: primitiveMap (java.util.Map)
+	[	^Dictionary basicNew: primitiveMap
+	]
+
+	"Returns a new Dictionary with synchronized access to a (primitiveMap)."
+	synchronizedFrom: primitiveMap (java.util.Map)
+	[	^self from: (
+			java.util.Collections synchronizedMap: primitiveMap
+		)
+	]
+]
+class:
+[
+	"Contains the set elements."
+	contents (java.util.Map).
+
+	"Constructs a new (empty) Dictionary."
+	protected Dictionary
+	[	contents := java.util.Hashtable basicNew.
+	]
+
+	"Constructs a new Dictionary given its initial (capacity)."
+	protected Dictionary: capacity (Number)
+	[	contents := java.util.Hashtable basicNew: capacity primitiveInteger.
+	]
+
+	"Constructs a new Dictionary with a (primitiveMap)."
+	protected Dictionary: primitiveMap (java.util.Map)
+	[	contents := primitiveMap.
+	]
+
+"accessing"
+
+	"Returns the primitive contents of the receiver."
+	(java.util.Map) primitiveContents
+	[	^contents
+	]
+
+	"Returns the number of elements contained in the receiver."
+	size
+	[	^primitive IntegerFrom: contents size
+	]
+
+	"Indicates whether the collection includes (index)."
+	includesIndex: index
+	[	^primitive BooleanFrom: (contents containsKey: index)
+	]
+
+	"Indicates whether the collection includes (key)."
+	includesKey: key
+	[	^self includesIndex: key
+	]
+
+	"Returns the index of an (element)."
+	indexOf: element 
+	[	^self indexOf: element ifAbsent: [ self elementNotFound ]
+	]
+
+	"Returns the index of an (element), or evaluates (aBlock)
+	if the receiver does not contain (element)."
+	indexOf: element ifAbsent: aBlock (ZeroArgumentBlock)
+	[	self keysAndValuesDo: [ :key :value |
+			value = element ifTrue: [ ^key ]
+		].
+		^aBlock value
+	]
+
+	"Returns the index of an (element)."
+	keyAtValue: element
+	[	^self indexOf: element
+	]
+
+	"Returns the index of an (element), or evaluates (aBlock)
+	if the receiver does not contain (element)."
+	keyAtValue: element ifAbsent: aBlock (ZeroArgumentBlock)
+	[	^self indexOf: element ifAbsent: aBlock
+	]
+
+"accessing elements"
+
+	"Returns the element at (index)."
+	at: index
+	[	^self at: index ifAbsent: [ self elementNotFound ]
+	]
+
+	"Returns the element at (index), or evaluates (aBlock),
+	if the receiver does not include an (index)."
+	at: index ifAbsent: aBlock (ZeroArgumentBlock)
+	{	Object result = (Object) contents.get( index );
+		return( result == null ? aBlock.value() : result );
+	}
+
+	"Returns the element at (index), or the result of evaluating
+	(aBlock), after storing it at (index) in the receiver."
+	at: index ifAbsentPut: aBlock (ZeroArgumentBlock)
+	[	^self at: index
+			ifAbsent: [ self at: index put: aBlock value ]
+	]
+
+	"Returns (element) after storing it at (index) in the receiver."
+	at: index put: element
+	[	contents put: index : element.
+		^element
+	]
+
+	"Returns (element) after storing it at all the supplied (indices)
+	in the receiver."
+	atAll: indices put: element 
+	[	indices do: [ :key | self at: key put: element ].
+		^element
+	]
+
+	"Returns (element) after replacing all the elements of the receiver."
+	atAllPut: element [
+		^self atAll: self keys put: element
+	]
+
+	"Returns the keys contained in the receiver."
+	keys
+	[	^Set from: contents keySet
+	]
+
+	"Returns the values contained in the receiver."
+	values
+	[	result := OrderedCollection new: self size.
+		self keysAndValuesDo: [ :key :element | result add: element ].
+		^result
+	]
+
+"adding elements"
+
+	"Returns (anAssociation) after adding it to the receiver."
+	add: anAssociation
+	[	pair (Association) := anAssociation.
+		self at: pair key put: pair value.
+		^anAssociation
+	]
+
+	"Returns (aDictionary) after adding its elements to the receiver."
+	addAll: aDictionary
+	[	d (Dictionary) := aDictionary.
+		d keysAndValuesDo: [ :key :element | self at: key put: element ].
+		^aDictionary
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection (Dictionary)
+	[	^primitive BooleanFrom: 
+			(contents equals: aCollection primitiveContents)
+	]
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection
+	[	[ ^self = (aCollection as: Dictionary) ]
+			catch: [ :e (java.lang.ClassCastException) | ^false ]
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	[	^contents hashCode
+	]
+
+"enumerating"
+
+	"Evaluates (aBlock) with each associated key-value pair in the receiver."
+	associationsDo: aBlock (OneArgumentBlock)
+	[	self keysAndValuesDo: [ :key :element |
+			aBlock value: (Association key: key value: element)
+		]
+	]
+
+	"Evaluates (aBlock) with each associated key-value pair in the receiver."
+	associationsDo: aBlock
+	{	return associationsDo( (OneArgumentBlock) aBlock );
+	}
+
+	"Returns a new instance of the receiver class which contains the
+	result of evaluating (aBlock) for each receiver element."
+	collect: aBlock (OneArgumentBlock)
+	[	result := self species new: self size.
+		self keysAndValuesDo: [ :key :element |
+			result at: key put: (aBlock value: element)
+		].
+		^result
+	]
+
+	"Evaluates (aBlock) with each receiver element."
+	do: aBlock (OneArgumentBlock)
+	[	self keysAndValuesDo: [ :key :element | aBlock value: element ]
+	]
+
+	"Evaluates (aBlock) with each receiver key-value pair."
+	keysAndValuesDo: aBlock (TwoArgumentBlock)
+	{	// optimizes element enumeration
+		java.util.Set keys = contents.keySet();
+		java.util.Iterator it = keys.iterator();
+		while( it.hasNext() ) {
+			Object key = (Object) it.next();
+			aBlock.value_value( key, (Object) contents.get( key ) );
+		}
+		return this;
+	}
+
+	"Evaluates (aBlock) with each receiver key-value pair."
+	keysAndValuesDo: aBlock
+	{	return keysAndValuesDo( (TwoArgumentBlock) aBlock );
+	}
+
+	"Evaluates (aBlock) with each receiver key."
+	keysDo: aBlock (OneArgumentBlock)
+	[	self keysAndValuesDo: [ :key :element | aBlock value: key ]
+	]
+
+	"Evaluates (aBlock) with each receiver key."
+	keysDo: aBlock
+	{	return keysDo( (OneArgumentBlock) aBlock );
+	}
+
+	"Returns a new instance of the receiver class which contains those elements 
+	of the receiver for which the evaluation of (aBlock) returns false."
+	reject: aBlock (OneArgumentBlock)
+	[	result := self species new: self size.
+		self keysAndValuesDo: [ :key :element |
+			(aBlock value: element) ifFalse: [ result at: key put: element ]
+		].
+		^result
+	]
+
+	"Returns a new instance of the receiver class which contains those elements 
+	of the receiver for which the evaluation of (aBlock) returns true."
+	select: aBlock (OneArgumentBlock)
+	[	result := self species new: self size.
+		self keysAndValuesDo: [ :key :element |
+			(aBlock value: element) ifTrue: [ result at: key put: element ]
+		].
+		^result
+	]
+
+"removing elements"
+
+	"Returns the element indexed by the supplied (key) after removing it 
+	from the receiver."
+	removeKey: key 
+	[	^self removeKey: key 
+			ifAbsent: [ ^self elementNotFound ]
+	]
+
+	"Returns the element indexed by the supplied (key) after removing it 
+	from the receiver, or evaluates (aBlock) if the key is absent."
+	removeKey: key ifAbsent: aBlock (ZeroArgumentBlock)
+	[	result := self at: key ifAbsent: aBlock.
+		contents remove: key.
+		^result
+	]
+
+	"Returns the receiver after removing the first occurrence of each
+	of the (keys) from the receiver."
+	removeAllKeys: keys 
+	[	self removeAllKeys: keys 
+			ifAbsent: [ self elementNotFound ]
+	]
+
+	"Returns the receiver after removing the first occurrence of each
+	of the (keys) from the receiver or evaluating (aBlock) if a key
+	is absent."
+	removeAllKeys: keys ifAbsent: aBlock (ZeroArgumentBlock)
+	[	keys do: [ :key | self removeKey: key ifAbsent: aBlock ]
+	]
+
+"streaming"
+
+	"Returns a new stream for appending to the receiver."
+	writeStream
+	[	^'smalltalk.stream.WriteStream' resolvedToClass on: self
+	]
+
+"testing"
+
+	"Indicates whether the receiver is empty."
+	isEmpty
+	[	^primitive BooleanFrom: contents isEmpty
+	]
+
+	"Indicates whether the receiver includes an (element)."
+	includes: element
+	[	^primitive BooleanFrom: (contents containsValue: element)
+	]
+]

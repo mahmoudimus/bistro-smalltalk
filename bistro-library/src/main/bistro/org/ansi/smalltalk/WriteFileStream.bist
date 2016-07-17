@@ -1,0 +1,7 @@
+"WriteFileStream.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk WriteFileStream."
+FileStream, PuttableStream subtype: WriteFileStream
+metatype: []
+type: []

@@ -1,0 +1,16 @@
+"Rational.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Rational."
+Number subtype: Rational
+metatype: []
+type:
+[
+"accessing"
+
+	"Returns the numerator."
+	(Integer) numerator []
+
+	"Returns the denominator."
+	(Integer) denominator []
+]

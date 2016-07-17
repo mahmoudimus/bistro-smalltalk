@@ -1,0 +1,138 @@
+"String.bist"
+package: smalltalk.collection;
+
+"Represents a literal string.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+CharacterString subclass: String
+implements: StringFactory Comparison ExtensibleCollection
+metaclass:
+[
+	"Returns a String whose value is (primitiveString)."
+	StringFrom: primitiveString (java.lang.String)
+	{	return( primitiveString == null ? 
+			new String( "" ) : new String( primitiveString )
+		);
+	}
+
+	"Returns the primitive string value indicated by (aString)."
+	(java.lang.String) stringFrom: aString
+	{	String string = (String) aString;
+		return string.primitiveString();
+	}
+
+	"Returns a new empty string."
+	new
+	{	return new String( "" );
+	}
+
+	"Returns a new empty string with the supplied (capacity)."
+	new: capacity
+	{	return new String( (Number) capacity );
+	}
+
+	"Returns a stream for writing onto a new String."
+	writeStream: capacity
+	[	^'smalltalk.stream.WriteStream' resolvedToClass 
+			on: (self new: capacity)
+	]
+]
+class:
+[
+	"Contains the string value."
+	contents (java.lang.StringBuffer).
+
+	"Constructs a new String given a (primitiveString)."
+	protected String: primitiveString (java.lang.String)
+	{	contents = new StringBuffer( primitiveString );
+	}
+
+	"Constructs a new String with the give (capacity)."
+	protected String: capacity (Number)
+	{	contents = new StringBuffer( capacity.primitiveInteger() );
+	}
+
+"accessing"
+
+	"Returns the primitive contents of the receiver."
+	(java.lang.String) primitiveString
+	{	return contents.toString();
+	}
+
+	"Returns the number of elements contained in the receiver."
+	size
+	{	return primitive.IntegerFrom( contents.length() );
+	}
+
+"accessing elements"
+
+	"Returns the element at (index), or evaluates (aBlock),
+	if the receiver does not include an (index)."
+	at: index ifAbsent: aBlock (ZeroArgumentBlock)
+	{	int i = this.checkIndex_ifAbsent( index, aBlock );
+		return primitive.CharacterFrom( contents.charAt( i ) );
+	}
+
+	"Returns (element) after storing it at (index) in the receiver."
+	at: index put: element
+	{	Character c = null;
+		try {
+			c = (Character) element;
+		} catch( java.lang.ClassCastException e ) {
+			this.elementClassError();
+		}
+		int i = this.checkRange( index );
+		if (i < contents.length()) {
+			contents.setCharAt( i, c.primitiveCharacter() );
+		} else {
+			contents.append( c.primitiveCharacter() );
+		}
+		return element;
+	}
+
+"adding elements"
+
+	"Adds an (element) to the receiver."
+	add: element
+	{	Character c = (Character) element;
+		contents.append( c.primitiveCharacter() );
+		return element;
+	}
+
+	"Adds a collection of (elements) to the receiver."
+	addAll: elements
+	[	elements do: [ :element | self add: element ].
+		^elements
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection
+	{	// optimizes equivalence testing
+		CharacterString s = (CharacterString) aCollection;
+		return primitive.BooleanFrom( 
+			primitiveString().equals( s.primitiveString() ) 
+		);
+	}
+
+"streaming"
+
+	"Returns a new stream for appending to the receiver."
+	writeStream
+	[	^'smalltalk.stream.WriteStream' resolvedToClass on: self
+	]
+
+"testing behavior"
+
+	"Indicates whether the receiver is a kind of literal."
+	isLiteral
+	[	^true
+	]
+
+"printing"
+
+	"Returns a printable representation of the receiver."
+	printString
+	{	return primitive.StringFrom( "'" + primitiveString() + "'" );
+	}
+]

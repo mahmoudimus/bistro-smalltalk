@@ -1,0 +1,7 @@
+"IdentityDictionary.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk IdentityDictionary."
+AbstractDictionary subtype: IdentityDictionary
+metatype: []
+type: []

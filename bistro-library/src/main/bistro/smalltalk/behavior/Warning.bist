@@ -1,0 +1,8 @@
+"Warning.bist"
+package: smalltalk.behavior;
+
+"Represents a warning raised by a thread.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Notification subclass: Warning
+metaclass: []
+class: []

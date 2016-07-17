@@ -1,0 +1,111 @@
+"ArrayedCollection.bist"
+package: smalltalk.collection;
+
+"Represents a fixed size collection.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract SequenceableCollection subclass: ArrayedCollection
+implements: MutableCollection
+metaclass:
+[
+"creating instances"
+
+	"Returns a new collection that contains (anObject)."
+	with: anObject
+	[	^(self new: 1)
+			at: 1 put: anObject;
+			yourself
+	]
+
+	"Returns a new collection that contains the supplied objects."
+	with: object1st
+	with: object2nd
+	[	^(self new: 2)
+			at: 1 put: object1st;
+			at: 2 put: object2nd;
+			yourself
+	]
+
+	"Returns a new collection that contains the supplied objects."
+	with: object1st
+	with: object2nd
+	with: object3rd
+	[	^(self new: 3)
+			at: 1 put: object1st;
+			at: 2 put: object2nd;
+			at: 3 put: object3rd;
+			yourself
+	]
+
+	"Returns a new collection that contains the supplied objects."
+	with: object1st
+	with: object2nd
+	with: object3rd
+	with: object4th
+	[	^(self new: 3)
+			at: 1 put: object1st;
+			at: 2 put: object2nd;
+			at: 3 put: object3rd;
+			at: 4 put: object4th;
+			yourself
+	]
+
+	"Returns a new collection that contains (elements)."
+	withAll: elements
+	[	result := self new: aCollection size.
+		index (FastInteger) := 1 asFastInteger.
+		elements do: [ :element | 
+			result at: index put: element.
+			index += 1 asPrimitive.
+		].
+		^result
+	]
+]
+class:
+[
+"accessing elements"
+
+	"Returns (element) after storing it at all the supplied (indices)
+	in the receiver."
+	atAll: indices put: element 
+	[	indices do: [ :index | self at: index put: element ].
+		^element
+	]
+
+	"Returns (element) after storing it at all locations in the receiver."
+	atAllPut: element
+	[	1 to: self size do: [ :index | self at: index put: element ].
+		^element
+	]
+
+"replacing elements"
+
+	"Replaces receiver elements between (start) and (stop) with
+	elements from (replacements) starting at (origin)."
+	replaceFrom: start to: stop with: replacements startingAt: origin
+	[	offset := origin - start.
+		(self == replacements and: [origin < start]) 
+		ifTrue: [ "Move within same object overlaps, so do backwards"
+			stop to: start by: -1 
+				do: [ :i | self at: i put: (replacements at: offset + i) ]
+		]
+		ifFalse: [ "Non-overlapping moves are done forwards"
+			start to: stop 
+				do: [ :i | self at: i put: (replacements at: offset + i) ]
+		]
+	]
+
+	"Replaces receiver elements between (start) and (stop) with
+	elements from (replacements)."
+	replaceFrom: start to: stop with: replacements
+	[	replacements size == (stop - start + 1) ifFalse: [
+			^self error: 'size of replacement incorrect'
+		].
+		^self replaceFrom: start to: stop 
+			with: replacements startingAt: 1
+	]
+
+	"Replaces receiver elements between (start) and (stop) with (anElement)."
+	replaceFrom: start to: stop withObject: anElement
+	[	1 to: self size do: [ :index | self at: index put: anElement ]
+	]
+]

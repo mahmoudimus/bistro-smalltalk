@@ -1,0 +1,72 @@
+"TestStreams.bist"
+package: smalltalk.example;
+import: smalltalk.stream.*;
+import: java.io.*;
+
+"Regression tests the smalltalk.collection classes.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: TestStreams
+metaclass: []
+class:
+[
+	"Reports the results of tests on the console."
+	static (void) main: args (java.lang.String[])
+	[	[ TestStreams basicNew testStreams. ]
+		catch: [ :e (java.lang.Throwable) |
+			e printStackTrace.
+		]
+	]
+	
+	testStreams
+	[
+		fileName (String) := 'stream.test.txt'.
+		fileOut (String) := 'parsed.text.txt'.
+		
+		"Test file streams."
+		oStream := FileStream write: fileName.
+		oStream nextPutAll: 'a quick brown fox jumped over a lazy dog'; cr.
+		oStream close.
+		
+		Transcript print: 'reading '; printLine: fileName.
+		iStream := FileStream read: fileName.
+		oStream := FileStream write: fileOut.
+		[ iStream atEnd ] whileFalse: [
+			line := iStream upTo: $  .
+			oStream nextPutAll: line; cr.
+			Transcript printLine: line.
+		].
+		iStream close.
+		oStream close.
+
+		"Test elementary streams."
+		[	throws: FileNotFoundException |
+			iStream := ElementaryInputStream from: (
+				FileInputStream basicNew: fileName primitiveString
+			).
+			oStream := ElementaryOutputStream from: (
+				FileOutputStream basicNew: fileOut primitiveString
+			).
+		] value.
+
+		[ iStream atEnd ] whileFalse: [
+			line := iStream upTo: $  .
+			oStream nextPutAll: line; cr.
+			Transcript printLine: line.
+		].
+		iStream close.
+		oStream close.
+
+		"Test collection streams."
+		vowels := 'aeiou'.
+		source := 'abcdefghijklmnopqrstuvwxyz'.
+		iStream := source readStream.
+		oStream := String writeStream: source size.
+		[ iStream atEnd ] whileFalse: [
+			c := iStream next.
+			(vowels includes: c) ifFalse: [ oStream nextPut: c ].
+		].
+		Transcript 
+			print: source; print: ' w/o vowels = ';
+			printLine: oStream contents.
+	]
+]

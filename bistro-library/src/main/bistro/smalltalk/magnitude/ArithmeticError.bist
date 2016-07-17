@@ -1,0 +1,8 @@
+"ArithmeticError.bist"
+package: smalltalk.magnitude;
+
+"Represents an arithmetic error raised by a thread.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Error subclass: ArithmeticError
+metaclass: []
+class: []

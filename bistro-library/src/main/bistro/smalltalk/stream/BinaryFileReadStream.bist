@@ -1,0 +1,59 @@
+"BinaryFileReadStream.bist"
+package: smalltalk.stream;
+import: smalltalk.collection.ByteArray;
+import: java.io.RandomAccessFile;
+import: java.io.IOException;
+
+"Supports reading bytes sequentially from a binary file.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+FileReadStream subclass: BinaryFileReadStream
+metaclass:
+[
+"creating instances"
+
+	"Opens a new instance of the receiver on a (primitiveFile)."
+	protected on: primitiveFile (RandomAccessFile)
+	[	^BinaryFileReadStream basicNew: primitiveFile
+	]
+]
+class:
+[
+	"Constructs a new BinaryFileReadStream."
+	protected BinaryFileReadStream: primitiveFile (RandomAccessFile)
+	{	super( primitiveFile );
+	}
+
+"reading"
+
+	"Returns the next element from the stream."
+	next
+	[	[ ^primitive IntegerFrom: file readUnsignedByte ]
+		catch: [ :e (IOException) | ^0 ]
+	]
+
+	"Returns the next (count) elements from the stream."
+	next: count
+	[	^self nextBytes: (count as: Integer) asSmallInteger
+	]
+
+	"Returns the next line from the stream."
+	nextLine
+	[	^self class emptyString
+	]
+
+	"Returns the elements from the stream up to, but not 
+	including, the next occurrence of (anObject)."
+	upTo: anObject
+	[	position := self position.
+		self do: [ :nextByte |
+			nextByte = anObject ifTrue: [
+				self position: position.
+				result := self next: self position - position - 1.
+				self skip: 1.
+				^result
+			]
+		].
+		self position: position.
+		^self next: self length - position
+	]
+]

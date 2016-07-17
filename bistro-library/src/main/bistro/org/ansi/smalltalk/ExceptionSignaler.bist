@@ -1,0 +1,27 @@
+"ExceptionSignaler.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ExceptionSignaler."
+Object subtype: ExceptionSignaler
+metatype: [
+
+"signaling exceptions"
+
+	"Signals the occurrence of the exception represented by this class."
+	(Object) signal []
+
+	"Signals the occurrence of the exception represented by this class 
+	along with the supplied (message)."
+	(Object) signal: message (ReadableString) []
+]
+type: [
+
+"signaling exceptions"
+
+	"Signals the occurrence of the exception represented by this class."
+	(Object) signal []
+
+	"Signals the occurrence of the exception represented by this class 
+	along with the supplied (message)."
+	(Object) signal: message (ReadableString) []
+]

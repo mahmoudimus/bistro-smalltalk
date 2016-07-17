@@ -1,0 +1,13 @@
+target/
+workspace/
+
+# *.bist
+*.txt
+
+libs-smalltalk/src/main/java/org/
+libs-smalltalk/src/main/java/smalltalk/behavior/
+libs-smalltalk/src/main/java/smalltalk/collection/
+libs-smalltalk/src/main/java/smalltalk/example/
+libs-smalltalk/src/main/java/smalltalk/geometry/
+libs-smalltalk/src/main/java/smalltalk/magnitude/
+libs-smalltalk/src/main/java/smalltalk/stream/

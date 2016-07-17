@@ -1,0 +1,84 @@
+"Symbol.bist"
+package: smalltalk.collection;
+
+"Represents a literal symbol.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+CharacterString subclass: Symbol
+implements: SymbolFactory Comparison
+metaclass:
+[
+	"Returns a Symbol whose value is (primitiveString)."
+	SymbolFrom: primitiveString (java.lang.String)
+	{	return new Symbol( primitiveString );
+	}
+
+	"Returns the primitive string value indicated by (aSymbol)."
+	(java.lang.String) symbolFrom: aSymbol
+	{	Symbol symbol = (Symbol) aSymbol;
+		return symbol.primitiveString().replace( ':', '_' );
+	}
+
+	"Returns a new empty Symbol."
+	new
+	{	return new Symbol( "" );
+	}
+]
+class:
+[
+	"Contains the string value."
+	contents (java.lang.String).
+
+	"Constructs a new Symbol given a (primitiveString)."
+	protected Symbol: primitiveString (java.lang.String)
+	{	contents = primitiveString.intern();
+	}
+
+"accessing"
+
+	"Returns the primitive contents of the receiver."
+	(java.lang.String) primitiveString
+	{	return contents;
+	}
+
+	"Returns the number of elements contained in the receiver."
+	size
+	{	return primitive.IntegerFrom( contents.length() );
+	}
+
+"accessing elements"
+
+	"Returns the element at (index), or evaluates (aBlock),
+	if the receiver does not include an (index)."
+	at: index ifAbsent: aBlock (ZeroArgumentBlock)
+	{	int i = this.checkIndex_ifAbsent( index, aBlock );
+		return primitive.CharacterFrom( contents.charAt( i ) );
+	}
+
+	"Returns (element) after storing it at (index) in the receiver."
+	at: index put: element
+	[	^self immutabilityError
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection
+	{	// optimizes equivalence testing
+		CharacterString s = (CharacterString) aCollection;
+		return primitive.BooleanFrom( contents.equals( s.primitiveString() ) );
+	}
+
+"testing behavior"
+
+	"Indicates whether the receiver is a kind of literal."
+	isLiteral
+	[	^true
+	]
+
+"printing"
+
+	"Returns a printable representation of the receiver."
+	printString
+	{	return primitive.StringFrom( "#" + primitiveString() );
+	}
+]

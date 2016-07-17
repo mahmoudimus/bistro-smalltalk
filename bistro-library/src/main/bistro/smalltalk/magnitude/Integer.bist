@@ -1,0 +1,254 @@
+"Integer.bist"
+package: smalltalk.magnitude;
+
+import: java.math.BigInteger;
+
+"Represents an integer value.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Rational subclass: Integer
+metaclass:
+[
+	"Initializes the radix digits for printing."
+	protected initialize
+	{	radixDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		return this;
+	}
+
+	"Returns the radix digit at (index)."
+	digitValue: index
+	[	^primitive CharacterFrom: 
+			(radixDigits charAt: (index as: SmallInteger) primitiveInteger)
+	]
+]
+class:
+[
+	"Contains the digits for radix-based printing."
+	static radixDigits (java.lang.String).
+
+"accessing"
+
+	"Returns the numerator."
+	numerator
+	[	^self
+	]
+
+	"Returns the denominator."
+	denominator
+	[	^self class unity
+	]
+
+"comparing"
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return elementaryNumber().hashCode();
+	}
+
+"converting"
+
+	"Converts the receiver to a fractional approximation."
+	asFraction
+	[	^self
+	]
+
+	"Returns the result of narrowing the receiver to an integer."
+	asInteger
+	[	^self
+	]
+
+	"Converts the receiver to a BigInteger."
+	(BigInteger) asBigInteger [
+		^BigInteger valueOf: self primitiveLong
+	]
+
+	"Returns the result of narrowing the receiver to a character."
+	asCharacter
+	[	^primitive CharacterFrom: self primitiveCharacter
+	]
+
+"manipulating bits - abstract"
+
+	"Returns the bitwise intersection of the receiver and (anInteger)."
+	wrapped abstract bitAnd: anInteger (Integer) []
+
+	"Returns the bitwise union of the receiver and (anInteger)."
+	wrapped abstract bitOr: anInteger (Integer) []
+
+	"Returns the bitwise exclusive or of the receiver and (anInteger)."
+	wrapped abstract bitXor: anInteger (Integer) []
+
+	"Returns the bitwise inverse of the recevier."
+	abstract bitInvert []
+
+	"Returns the value of the bit at (index)."
+	abstract bitAt: index (SmallInteger) []
+
+	"Returns the result of changing the bit at (index) in the receiver."
+	abstract bitAt: index (SmallInteger) put: bitValue (SmallInteger) []
+
+	"Returns the bitwise shift of the receiver by (count)."
+	abstract bitShift: count (SmallInteger) []
+
+"manipulating bits"
+
+	"Returns the bitwise intersection of the receiver and (anInteger)."
+	& anInteger
+	[	^self bitAnd: anInteger
+	]
+
+	"Returns the bitwise union of the receiver and (anInteger)."
+	| anInteger
+	[	^self bitOr: anInteger
+	]
+
+	"Indicates whether all the (mask) bits occur in the receiver."
+	allMask: mask
+	[	^(self bitAnd: mask) = mask
+	]
+
+	"Indicates whether any (mask) bits occur in the receiver."
+	anyMask: mask
+	[	^(self bitAnd: mask) ~= 0
+	]
+
+	"Indicates whether no (mask) bits occur in the receiver."
+	noMask: mask
+	[	^(self bitAnd: mask) == 0
+	]
+
+	"Returns the value of the bit at (index)."
+	bitAt: index
+	[	^self bitAt: (index as: Integer) asSmallInteger
+	]
+
+	"Returns the result of changing the bit at (index) in the receiver."
+	bitAt: index put: bitValue
+	[	^self bitAt: (index as: Integer) asSmallInteger 
+			put: (bitValue as: Integer) asSmallInteger
+	]
+
+	"Returns the bitwise shift of the receiver by (count)."
+	bitShift: count
+	[	^self bitAt: (count as: Integer) asSmallInteger
+	]
+
+	"Returns the index of the highest order bit whose value is 1."
+	highBit
+	[	^self asLargeInteger highBit
+	]
+
+"testing"
+
+	"Indicates whether the receiver is even."
+	even
+	[	^(self \\ 2) == 0
+	]
+
+	"Indicates whether the receiver is odd."
+	odd
+	[	^self even not
+	]
+
+"testing behavior"
+
+	"Indicates whether the receiver is a (kind of) Integer."
+	isInteger
+	[	^true
+	]
+
+"truncation"
+
+	"Returns the least integer more than or equal to the receiver."
+	ceiling
+	[	^self
+	]
+
+	"Returns the greatest integer less than or equal to the receiver."
+	floor
+	[	^self
+	]
+
+"mathematics"
+
+	"Returns the factorial of the receiver."
+	factorial
+	[	self < self class zero ifTrue: [
+			self error: 'Negative integers cannot use #factorial'
+		].
+		result := self class unity.
+		self class unity to: self do: [ :n | result := result * n ].
+		^result
+	]
+
+	"Returns the greatest common divisor of the receiver and an (operand)."
+	gcd: aNumber
+	[	^(self asLargeInteger gcd: aNumber) narrowGenerality
+	]
+
+	"Returns the least common multiple of the receiver and an (operand)."
+	lcm: aNumber
+	[	gcd := self gcd: aNumber.
+		gcd = 0 ifFalse: [ ^(self // gcd * aNumber) abs ].
+		^1
+	]
+
+	"Returns the result of raising the receiver to (anInteger) power."
+	raisedToInteger: anInteger
+	[	^(self asLargeInteger raisedToInteger: anInteger) narrowGenerality
+	]
+
+"enumerating"
+
+	"Evaluates (aBlock) the number of times represented by the receiver."
+	timesRepeat: aBlock (ZeroArgumentBlock)
+	[	count (Integer) := self class unity.
+		unity (Integer) := self class unity.
+		[ count <= self ] whileTrue: [
+			aBlock value.
+			count := count + unity.
+		]
+	]
+
+	"Evaluates (aBlock) the number of times represented by the receiver."
+	timesRepeat: aBlock
+	[	^self timesRepeat: (aBlock as: ZeroArgumentBlock)
+	]
+
+"printing"
+
+	"Appends a representation of the receiver on (aStream)."
+	printOn: aStream
+	[	self printOn: aStream base: 10 showRadix: false.
+	]
+
+	"Appends a representation of the receiver on (aStream)."
+	printOn: aStream base: radix showRadix: showRadix
+	[	self negative
+			ifTrue: [ 
+				aStream nextPut: $- .
+				self negated printOn: aStream base: radix showRadix: showRadix ]
+			ifFalse: [
+				showRadix ifTrue: [ base printOn: aStream. aStream nextPut: $r ].
+				self printDigitsOn: aStream base: radix ]
+	]
+
+	"Appends a (radix)-based representation of the receiver on (aStream)."
+	printDigitsOn: aStream base: radix
+	[	self >= radix ifTrue: [
+			self // radix printDigitsOn: aStream base: radix
+		].
+		aStream nextPut: (self class digitValue: self \\ radix)
+	]
+
+	"Returns a printable representation of the receiver using a (radix)."
+	printStringRadix: radix
+	[	^self printStringRadix: base showRadix: true
+	]
+
+	"Returns a printable representation of the receiver using a (radix)."
+	printStringRadix: radix showRadix: showRadix
+	[	aStream := 'smalltalk.collection.String' resolvedToClass writeStream: 16.
+		self printOn: aStream base: radix showRadix: showRadix.
+		^aStream contents
+	]
+]

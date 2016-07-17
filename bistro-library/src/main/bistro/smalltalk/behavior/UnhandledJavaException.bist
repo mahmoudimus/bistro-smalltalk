@@ -1,0 +1,54 @@
+"UnhandledJavaException.bist"
+package: smalltalk.behavior;
+import: java.io.PrintStream;
+import: java.io.PrintWriter;
+
+"Softens a hard Java exception into a runtime exception.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+java.lang.RuntimeException subclass: UnhandledJavaException
+metaclass:
+[
+	"Raises an unhandled Java exception."
+	raise: aThrowable (java.lang.Throwable)
+	[	(UnhandledJavaException basicNew: aThrowable) raise.
+	]
+]
+class:
+[
+	"Holds the unhandled Java exception."
+	throwable (Throwable).
+
+	"Constructs a new UnhandledJavaException."
+	UnhandledJavaException: aThrowable (Throwable)
+	{	super( aThrowable.getMessage() );
+		throwable = aThrowable;
+	}
+
+	"Throws the receiver as an exception."
+	raise
+	{	throw this;
+	}
+
+	"Returns the unhandled Java exception."
+	(Throwable) unhandledException
+	[	^throwable
+	]
+
+	"Prints stack traces for the receiver and the unhandled exception."
+	(void) printStackTrace: s (PrintWriter)
+	[	throwable printStackTrace: s.
+		super printStackTrace: s.
+	]
+
+	"Prints stack traces for the receiver and the unhandled exception."
+	(void) printStackTrace: s (PrintStream)
+	[	throwable printStackTrace: s.
+		super printStackTrace: s.
+	]
+
+	"Prints stack traces for the receiver and the unhandled exception."
+	(void) printStackTrace
+	[	throwable printStackTrace.
+		super printStackTrace.
+	]
+]

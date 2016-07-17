@@ -1,0 +1,113 @@
+"TestCollections.bist"
+package: smalltalk.example;
+import: smalltalk.stream.Transcript;
+import: smalltalk.collection.*;
+
+"Regression tests the smalltalk.collection classes.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: TestCollections
+metaclass: []
+class:
+[
+	"Reports the results of tests on the console."
+	static (void) main: args (java.lang.String[])
+	[	[ TestCollections basicNew testCollections. ]
+		catch: [ :e (java.lang.Throwable) |
+			e printStackTrace.
+		]
+	]
+
+	testCollections
+	[
+		"String tests"
+		string := 'aaaa' , 'bbbb'.
+		Transcript print: 'concat = '; printLine: string.
+		Transcript print: 'upper =  '; printLine: string asUppercase.
+
+		"Array tests"
+		Transcript print: 'array =  '.
+		sample := #( 5 4 3 2 1 ).
+		sample do: [ :each | 
+			x (SmallInteger) := each.
+			Transcript print: x asString; space
+		].
+		Transcript cr.
+
+		"SortedCollection tests"
+		Transcript print: 'sorted = '.
+		sample asSortedCollection do: [ :each | 
+			x (SmallInteger) := each.
+			Transcript print: x asString; space
+		].
+		Transcript cr.
+
+		"Set tests"
+		Transcript print: 'set =    '.
+		s := Set new.
+		s addAll: sample.
+		s addAll: sample.
+		s do: [ :each |
+			Transcript print: each printString; space.
+		].
+		s removeAll: sample.
+		Transcript cr; print: 'size after removal = '; 
+			printLine: s size printString.
+
+		"Interval tests"
+		sample := #( 1 2 3 4 5 ).
+		Transcript print: 'range = ( 1 to: 5 ) = '.
+		( 1 to: 5 ) do: [ :each |
+			Transcript print: each printString; space.
+		].
+		Transcript cr.
+		Transcript print: 'range = #( 1 2 3 4 5 ) ? '; 
+			printLine: ( ( 1 to: 5 ) = sample ) printString.
+
+		Transcript print: 'range = #( 1 2 3 4 5 ) asOrderedCollection ? '; 
+			printLine: ( ( 1 to: 5 ) = sample asOrderedCollection ) printString.
+
+		"OrderedCollection tests"
+		Transcript print: 'ordcol = '.
+		o := OrderedCollection new.
+		o addAll: sample.
+		o addAll: sample.
+		o do: [ :each |
+			Transcript print: each printString; space.
+		].
+		Transcript cr.
+
+		"Bag tests"
+		Transcript print: 'bag =    '.
+		b := o asBag.
+		b do: [ :each |
+			Transcript print: each printString; space.
+		].
+		Transcript cr.
+
+		"Dictionary tests"
+		Transcript printLine: 'dictionary = '.
+		d := Dictionary new.
+		sample do: [ :each | 
+			d at: each printString put: each 
+		].
+		d keysAndValuesDo: [ :key :value |
+			Transcript 
+				print: 'key = '; print: key;
+				print: ' value = '; printLine: value printString
+		].
+
+		id := IdentityDictionary new.
+		id at: 123456789 put: 123456789.
+		id at: 123456789 put: 123456789.
+		id at: 1 put: 1.
+		id at: 1 put: 1.
+		Transcript printLine: 'id dictionary size = ', id size printString.
+
+		"Inheritance tests"
+		Transcript cr; printLine: 'Hierarchy:'.
+                allThose (Object) := Object basicNew class withAllSubclasses.
+		allThose do: [ :aClass |
+			Transcript printLine: aClass name.
+		].
+	]
+]

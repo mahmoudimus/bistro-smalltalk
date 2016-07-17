@@ -1,0 +1,8 @@
+"Exception.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Exception."
+SignaledException, ExceptionBuilder, ExceptionSelectorFactory
+subtype: Exception
+metatype: []
+type: []

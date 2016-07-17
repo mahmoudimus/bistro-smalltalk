@@ -1,0 +1,11 @@
+"ReadStream.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ReadStream."
+GettableStream, SequencedStream subtype: ReadStream
+metatype: [
+
+	"Returns a new stream for reading over (aCollection)."
+	(ReadStream) on: aCollection (SequencedReadableCollection) []
+]
+type: []

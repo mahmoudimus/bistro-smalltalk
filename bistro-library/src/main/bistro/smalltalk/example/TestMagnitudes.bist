@@ -1,0 +1,116 @@
+"TestMagnitudes.bist"
+package: smalltalk.example;
+import: smalltalk.magnitude.Time;
+import: smalltalk.stream.Transcript;
+
+"Regression tests the smalltalk.magnitude classes.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: TestMagnitudes
+metaclass: []
+class:
+[
+	"Reports the results of magnitude tests on the console."
+	static (void) main: args (java.lang.String[])
+	[
+		frac := Float pi asFraction withScale: 5.
+		Transcript
+			print: 'precision = ';
+			printLine: Time clockPrecision printString;
+
+			print: 'time now = ';
+			printLine: Time now printString;
+
+			print: 'time UTC = ';
+			printLine: Time now asUTC printString;
+
+			print: 'SmallInteger maximum = ';
+			printLine: SmallInteger maximum printString;
+
+			print: Float pi printString;
+			print: ' ?= (';
+			print: Float pi asFraction printString;
+			print: ') ?= ';
+			printLine: Float pi asFraction asFloat printString;
+
+			print: Double pi printString;
+			print: ' ?= (';
+			print: Double pi asFraction printString;
+			print: ') ?= ';
+			printLine: Double pi asFraction asFloat printString;
+
+			print: frac numerator printString;
+			print: ' / ';
+			print: frac denominator printString;
+			print: ' = ';
+			printLine: frac printString;
+
+			print: '11.1234s5 + 3.14s4 = ';
+			printLine: (11.1234s5 + 3.14s4) printString;
+
+			print: '5 + 6 = ';
+			printLine: ( 5 + 6 ) printString;
+
+			print: '5 - 6 = ';
+			printLine: ( 5 - 6 ) printString;
+
+			print: '(5 - 6) abs = ';
+			printLine: ( 5 - 6 ) abs printString;
+
+			print: '5 * 6 = ';
+			printLine: ( 5 * 6 ) printString;
+
+			print: '5 / 6 = ';
+			printLine: ( 5 / 6 ) asFloat printString;
+
+			print: '(5 / 30) = ';
+			printLine: ( 5 / 30 ) printString;
+
+			print: '5 % 6 = ';
+			printLine: ( 5 % 6 ) printString;
+
+			print: '(5 / 6) ceiling = ';
+			printLine: ( 5 / 6 ) ceiling printString;
+
+			print: '5 ** 6 = ';
+			printLine: ( 5 ** 6 ) printString;
+
+			print: '(5 / 6) reciprocal = ';
+			printLine: ( 5 / 6 ) reciprocal printString;
+
+			print: '(5 / 6) rounded = ';
+			printLine: ( 5 / 6 ) rounded printString;
+
+			print: '(5 < 6) = ';
+			printLine: ( 5 < 6 ) printString;
+
+			print: '20 squared sqrt = ';
+			printLine: 20 squared sqrt printString;
+
+			printLine: ( 5 @ 6 ) printString;
+			printLine: ( 5 >> 6 ) printString;
+
+			print: '(5 / 6) + (6 / 5) = ';
+			printLine: (( 5 / 6 ) + ( 6 / 5 )) printString;
+
+			print: $c printString;
+			print: ' asUppercase = ';
+			printLine: $c asUppercase printString;
+
+			print: $9 printString;
+			print: ' isDigit = ';
+			printLine: $9 isDigit printString;
+
+			yourself.
+
+		count (SmallInteger) := 100000.
+		time (LongInteger) := 
+			Time millisecondsAfter: count timesRepeating: [ 5 + 6 ].
+
+		Transcript
+			print: '(5 + 6) * ';
+			print: count asString;
+			print: ' iterations = ';
+			print: time asString;
+			printLine: ' msecs'
+	]
+]

@@ -1,0 +1,7 @@
+"ReadFileStream.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ReadFileStream."
+FileStream, GettableStream subtype: ReadFileStream
+metatype: []
+type: []

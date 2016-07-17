@@ -1,0 +1,24 @@
+"OneArgumentBlock.bist"
+package: smalltalk.behavior;
+
+"Supports the instantiation and evaluation of blocks with one argument.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+BlockClosure subclass: OneArgumentBlock
+metaclass: []
+class:
+[
+	"Returns the block argument count."
+	argumentCount [
+		^1
+	]
+
+	"Evaluates the receiver with one argument."
+	value: anObject
+	[	^nil
+	]
+
+	"Evaluates the receiver with an exception argument."
+	value: exception (java.lang.Throwable)
+	[	^nil
+	]
+]

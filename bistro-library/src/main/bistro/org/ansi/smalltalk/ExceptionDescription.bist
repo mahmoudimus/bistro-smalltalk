@@ -1,0 +1,29 @@
+"ExceptionDescription.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ExceptionDescription."
+Object subtype: ExceptionDescription
+metatype: []
+type: [
+
+"describing an exception"
+
+	"Returns a description of the exception."
+	(ReadableString) description []
+
+	"Returns the message associated with this exception."
+	(Object) messageText []
+
+	"Returns a unique exception identifier."
+	(Object) tag []
+
+"handling an exception"
+
+	"Performs the default action if this exception is signaled without an active handler."
+	(Object) defaultAction []
+
+"testing"
+
+	"Indicates whether this is a resumable exception."
+	(Boolean) isResumable []
+]

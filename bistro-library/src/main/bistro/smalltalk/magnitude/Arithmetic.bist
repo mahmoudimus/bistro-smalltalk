@@ -1,0 +1,31 @@
+"Arithmetic.bist"
+package: smalltalk.magnitude;
+
+"Supports basic arithmetic operations.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+IntegerArithmetic subtype: Arithmetic
+metatype: []
+type:
+[
+"arithmetic"
+
+	"Returns the integer ratio of the receiver and (aNumber)."
+	// aNumber []
+
+	"Returns the remainder left from dividing the receiver by (aNumber)."
+	\\ aNumber []
+
+"mathematics"
+
+	"Returns the multiplicative inverse of the receiver."
+	reciprocal []
+
+	"Returns the quotient from dividing the receiver by (aNumber)."
+	quo: aNumber []
+
+	"Returns the remainder left from dividing the receiver by (aNumber)."
+	rem: aNumber []
+
+	"Returns the square of the receiver."
+	squared []
+]

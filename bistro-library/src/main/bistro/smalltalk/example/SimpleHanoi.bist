@@ -1,0 +1,93 @@
+"SimpleHanoi.bist"
+package: smalltalk.example;
+import: smalltalk.magnitude.Time;
+import: smalltalk.stream.Transcript;
+
+"Simple tower of Hanoi benchmark. This benchmark compares the performance of
+three variations: 1) Primitive Java, 2) Optimized Bistro, 3) Untyped Bistro.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: SimpleHanoi
+metaclass: []
+class:
+[
+	"The number one."
+	unity (SmallInteger) := 1.
+
+	"Reports the results of the Hanoi tests on the console."
+	static (void) main: args (java.lang.String[]) [
+		[	Transcript 
+				printLine: 'Transfering 22 disks';
+
+				print: 'Java Tower of Hanoi = ';
+				print: SimpleHanoi basicNew hanoiJava printString;
+				printLine: ' seconds';
+
+				print: 'Fast Tower of Hanoi = ';
+				print: SimpleHanoi basicNew hanoiFast printString;
+				printLine: ' seconds';
+
+				print: 'Slow Tower of Hanoi = ';
+				print: SimpleHanoi basicNew hanoiSlow printString;
+				printLine: ' seconds'.
+		]
+		catch: [ :e (java.lang.Throwable) |
+			e printStackTrace.
+		]
+	]
+
+	"Returns duration needed to run the slowest Tower of Hanoi test."
+	hanoiSlow [
+		duration := Time millisecondsToRun: [
+			self slowMove: 22 from: 1 to: 2 temp: 3
+		].
+		^duration / 1000.0
+	]
+
+	"Transfers disks slowly from one tower to another."
+	protected slowMove: numberOfDisks from: source to: dest temp: temp [
+		numberOfDisks = unity ifFalse: [
+			disks := numberOfDisks - unity.
+			self
+				slowMove: disks from: source to: temp temp: dest;
+				slowMove: disks from: temp to: dest temp: source
+		]
+	]
+
+	"Returns duration needed to run an optimized Tower of Hanoi test."
+	hanoiFast [
+		duration := Time millisecondsToRun: [
+			self fastMove: 22 from: 1 to: 2 temp: 3
+		].
+		^duration / 1000.0
+	]
+
+	"Transfers disks quickly from one tower to another."
+	protected fastMove: numberOfDisks (SmallInteger) 
+	from: source (SmallInteger) to: dest (SmallInteger) temp: temp (SmallInteger) [
+		numberOfDisks = unity ifFalse: [
+			disks (SmallInteger) := numberOfDisks - unity.
+			self
+				fastMove: disks from: source to: temp temp: dest;
+				fastMove: disks from: temp to: dest temp: source
+		]
+	]
+
+	"Returns duration needed to run an fastest Tower of Hanoi test."
+	hanoiJava [
+		duration := Time millisecondsToRun: [
+			self javaMove: 22 asPrimitive 
+				from: 1 asPrimitive to: 2 asPrimitive temp: 3 asPrimitive
+		].
+		^duration / 1000.0
+	]
+
+	"Transfers disks from one tower to another as fast as possible."
+	protected javaMove: numberOfDisks (int) 
+	from: source (int) to: dest (int) temp: temp (int) {
+		if (numberOfDisks == 1) return this;
+		int disks = numberOfDisks - 1;
+		this.javaMove_from_to_temp( disks, source, temp, dest );
+		this.javaMove_from_to_temp( disks, temp, dest, source );
+		return this;
+	}
+]

@@ -1,0 +1,44 @@
+"ReadableStream.bist"
+package: smalltalk.stream;
+
+"Supports reading from a stream of values.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: ReadableStream
+metatype: []
+type:
+[
+	"Indicates whether the stream has reached its end."
+	atEnd []
+
+	"Evaluates (aBlock) with each element remaining in the stream."
+	do: aBlock (OneArgumentBlock) []
+
+	"Returns the next element from the stream after advancing its position."
+	next []
+
+	"Returns the next (count) elements from the stream."
+	next: count []
+
+	"Returns the next line from the stream."
+	nextLine []
+
+	"Indicates whether the next element of the stream equals (anObject)."
+	nextMatchFor: anObject []
+
+	"Returns the next element from the stream without advancing its position."
+	peek []
+
+	"Indicates whether the next element from the stream equals (anObject)."
+	peekFor: anObject []
+
+	"Skips the next (count) elements."
+	skip: count []
+
+	"Advances the stream to read the element after the next 
+	occurrence of (anObject)."
+	skipTo: anObject []
+
+	"Returns the elements from the stream up to, but not including, 
+	the next occurrence of (anObject)."
+	upTo: anObject []
+]

@@ -1,0 +1,18 @@
+"HelloWorld.bist"
+package: smalltalk.example;
+import: smalltalk.stream.Transcript;
+
+"Demonstrates Bistro syntax and Java integration."
+Object subclass: HelloWorld
+class: [
+
+	"Supports program launch from the console."
+	static (void) main: args (java.lang.String[]) [
+		HelloWorld basicNew printHello.
+	]
+
+	"Prints hello on the console."
+	printHello [
+		Transcript printLine: 'Hello World!'.
+	]
+]

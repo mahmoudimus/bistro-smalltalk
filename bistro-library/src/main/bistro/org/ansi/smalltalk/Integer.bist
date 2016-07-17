@@ -1,0 +1,71 @@
+"Integer.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Integer."
+Rational subtype: Integer
+metatype: []
+type:
+[
+"manipulating bits"
+
+	"Returns the bitwise intersection of the receiver and (anInteger)."
+	(Integer) bitAnd: anInteger (Integer) []
+
+	"Returns the bitwise union of the receiver and (anInteger)."
+	(Integer) bitOr: anInteger (Integer) []
+
+	"Returns the bitwise exclusive or of the receiver and (anInteger)."
+	(Integer) bitXor: anInteger (Integer) []
+
+	"Returns the bitwise inverse of the recevier."
+	(Integer) bitInvert []
+
+	"Returns the value of the bit at (index)."
+	(Integer) bitAt: index (Integer) []
+
+	"Returns the result of changing the bit at (index) in the receiver."
+	(Integer) bitAt: index (Integer) put: bitValue (Integer) []
+
+	"Returns the index of the highest order bit whose value is 1."
+	(Integer) highBit []
+
+	"Returns the bitwise shift of the receiver by (count)."
+	(Integer) bitShift: count (Integer) []
+
+	"Indicates whether all the (mask) bits occur in the receiver."
+	(Boolean) allMask: mask (Integer) []
+
+	"Indicates whether any (mask) bits occur in the receiver."
+	(Boolean) anyMask: mask (Integer) []
+
+	"Indicates whether no (mask) bits occur in the receiver."
+	(Boolean) noMask: mask (Integer) []
+
+"mathematics"
+
+	"Returns the factorial of the receiver."
+	(Integer) factorial []
+
+	"Returns the greatest common divisor of the receiver and an (operand)."
+	(Integer) gcd: aNumber (Integer) []
+
+	"Returns the least common multiple of the receiver and an (operand)."
+	(Integer) lcm: aNumber (Integer) []
+
+"printing"
+
+	"Appends a representation of the receiver on (aStream)."
+	(Object) printOn: aStream (PuttableStream) base: base (Integer) 
+	showRadix: showRadix (Boolean) []
+
+	"Returns a printable representation of the receiver using a (radix)."
+	(ReadableString) printStringRadix: radix (Integer) []
+
+"testing"
+
+	"Indicates whether the receiver is even."
+	(Boolean) even []
+
+	"Indicates whether the receiver is odd."
+	(Boolean) odd []
+]

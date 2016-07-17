@@ -1,0 +1,27 @@
+"ClassDescription.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ClassDescription."
+Object subtype: ClassDescription
+metatype: []
+type: [
+
+"accessing hierarchy"
+
+	"Returns all the subclasses of this behavior."
+	(Collection) allSubclasses []
+
+	"Returns all the superclasses of this behavior."
+	(Collection) allSuperclasses []
+
+	"Returns the immediate subclasses of this behavior."
+	(Collection) subclasses []
+
+	"Returns the receiver superclass, or nil."
+	(Object) superclass []
+
+"identifying class"
+
+	"Returns the name of the receiver."
+	(ReadableString) name []
+]

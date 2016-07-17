@@ -1,0 +1,78 @@
+"LimitedPrecisionReal.bist"
+package: smalltalk.magnitude;
+
+"Represents an approximation of a real number (limited precision).
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Number subclass: LimitedPrecisionReal
+metaclass:
+[
+	"Returns the capacity in significant digits."
+	significance
+	[	^0 "must be overridden by subclasses"
+	]
+
+	"Truncates a double to a long."
+	(double) truncate: value (double)
+	{	return( value < 0.0d ?
+			java.lang.Math.ceil( value ) :
+			java.lang.Math.floor( value )
+		);
+	}
+]
+class:
+[
+"converting"
+
+	"Converts the receiver to a fractional approximation."
+	asFraction
+	{	SmallInteger sig = (SmallInteger) Float.$class.significance();
+		double limit = java.lang.Math.pow( 10.0d, sig.primitiveInteger() );
+		double value = this.primitiveDouble();
+		double n1 = this.$class.truncate( value );
+		double n2 = 1.0d;
+		double d1 = 1.0d;
+		double d2 = 0.0d;
+		double i  = n1;
+		double x  = 0.0d;
+		double f = value - n1;
+		while( f != 0.0d ) {
+			double dn = 1.0d / f;
+			i = this.$class.truncate( dn );
+			f = dn - i;
+			x = n2;
+			n2 = n1;
+			n1 = ( n1 * i ) + x;
+			x = d2;
+			d2 = d1;
+			d1 = ( d1 * i ) + x;
+			if (limit < d1 ) {
+				return( n2 == 0.0d ?
+					Fraction.$class.numerator_denominator( 
+						new SmallInteger( (int) n1 ), new SmallInteger( (int) d1 ) ) :
+					Fraction.$class.numerator_denominator(
+						new SmallInteger( (int) n2 ), new SmallInteger( (int) d2 ) )
+				);
+			}
+		}
+		return( d1 == 1.0d ? new SmallInteger( (int) n1 ) :
+			Fraction.$class.numerator_denominator(
+				new SmallInteger( (int) n1 ), new SmallInteger( (int) d1 ) )
+		);
+	}
+
+"truncation"
+
+	"Returns the least integer more than or equal to the receiver."
+	ceiling
+	{	return new SmallInteger( (int) 
+			java.lang.Math.ceil( primitiveDouble() ) 
+		);
+	}
+
+	"Returns the greatest integer less than or equal to the receiver."
+	floor
+	{	return new SmallInteger( (int) 
+			java.lang.Math.floor( primitiveDouble() ) 
+		);
+	}
+]

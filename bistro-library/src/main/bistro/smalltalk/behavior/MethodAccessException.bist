@@ -1,0 +1,20 @@
+"MethodAccessException.bist"
+package: smalltalk.behavior;
+
+"Indicates that the VM was unable to access a method dynamically.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+
+RuntimeException subclass: MethodAccessException
+class: [
+
+	"Constructs a new MethodAccessException."
+	MethodAccessException {
+		super();
+	}
+
+	"Constructs a new MethodAccessException.
+	@param message an exception message."
+	MethodAccessException:  message (java.lang.String) {
+		super( message );
+	}
+]

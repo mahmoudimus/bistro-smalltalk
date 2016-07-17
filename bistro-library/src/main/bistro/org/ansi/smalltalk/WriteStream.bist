@@ -1,0 +1,11 @@
+"WriteStream.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk WriteStream."
+PuttableStream, SequencedStream subtype: WriteStream
+metatype: [
+
+	"Returns a new stream for reading over (aCollection)."
+	(WriteStream) with: aCollection (SequencedCollection) []
+]
+type: []

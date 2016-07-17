@@ -1,0 +1,21 @@
+"Comparison.bist"
+package: smalltalk.magnitude;
+
+"Supports comparisons between magnitude values.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: Comparison
+metatype: []
+type:
+[
+	"Indicates whether the receiver is less than (aMagnitude)."
+	< aMagnitude []
+
+	"Indicates whether the receiver is less than or equal to (aMagnitude)."
+	<= aMagnitude []
+
+	"Indicates whether the receiver is greater than (aMagnitude)."
+	> aMagnitude []
+
+	"Indicates whether the receiver is greater than or equal to (aMagnitude)."
+	>= aMagnitude []
+]

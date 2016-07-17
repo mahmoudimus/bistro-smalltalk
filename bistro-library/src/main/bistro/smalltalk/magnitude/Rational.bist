@@ -1,0 +1,73 @@
+"Rational.bist"
+package: smalltalk.magnitude;
+
+"Represents a ration between a numerator and a denominator.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Number subclass: Rational
+metaclass: []
+class:
+[
+"accessing"
+
+	"Returns the numerator."
+	abstract numerator []
+
+	"Returns the denominator."
+	abstract denominator []
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aNumber)."
+	= aNumber (Rational)
+	[	^self numerator = aNumber numerator and: 
+			[ self denominator = aNumber denominator ]
+	]
+
+	"Indicates whether the receiver is less than (aNumber)."
+	< aNumber (Rational)
+	[	^(self numerator * aNumber denominator) 
+			< (self denominator * aNumber numerator)
+	]
+
+	"Indicates whether the receiver is more than (aNumber)."
+	> aNumber (Rational)
+	[	^(self numerator * aNumber denominator) 
+			> (self denominator * aNumber numerator)
+	]
+
+	"Indicates whether the receiver is equivalent to (aNumber)."
+	= aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber = self ]
+			ifFalse: [ self = (aNumber asRational as: Rational) ]
+	]
+
+	"Indicates whether the receiver is less than (aNumber)."
+	< aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber > self ]
+			ifFalse: [ self < (aNumber asRational as: Rational) ]
+	]
+
+	"Indicates whether the receiver is more than (aNumber)."
+	> aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber < self ]
+			ifFalse: [ self > (aNumber asRational as: Rational) ]
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return(
+			((SmallInteger) numerator()).primitiveInteger() ^ 
+			((SmallInteger) denominator()).primitiveInteger()
+		);
+	}
+
+"converting"
+
+	"Returns a rational representation of the receiver."
+	asRational
+	[	^self
+	]
+]

@@ -1,0 +1,7 @@
+"Symbol.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Symbol."
+ReadableString subtype: Symbol
+metatype: []
+type: []

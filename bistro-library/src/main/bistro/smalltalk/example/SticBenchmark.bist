@@ -1,0 +1,268 @@
+"SticBenchmark.bist"
+package: smalltalk.example;
+import: smalltalk.magnitude.Time;
+import: smalltalk.stream.Transcript;
+import: smalltalk.collection.*;
+
+"Provides simple benchmarks of Bistro performance. These tests were derived from
+those provided by the Smalltalk Industry Council (http://www.stic.org/)."
+Object subclass: SticBenchmark
+metaclass: []
+class:
+[
+	"Reports the results of STIC benchmarks on the console."
+	static (void) main: args (java.lang.String[])
+	[	bench := SticBenchmark basicNew.
+		[	Transcript
+				print: '100000 Array allocations =             ';
+				print: ( bench allocationTestDuration / 1000.0 ) printString;
+				printLine: ' seconds';
+
+				print: '100000 Array writes =                  ';
+				print: ( bench arrayWriteTestDuration / 1000.0 ) printString;
+				printLine: ' seconds';
+
+				print: '100000 Dictionary writes =             ';
+				print: ( bench dictionaryWriteTestDuration / 1000.0 ) printString;
+				printLine: ' seconds';
+
+				print: '100000 Float operations =              ';
+				print: ( bench floatMathTestDuration / 1000.0 ) printString;
+				printLine: ' seconds';
+
+				print: '100000 Integer operations =            ';
+				print: ( bench integerMathTestDuration / 1000.0 ) printString;
+				printLine: ' seconds';
+
+				print: '100000 OrderedCollection iterations =  ';
+				print: ( bench orderedCollectionIterateTestDuration / 1000.0 ) printString;
+				printLine: ' seconds';
+
+				print: '100000 OrderedCollection writes =      ';
+				print: ( bench orderedCollectionWriteTestDuration / 1000.0 ) printString;
+				printLine: ' seconds';
+
+				print: '100000 String comparisons =            ';
+				print: ( bench stringCompareTestDuration / 1000.0 ) printString;
+				printLine: ' seconds'.
+		]
+		catch: [ :e (java.lang.Throwable) |
+			e printStackTrace.
+		].
+	]
+
+	"Returns the current runtime."
+	(java.lang.Runtime) getRuntime
+	{	return java.lang.Runtime.getRuntime();
+	}
+
+	"Returns the allocation test duration."
+	allocationTestDuration
+	[
+		runtime (java.lang.Runtime) := self getRuntime.
+		runtime gc.
+
+		^Time millisecondsToRun: [
+			100000 timesRepeat: [
+				Array
+					new:10;
+					new:10;
+					new:10;
+					new:10;
+					new:10;
+					new:10;
+					new:10;
+					new:10;
+					new:10;
+					new:10
+			].
+			runtime gc.
+		]
+	]
+
+	"Returns the array write test duration."
+	arrayWriteTestDuration
+	[
+		junk := 0.
+		array := Array new: 10.
+		^Time millisecondsToRun: [
+			10000 timesRepeat: [
+				array
+					at: 1 put: junk;
+					at: 2 put: junk;
+					at: 3 put: junk;
+					at: 4 put: junk;
+					at: 5 put: junk;
+					at: 6 put: junk;
+					at: 7 put: junk;
+					at: 8 put: junk;
+					at: 9 put: junk;
+					at: 10 put: junk
+			]
+		]
+	]
+
+	"Returns the dictionary write test duration."
+	dictionaryWriteTestDuration
+	[
+		junk := 0.
+		key1 := 1.
+		key2 := 2.
+		key3 := 3.
+		key4 := 4.
+		key5 := 5.
+		key6 := 6.
+		key7 := 7.
+		key8 := 8.
+		key9 := 9.
+		key10 := 10.
+
+		^Time millisecondsToRun: [
+			10000 timesRepeat: [
+				dict := Dictionary new: 20.
+				dict
+					at: key1 put: junk;
+					at: key2 put: junk;
+					at: key3 put: junk;
+					at: key4 put: junk;
+					at: key5 put: junk;
+					at: key6 put: junk;
+					at: key7 put: junk;
+					at: key8 put: junk;
+					at: key9 put: junk;
+					at: key10 put: junk
+			]
+		]
+	]
+
+	"Returns the floating point math test duration."
+	floatMathTestDuration
+	[
+		a := 87.0.
+		b := 53.0.
+		c := -87.0.
+		d := 42461.0.
+		e := 5.0.
+		^Time millisecondsToRun: [
+			10000 timesRepeat: [
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+			]
+		]
+	]
+
+	"Returns the integer math test duration."
+	integerMathTestDuration
+	[
+		a := 87.
+		b := 53.
+		c := -87.
+		d := 42461.
+		e := 5.
+		^Time millisecondsToRun: [
+			10000 timesRepeat: [
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+				e := (e * a + b) * c + d.
+			]
+		]
+	]
+
+	"Returns the ordered collection iteration test duration."
+	orderedCollectionIterateTestDuration
+	[
+		junk := 0.
+		oc := OrderedCollection new: 20.
+		oc	add: junk;
+			add: junk;
+			add: junk;
+			add: junk;
+			add: junk;
+			add: junk;
+			add: junk;
+			add: junk;
+			add: junk;
+			add: junk.
+
+		^Time millisecondsToRun: [
+			1000 timesRepeat: [
+				oc do: [ :element | ].
+				oc do: [ :element | ].
+				oc do: [ :element | ].
+				oc do: [ :element | ].
+				oc do: [ :element | ].
+				oc do: [ :element | ].
+				oc do: [ :element | ].
+				oc do: [ :element | ].
+				oc do: [ :element | ].
+				oc do: [ :element | ].
+			]
+		]
+	]
+
+	"Returns the ordered collection write test duration."
+	orderedCollectionWriteTestDuration
+	[
+		junk := 0.
+		oc := OrderedCollection new: 20.
+		^Time millisecondsToRun: [
+			10000 timesRepeat: [
+				oc := OrderedCollection new: 20.
+				oc	addLast: junk;
+					addLast: junk;
+					addLast: junk;
+					addLast: junk;
+					addLast: junk;
+					addLast: junk;
+					addLast: junk;
+					addLast: junk;
+					addLast: junk;
+					addLast: junk
+			]
+		]
+	]
+
+	"Returns the string comparison test duration."
+	stringCompareTestDuration
+	[
+		^Time millisecondsToRun: [
+			10000 timesRepeat: [
+				'this is a test of a string compare of two long strings' = 
+				'this is a test of a string compare of two long strings'.
+				'this is a test of a string compare of two long strings' = 
+				'this is a test of a string compare of two long strings'.
+				'this is a test of a string compare of two long strings' = 
+				'this is a test of a string compare of two long strings'.
+				'this is a test of a string compare of two long strings' = 
+				'this is a test of a string compare of two long strings'.
+				'this is a test of a string compare of two long strings' = 
+				'this is a test of a string compare of two long strings'.
+				'this is a test of a string compare of two long strings' = 
+				'this is a test of a string compare of two long strings'.
+				'this is a test of a string compare of two long strings' = 
+				'this is a test of a string compare of two long strings'.
+				'this is a test of a string compare of two long strings' = 
+				'this is a test of a string compare of two long strings'.
+				'this is a test of a string compare of two long strings' = 
+				'this is a test of a string compare of two long strings'.
+				'this is a test of a string compare of two long strings' = 
+				'this is a test of a string compare of two long strings'.
+			]
+		]
+	]
+]

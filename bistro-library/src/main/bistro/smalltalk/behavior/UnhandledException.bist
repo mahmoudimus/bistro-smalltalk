@@ -1,0 +1,35 @@
+"UnhandledException.bist"
+package: smalltalk.behavior;
+import: smalltalk.behavior.Exception;
+
+"Wraps an exception with a runtime exception.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+java.lang.RuntimeException subclass: UnhandledException
+metaclass:
+[
+	"Raises an unhandled (exception)."
+	raise: exception (Exception)
+	[	(UnhandledException basicNew: exception) raise.
+	]
+]
+class:
+[
+	"Holds the unhandled Java exception."
+	exception (Exception).
+
+	"Constructs a new UnhandledException."
+	UnhandledException: anException (Exception)
+	{	super( anException.description().toString() );
+		exception = anException;
+	}
+
+	"Throws the receiver as an exception."
+	raise
+	{	throw this;
+	}
+
+	"Returns the unhandled Java exception."
+	(Exception) unhandledException
+	[	^exception
+	]
+]

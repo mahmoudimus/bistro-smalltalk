@@ -1,0 +1,34 @@
+"MessageNotUnderstood.bist"
+package: smalltalk.behavior;
+
+"Represents an unresolved message raised by a thread.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+ControlError subclass: MessageNotUnderstood
+metaclass: []
+class: [
+
+	"Refers to the message sent."
+	message (MessageSend).
+
+	"Constructs a new MessageNotUnderstood."
+	MessageNotUnderstood: messageSend [
+		message := messageSend.
+	]
+
+	"Returns the message not understood."
+	message [
+		^message
+	]
+
+	"Returns the message receiver."
+	receiver [
+		^message receiver
+	]
+
+"testing"
+
+	"Indicates whether this is a resumable exception."
+	isResumable [
+		^true
+	]
+]

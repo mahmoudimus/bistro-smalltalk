@@ -1,0 +1,75 @@
+"AbstractDictionary.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Dictionary."
+Collection subtype: AbstractDictionary
+metatype: [
+
+	"Returns a new Dictionary that contains all the (newElements)."
+	(AbstractDictionary) withAll: newElements (AbstractDictionary) []
+]
+type: [
+
+"accessing"
+
+	"Returns the index of an (element)."
+	(Object) keyAtValue: element (Object) []
+
+	"Returns the index of an (element), or evaluates (aBlock)
+	if the receiver does not contain (element)."
+	(Object) keyAtValue: element (Object) ifAbsent: aBlock (NiladicValuable) []
+
+"accessing elements"
+
+	"Returns the element at (index)."
+	(Object) at: index (Object) []
+
+	"Returns the element at (index), or evaluates (aBlock),
+	if the receiver does not include an (index)."
+	(Object) at: index (Object) ifAbsent: aBlock (NiladicValuable) []
+
+	"Returns the element at (index), or the result of evaluating
+	(aBlock), after storing it at (index) in the receiver."
+	(Object) at: index (Object) ifAbsentPut: aBlock (NiladicValuable) []
+
+	"Returns (element) after storing it at (index) in the receiver."
+	(Object) at: index (Object) put: element (Object) []
+
+	"Returns the keys contained in the receiver."
+	(Collection) keys []
+
+	"Returns the values contained in the receiver."
+	(SequencedReadableCollection) values []
+
+"enumerating"
+
+	"Evaluates (aBlock) with each receiver key-value pair."
+	(Dictionary) keysAndValuesDo: aBlock (DyadicValuable) []
+
+	"Evaluates (aBlock) with each receiver key."
+	(Dictionary) keysDo: aBlock (MonadicValuable) []
+
+"removing elements"
+
+	"Returns the element indexed by the supplied (key) after removing it 
+	from the receiver."
+	(Object) removeKey: key (Object) []
+
+	"Returns the element indexed by the supplied (key) after removing it 
+	from the receiver, or evaluates (aBlock) if the key is absent."
+	(Object) removeKey: key (Object) ifAbsent: aBlock (NiladicValuable) []
+
+	"Returns the receiver after removing the first occurrence of each
+	of the (keys) from the receiver."
+	(Object) removeAllKeys: keys (Collection) []
+
+	"Returns the receiver after removing the first occurrence of each
+	of the (keys) from the receiver or evaluating (aBlock) if a key
+	is absent."
+	(Object) removeAllKeys: keys (Collection) ifAbsent: aBlock (NiladicValuable) []
+
+"testing"
+
+	"Indicates whether the collection includes (key)."
+	(Boolean) includesKey: key (Object) []
+]

@@ -1,0 +1,11 @@
+"Fraction.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Fraction."
+Rational subtype: Fraction
+metatype: [
+
+	"Returns a new rationalized Fraction for the supplied arguments."
+	(Rational) numerator: numerator (Integer) denominator: denominator (Integer) []
+]
+type: []

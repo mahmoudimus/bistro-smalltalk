@@ -1,0 +1,276 @@
+"SortedCollection.bist"
+package: smalltalk.collection;
+
+"Represents a sorted, variable sized collection of objects. This 
+implementation sorts elements lazily, i.e., only when needed for 
+element access.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+SequenceableCollection subclass: SortedCollection
+implements: ExtensibleCollection ExcisableCollection ContractibleCollection
+metaclass:
+[
+	"Returns a new empty SortedCollection."
+	new
+	[	^self new: 10
+	]
+
+	"Returns a new empty SortedCollection with the supplied (capacity)."
+	new: capacity
+	{	return new SortedCollection( (Number) capacity );
+	}
+
+	"Returns a new SortedCollection with a (primitiveList) as its contents."
+	from: primitiveList (java.util.List)
+	[	^SortedCollection basicNew: primitiveList
+	]
+
+	"Returns a new SortedCollection with synchronized access to a (primitiveList)."
+	synchronizedFrom: primitiveList (java.util.List)
+	[	^SortedCollection basicNew: (
+			java.util.Collections synchronizedList: primitiveList
+		)
+	]
+
+	"Returns the default sort block."
+	(TwoArgumentBlock) sortBlock
+	[	^[ :a :b | a < b ]
+	]
+]
+class:
+[
+	"Contains the collection elements."
+	contents (java.util.List).
+
+	"Refers to the block used to sort the receiver elements."
+	sortBlock (TwoArgumentBlock).
+
+	"Refers to the primitive comparator used to sort the elements."
+	primitiveSort (java.util.Comparator).
+
+	"Indicates whether the contents need sorting."
+	needsSort.
+
+	"Constructs a new (empty) SortedCollection."
+	protected SortedCollection
+	[	contents := java.util.ArrayList basicNew.
+		sortBlock := SortedCollection sortBlock.
+		primitiveSort := self primitiveComparator.
+		needsSort := false.
+	]
+
+	"Constructs a new SortedCollection."
+	protected SortedCollection: capacity (Number)
+	[	contents := java.util.ArrayList basicNew: capacity primitiveInteger.
+		sortBlock := SortedCollection sortBlock.
+		primitiveSort := self primitiveComparator.
+		needsSort := false.
+	]
+
+	"Constructs a new SortedCollection with a (primitiveList)."
+	protected SortedCollection: primitiveList (java.util.List)
+	[	contents := primitiveList.
+	]
+
+"accessing"
+
+	"Returns the primitive contents of the receiver."
+	(java.util.List) primitiveContents
+	[	self reSort.
+		^contents
+	]
+
+	"Returns the number of elements contained in the receiver."
+	size
+	[	^primitive IntegerFrom: contents size
+	]
+
+"adding elements"
+
+	"Returns the element at (index), or evaluates (aBlock),
+	if the receiver does not include an (index)."
+	at: index ifAbsent: aBlock (ZeroArgumentBlock)
+	[	self reSort.
+		i (int) := self checkIndex: index ifAbsent: aBlock.
+		^(contents get: i) as: smalltalk.behavior.Object
+	]
+
+	"Returns an (element) after adding it to the receiver."
+	add: element
+	{	synchronized( this ) {
+			contents.add( element );
+			needsSort = primitive.literalTrue();
+		}
+		return element;
+	}
+
+	"Returns a collection of (elements) after adding them to the receiver."
+	addAll: elements 
+	[	elements do: [ :element | self add: element ].
+		^elements
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection (SortedCollection)
+	[	^primitive BooleanFrom: (contents equals: aCollection primitiveContents)
+	]
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection
+	[	[	c (SortedCollection) := aCollection.
+			^self = c
+		]
+		catch: [ :e (java.lang.ClassCastException) |
+			^false
+		]
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	[	^contents hashCode
+	]
+
+"converting"
+
+	"Returns a SortedCollection that contains the receiver elements."
+	asSortedCollection
+	[	^self
+	]
+
+"removing elements"
+
+	"Returns the element at (index) after removing it from the receiver."
+	removeAtIndex: index ifAbsent: aBlock (ZeroArgumentBlock) [
+		self reSort.
+		i (int) := self checkIndex: index ifAbsent: aBlock.
+		^(contents remove: i) as: smalltalk.behavior.Object
+	]
+
+	"Returns the element at (index) after removing it from the receiver."
+	removeAtIndex: index 
+	[	^self removeAtIndex: index 
+			ifAbsent: [ ^self indexRangeError ]
+	]
+
+	"Returns an (element) after removing it from the receiver."
+	remove: element 
+	[	^self remove: element 
+			ifAbsent: [ ^self elementNotFound ]
+	]
+
+	"Returns an (element) after removing it from the receiver, 
+	or evaluates (aBlock) if the (element) is absent."
+	remove: element ifAbsent: aBlock (ZeroArgumentBlock) 
+	[	^self removeAtIndex: ( 
+			self indexOf: element ifAbsent: aBlock
+		)
+	]
+
+	"Returns (elements) after removing the first occurrence of each
+	from the receiver."
+	removeAll: elements 
+	[	elements do: [ :element | self remove: element ].
+		^elements
+	]
+
+	"Removes elements selected by the supplied (criteria) from the receiver."
+	removeAllSuchThat: criteria 
+	[	result := self class new: 10.
+		1 to: self size do: [ :index |
+			element := self at: index.
+			(criteria value: element) ifTrue: [
+				result add: element.
+				self removeAtIndex: index
+			]
+		].
+		^result
+	]
+
+	"Returns the first element of the receiver after removing it."
+	removeFirst
+	[	self emptyCheck.
+		self reSort.
+		^(contents remove: 0 asPrimitive) as: smalltalk.behavior.Object
+	]
+
+	"Returns the last element of the receiver after removing it."
+	removeLast
+	[	self emptyCheck.
+		self reSort.
+		^(contents remove: contents size - 1) as: smalltalk.behavior.Object
+	]
+
+	"Removes the first (count) elements from the receiver."
+	removeFirst: count 
+	[	result := self class new: count.
+		count timesRepeat: [ result add: self removeFirst ].
+		^result
+	]
+
+	"Removes the last (count) elements from the receiver."
+	removeLast: count
+	[	result := self class new: count.
+		count timesRepeat: [ result add: self removeLast ].
+		^result
+	]
+
+"sorting elements"
+
+	"Returns the block used to sort the receiver elements."
+	sortBlock
+	[	^sortBlock
+	]
+
+	"Establishes the block used to sort the receiver elements."
+	sortBlock: aBlock (TwoArgumentBlock)
+	[	sortBlock := aBlock.
+		needsSort := true.
+	]
+
+	"Establishes the block used to sort the receiver elements."
+	sortBlock: aBlock
+	{	return sortBlock( (TwoArgumentBlock) aBlock );
+	}
+
+	"Returns a primitive Comparator for sorting the receiver elements."
+	private (java.util.Comparator) primitiveComparator
+	{	return new java.util.Comparator() {
+			public int compare( java.lang.Object o1, java.lang.Object o2 ) {
+				Object $true = primitive.literalTrue();
+				Object a = (Object) o1;
+				Object b = (Object) o2;
+				Object bool = a.$equal( b );
+				if (bool == $true) return 0;
+				bool = sortBlock.value_value( (Object) a, (Object) b );
+				return( bool == $true ? -1 : 1 );
+			}
+			public boolean equals( java.lang.Object aComparator ) {
+				return( this == aComparator );
+			}
+		};
+	}
+
+	"Resorts the receiver contents."
+	protected reSort
+	{	// optimize the element sort
+		if (needsSort == primitive.literalFalse()) return this;
+		synchronized( this ) {
+			java.lang.Object[] elements = contents.toArray();
+			java.util.Arrays.sort( elements, primitiveSort );
+			contents = new java.util.ArrayList( elements.length );
+			for( int i = 0; i < elements.length; i++ ) {
+				contents.add( elements[i] );
+			}
+			needsSort = primitive.literalFalse();
+		}
+		return this;
+	}
+
+"streaming"
+
+	"Returns a new stream for appending to the receiver."
+	writeStream
+	[	^'smalltalk.stream.WriteStream' resolvedToClass on: self
+	]
+]

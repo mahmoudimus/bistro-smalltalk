@@ -1,0 +1,54 @@
+"BlockClosure.bist"
+package: smalltalk.behavior;
+
+"Defines the services supported by all blocks.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: BlockClosure
+metaclass: []
+class:
+[
+	"Returns the block argument count."
+	abstract argumentCount []
+
+	"Returns the result of evaluating the receiver with (arguments)."
+	valueWithArguments: arguments [
+		count := arguments count.
+		count = 0 ifTrue: [ 
+			^(self as: ZeroArgumentBlock) value 
+		].
+		count = 1 ifTrue: [ 
+			^(self as: OneArgumentBlock) 
+				value: (arguments at: 1) 
+		].
+		count = 2 ifTrue: [ 
+			^(self as: TwoArgumentBlock) 
+				value: (arguments at: 1) 
+				value: (arguments at: 2) 
+		].
+		self error: 'Blocks only two or less arguments'.
+	]
+
+"multithreading"
+
+	"Holds a thread if forked."
+	thread (java.lang.Thread).
+
+	"Returns the primitive thread executing the receiver."
+	(java.lang.Thread) primitiveThread
+	[	^thread
+	]
+
+	"Returns the name of the associated thread."
+	threadName
+	[	^(Object isNull: thread) 
+			ifTrue: [ 'a Thread' ]
+			ifFalse: [ primitive StringFrom: thread getName ]
+	]
+
+"printing"
+
+	"Returns a printable representation of the receiver."
+	printString
+	[	^self threadName
+	]
+]

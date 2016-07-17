@@ -1,0 +1,31 @@
+"Message.bist"
+package: smalltalk.behavior;
+
+"Represents a Smalltalk message, including the selector and message arguments.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: Message
+metaclass: []
+class:
+[
+	"Identifies a method to invoke."
+	selector (java.lang.String).
+
+	"Contains the method invocation arguments."
+	arguments (Object[]).
+
+	"Constructs a new Message."
+	Message: methodSelector (java.lang.String) : methodArguments (Object[]) [
+		selector := methodSelector.
+		arguments := methodArguments.
+	]
+
+	"Returns the method selector."
+	selector [
+		^primitive SymbolFrom: selector
+	]
+
+	"Returns the method invocation arguments."
+	arguments [
+		^primitive ArrayFrom: arguments
+	]
+]

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="5cm" height="5cm" viewBox="270 15 339 415" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g>
+    <g>
+      <ellipse style="fill: #bfbfbf" cx="543" cy="245" rx="65" ry="83"/>
+      <ellipse style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" cx="543" cy="245" rx="65" ry="83"/>
+    </g>
+    <g>
+      <ellipse style="fill: #ffffff" cx="543.3" cy="245.8" rx="38" ry="55.2"/>
+      <ellipse style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" cx="543.3" cy="245.8" rx="38" ry="55.2"/>
+    </g>
+  </g>
+  <g>
+    <ellipse style="fill: #7f7f7f" cx="400" cy="387" rx="126" ry="39"/>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 6; stroke: #4c4c4c" cx="400" cy="387" rx="126" ry="39"/>
+  </g>
+  <g>
+    <rect style="fill: #7f7f7f" x="278" y="160" width="246" height="224"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #7f7f7f" x="278" y="160" width="246" height="224"/>
+  </g>
+  <g>
+    <ellipse style="fill: #bfbfbf" cx="401" cy="159" rx="123" ry="39"/>
+    <ellipse style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #7f7f7f" cx="401" cy="159" rx="123" ry="39"/>
+  </g>
+  <g>
+    <path style="fill: #8b6914" d="M 398.75 155 C 455.875,155 513,167.5 513,180 C 513,180 398.75,180 398.75,180 C 398.75,180 398.75,155 398.75,155z"/>
+    <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #8b6914" d="M 398.75 155 C 455.875,155 513,167.5 513,180 C 513,180 398.75,180 398.75,180 C 398.75,180 398.75,155 398.75,155"/>
+    <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #8b6914" d="M 398.75 155 C 455.875,155 513,167.5 513,180 C 513,180 398.75,180 398.75,180 C 398.75,180 398.75,155 398.75,155"/>
+  </g>
+  <g>
+    <path style="fill: #8b6914" d="M 399.25 155 C 345.125,155 291,167.5 291,180 C 291,180 399.25,180 399.25,180 C 399.25,180 399.25,155 399.25,155z"/>
+    <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #8b6914" d="M 399.25 155 C 345.125,155 291,167.5 291,180 C 291,180 399.25,180 399.25,180 C 399.25,180 399.25,155 399.25,155"/>
+    <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #8b6914" d="M 399.25 155 C 345.125,155 291,167.5 291,180 C 291,180 399.25,180 399.25,180 C 399.25,180 399.25,155 399.25,155"/>
+  </g>
+  <g>
+    <path style="fill: #8b6914" d="M 398 200 C 451,200 504,190.5 504,181 C 504,181 398,181 398,181 C 398,181 398,200 398,200z"/>
+    <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #8b6914" d="M 398 200 C 451,200 504,190.5 504,181 C 504,181 398,181 398,181 C 398,181 398,200 398,200"/>
+    <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #8b6914" d="M 398 200 C 451,200 504,190.5 504,181 C 504,181 398,181 398,181 C 398,181 398,200 398,200"/>
+  </g>
+  <g>
+    <path style="fill: #8b6914" d="M 398 200 C 348,200 298,190 298,180 C 298,180 398,180 398,180 C 398,180 398,200 398,200z"/>
+    <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #8b6914" d="M 398 200 C 348,200 298,190 298,180 C 298,180 398,180 398,180 C 398,180 398,200 398,200"/>
+    <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #8b6914" d="M 398 200 C 348,200 298,190 298,180 C 298,180 398,180 398,180 C 398,180 398,200 398,200"/>
+  </g>
+  <ellipse style="fill: none; fill-opacity:0; stroke-width: 8; stroke: #4c4c4c" cx="400.5" cy="161" rx="123" ry="39"/>
+  <g>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="349.75,315.5 365.75,278 408.25,315 378.75,336 "/>
+    <g>
+      <path style="fill: #ffff00" d="M 426.937 248.93 C 459.548,206.819 488.25,301 407.25,313.5 C 326.25,326 394.325,291.04 426.937,248.93z"/>
+      <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #ffff00" d="M 426.937 248.93 C 459.548,206.819 488.25,301 407.25,313.5 C 326.25,326 394.325,291.04 426.937,248.93"/>
+    </g>
+    <g>
+      <path style="fill: #ff7f00" d="M 426.75 246 C 459.361,203.889 459.25,298 396.75,313.5 C 334.25,329 394.139,288.111 426.75,246z"/>
+      <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #ff7f00" d="M 426.75 246 C 459.361,203.889 459.25,298 396.75,313.5 C 334.25,329 394.139,288.111 426.75,246"/>
+    </g>
+    <g>
+      <path style="fill: #00ff00" d="M 420.25 221.5 C 471.706,229.659 384.25,311.5 370.794,301.841 C 357.338,292.182 368.794,213.341 420.25,221.5z"/>
+      <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #00ff00" d="M 420.25 221.5 C 471.706,229.659 384.25,311.5 370.794,301.841 C 357.338,292.182 368.794,213.341 420.25,221.5"/>
+    </g>
+    <g>
+      <path style="fill: #0000ff" d="M 423.471 225.238 C 473.75,222.5 390.75,300.5 373.25,311.5 C 355.75,322.5 373.192,227.975 423.471,225.238z"/>
+      <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #0000ff" d="M 423.471 225.238 C 473.75,222.5 390.75,300.5 373.25,311.5 C 355.75,322.5 373.192,227.975 423.471,225.238"/>
+    </g>
+    <g>
+      <path style="fill: #a020f0" d="M 427.75 232 C 470.25,221 394.75,293.5 375.75,312 C 356.75,330.5 385.25,243 427.75,232z"/>
+      <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #a020f0" d="M 427.75 232 C 470.25,221 394.75,293.5 375.75,312 C 356.75,330.5 385.25,243 427.75,232"/>
+    </g>
+    <g>
+      <path style="fill: #ff0000" d="M 430.75 244 C 457.25,211.5 432.75,283 386.25,310 C 339.75,337 404.25,276.5 430.75,244z"/>
+      <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #ff0000" d="M 430.75 244 C 457.25,211.5 432.75,283 386.25,310 C 339.75,337 404.25,276.5 430.75,244"/>
+    </g>
+    <g>
+      <polygon style="fill: #d8a117" points="341.75,335.5 350.25,315 379.25,335.5 361.25,348.5 "/>
+      <polygon style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #d8a117" points="341.75,335.5 350.25,315 379.25,335.5 361.25,348.5 "/>
+    </g>
+  </g>
+  <text font-size="22.5778" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:700" x="400" y="387">
+    <tspan x="400" y="387">BISTRO</tspan>
+  </text>
+  <g>
+    <path style="fill: #d8a117" d="M 376 29.5 C 463,10.5 283,41.5 383,76.5 C 483,111.5 504,144.5 423,171.5 C 342,198.5 515,149.5 413,112.5 C 311,75.5 289,48.5 376,29.5z"/>
+    <path style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #d8a117" d="M 376 29.5 C 463,10.5 283,41.5 383,76.5 C 483,111.5 504,144.5 423,171.5 C 342,198.5 515,149.5 413,112.5 C 311,75.5 289,48.5 376,29.5"/>
+  </g>
+</svg>

@@ -1,0 +1,52 @@
+"ExceptionSet.bist"
+package: smalltalk.behavior;
+
+"Represents a set of possible exceptions that can be raised by a thread.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: ExceptionSet
+metaclass:
+[
+"creating exception sets"
+
+	"Returns an instance of the receiver with (anException) as its sole member."
+	with: anException [
+		result := self new.
+		result exceptions add: anException.
+		^result
+	]
+
+]
+class:
+[
+"accessing exceptions"
+
+	"Contains a set of exceptionClasses."
+	exceptions := nil.
+
+	"Returns the receiver with an (exceptionClass) added to its list of exceptions"
+	, exceptionClass [
+		self exceptions add: exceptionClass
+	]
+
+	"Returns the set class used to hold exceptions."
+	protected setClass [
+		^'smalltalk.collection.Set' resolvedToClass
+	]
+
+	"Returns a collection of exceptions in the receiver."
+	exceptions [
+		exceptions == nil ifTrue: [ exceptions := self setClass new ].
+		^exceptions
+	]
+
+"testing for exception acceptance"
+
+	"Indicates whether the receiver handles (anException)."
+	handles: anException [
+		self exceptions 
+			detect: [ :exceptionClass | exceptionClass handles: anException ]
+			ifNone: [ ^false ].
+
+		^true
+	]
+]

@@ -1,0 +1,16 @@
+"Notification.bist"
+package: smalltalk.behavior;
+
+"Represents a notification raised by a thread.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Exception subclass: Notification
+metaclass: []
+class: [
+
+"testing"
+
+	"Indicates whether this is a resumable exception."
+	isResumable [
+		^true
+	]
+]

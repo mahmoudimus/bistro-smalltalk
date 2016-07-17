@@ -1,0 +1,68 @@
+"Transcript.bist"
+package: smalltalk.stream;
+
+"Logs messages on the system console.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subclass: Transcript
+metaclass:
+[
+	"Returns nil."
+	new
+	{	return primitive.literalNil();
+	}
+
+	"Appends a new line to the console."
+	cr
+	{	System.out.println();
+		return this;
+	}
+
+	"Appends a tab to the console."
+	tab
+	{	System.out.print( "\t" );
+		return this;
+	}
+
+	"Appends a tab to the console."
+	space
+	{	System.out.print( " " );
+		return this;
+	}
+
+	"Appends (aString) to the console."
+	print: aString (java.lang.String)
+	{	System.out.print( aString );
+		return this;
+	}
+
+	"Appends (aString) to the console."
+	print: aString (String)
+	[	self print: aString primitiveString.
+	]
+
+	"Appends (aString) to the console."
+	print: aString
+	[	string (String) := aString.
+		self print: string.
+	]
+
+	"Appends (aString) with a new line to the console."
+	printLine: aString (java.lang.String)
+	{	System.out.println( aString );
+		return this;
+	}
+
+	"Appends (aString) with a new line to the console."
+	printLine: aString (String)
+	[	self printLine: aString primitiveString.
+	]
+
+	"Appends (aString) with a new line to the console."
+	printLine: aString
+	[	string (String) := aString.
+		self printLine: string.
+	]
+]
+class:
+[
+]

@@ -1,0 +1,51 @@
+"SignaledException.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk SignaledException."
+ExceptionDescription subtype: SignaledException
+metatype: []
+type: [
+
+"completing an exception"
+
+	"Returns nil as the result of the message that signaled this exception."
+	(void) resume []
+
+	"Returns the supplied (value) as the result of the message that signaled this exception."
+	(void) resume: value (Object) []
+
+	"Returns nil as the result of the block guarded by the active exception handler."
+	(void) return []
+
+	"Returns the supplied (value) as the result of the block guarded by the active exception handler."
+	(void) return: value (Object) []
+
+"handling an exception"
+
+	"Activate the enclosing hander for this exception. Afterwards, if this exception 
+	is resumable, the current handler will continue executing with the resumption value 
+	from the enclosing handler returned as the value of this message."
+	(Object) outer []
+
+	"Passes the receiver to the next enclosing exception handler."
+	(void) pass []
+
+"resignaling an exception"
+
+	"Resignals with (anException) as the raised exception, replacing the receiver."
+	(void) resignalAs: anException (ExceptionDescription) []
+
+"retrying an exception"
+
+	"Aborts the current exception handler and reattempts evaluation of the protected block."
+	(void) retry []
+
+	"Aborts the current exception handler, replaces the protected block with (aBlock), 
+	and evaluates the new protected block under the protection of the handler."
+	(void) retryUsing: aBlock (NiladicBlock) []
+
+"testing"
+
+	"Indicates whether the handler for this exception is nested."
+	(Boolean) isNested []
+]

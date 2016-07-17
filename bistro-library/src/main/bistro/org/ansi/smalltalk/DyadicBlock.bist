@@ -1,0 +1,7 @@
+"DyadicBlock.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk DyadicBlock."
+DyadicValuable subtype: DyadicBlock
+metatype: []
+type: []

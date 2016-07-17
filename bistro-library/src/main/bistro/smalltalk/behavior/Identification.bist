@@ -1,0 +1,27 @@
+"Identification.bist"
+package: smalltalk.behavior;
+
+"Supports basic identity and similarity comparisons between objects.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: Identification
+metatype: []
+type:
+[
+	"Indicates whether the receiver is equivalent to (anObject)."
+	= anObject []
+
+	"Indicates whether the receiver is (anObject)."
+	== anObject []
+
+	"Indicates whether the receiver is not equivalent to (anObject)."
+	~= anObject []
+
+	"Indicates whether the receiver differs from (anObject)."
+	~~ anObject []
+
+	"Returns an integer value that may be used for equivalence tests."
+	hash []
+
+	"Returns an integer value that may be used for identity tests."
+	identityHash []
+]

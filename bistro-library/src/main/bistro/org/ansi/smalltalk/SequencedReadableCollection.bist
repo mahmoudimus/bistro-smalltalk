@@ -1,0 +1,124 @@
+"SequencedReadableCollection.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk SequencedReadableCollection."
+InitializableCollection subtype: SequencedReadableCollection
+metatype: []
+type: [
+
+"accessing"
+
+	"Returns the element at (index)."
+	(Object) at: index (Integer) []
+
+	"Returns the element at (index), or evaluates (aBlock),
+	if the receiver does not include an (index)."
+	(Object) at: index (Integer) ifAbsent: aBlock (NiladicValuable) []
+
+	"Returns the first element of the receiver."
+	(Object) first []
+
+	"Returns the last element of the receiver."
+	(Object) last []
+
+"locating elements"
+
+	"Returns the element after (leadingElement)."
+	(Object) after: leadingElement (Object) []
+
+	"Returns the element before (trailingElement)."
+	(Object) before: trailingElement (Object) []
+
+	"Returns the index of an (element)."
+	(Integer) indexOf: element (Object) []
+
+	"Returns the index of an (element), or evaluates (aBlock)
+	if the receiver does not contain (element)."
+	(Integer) indexOf: element (Object) ifAbsent: aBlock (NiladicValuable) []
+
+	"Returns the index of the first occurrence of a (subCollection) within
+	the receiver starting at (anIndex). Returns 0 if no match is found."
+	(Integer) 
+	indexOfSubCollection: subCollection (SequencedReadableCollection)
+	startingAt: anIndex (Integer) []
+
+	"Returns the index of the first occurrence of a (subCollection) within
+	the receiver starting at (anIndex). Returns the result of evaluating
+	(exceptionBlock) if no match is found."
+	(Integer)
+	indexOfSubCollection: subCollection (SequencedReadableCollection)
+	startingAt: anIndex (Integer)
+	ifAbsent: exceptionBlock (NiladicValuable) []
+
+"copying elements"
+
+	"Returns a copy of the receiver concatenated with the argument, (aCollection)."
+	(SequencedReadableCollection) , aCollection (SequencedReadableCollection) []
+
+	"Returns a copy of a subset of the receiver, starting from the element 
+	at index (start) until the element at index (stop)."
+	(SequencedReadableCollection) copyFrom: start (Integer) to: stop (Integer) []
+
+	"Returns a copy of the receiver in which all occurrences of (oldElements) 
+	have been replaced by (newElements)."
+	(SequencedReadableCollection) 
+	copyReplaceAll: oldElements (SequencedReadableCollection) 
+	with: newElements (SequencedReadableCollection) []
+
+	"Returns a copy of the receiver in which the elements between (start) and
+	(stop) inclusive have been replaced by the (replacements)."
+	(SequencedReadableCollection)
+	copyReplaceFrom: start (Integer) to: stop (Integer)
+	with: replacements (SequencedReadableCollection) []
+
+	"Returns a copy of the receiver in which the elements between (start) and
+	(stop) inclusive have been replaced by the (replacement)."
+	(SequencedReadableCollection)
+	copyReplaceFrom: start (Integer) to: stop (Integer)
+	withObject: replacement (Object) []
+
+	"Returns a copy of the receiver in which all occurrences of 
+	{oldElement) have been replaced by (newElement)."
+	(SequencedReadableCollection) 
+	copyReplacing: oldElement (Object) withObject: newElement (Object) []
+
+	"Returns a copy of the receiver that is 1 bigger than the 
+	receiver and has (newElement) at the last element."
+	(SequencedReadableCollection) copyWith: newElement (Object) []
+
+	"Returns a copy of the receiver in which all occurrences 
+	of (oldElement) have been left out."
+	(SequencedReadableCollection) copyWithout: oldElement (Object) []
+
+	"Returns a copy of the receiver in reverse order."
+	(SequencedReadableCollection) reverse []
+
+"enumerating"
+
+	"Returns the index of the first receiver element
+	for which (testBlock) evaluates to true."
+	(Integer) findFirst: testBlock (MonadicValuable) []
+
+	"Returns the index of the last receiver element
+	for which (testBlock) evaluates to true."
+	(Integer) findLast: testBlock (MonadicValuable) []
+
+	"Evaluates (aBlock) with each receiver element between (start) and (stop)."
+	(Object) from: start (Integer) to: stop (Integer) 
+	do: aBlock (MonadicValuable) []
+
+	"Evaluates (aBlock) with each receiver element and its index between 
+	(start) and (stop)."
+	(Object) from: start (Integer) to: stop (Integer) 
+	keysAndValuesDo: aBlock (DyadicValuable) []
+
+	"Evaluates (aBlock) with each receiver element and its index."
+	(Object) keysAndValuesDo: aBlock (DyadicValuable) []
+
+	"Evaluates (aBlock) with each receiver element in reverse order."
+	(Object) reverseDo: aBlock (MonadicValuable) []
+
+	"Evaluates (aBlock) with each receiver element and its corresponding
+	element from (aCollection)."
+	(Object) with: aCollection (SequencedReadableCollection) do: aBlock (DyadicValuable) []
+]

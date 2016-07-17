@@ -1,0 +1,22 @@
+"ExcisableCollection.bist"
+package: smalltalk.collection;
+
+"Supports element removal.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: ExcisableCollection
+metatype: []
+type:
+[
+	"Removes an (element) from the receiver."
+	remove: element []
+
+	"Removes an (element) from the receiver, or evaluates (aBlock)
+	if the (element) is absent."
+	remove: element ifAbsent: aBlock (ZeroArgumentBlock) []
+
+	"Removes a collection of (elements) from the receiver."
+	removeAll: elements []
+
+	"Removes elements selected by the supplied (criteria) from the receiver."
+	removeAllSuchThat: criteria []
+]

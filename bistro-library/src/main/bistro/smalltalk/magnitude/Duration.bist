@@ -1,0 +1,325 @@
+"Duration.bist"
+package: smalltalk.magnitude;
+
+"Represents a length of time.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Magnitude subclass: Duration
+implements: IntegerArithmetic
+metaclass:
+[
+	"Returns a new Duration from the given (primitiveLong)."
+	from: primitiveLong (long)
+	{	return new Duration( primitiveLong );
+	}
+
+	"Returns a new Duration from (anInteger)."
+	from: anInteger
+	[	^self from: (anInteger as: Integer) primitiveLong
+	]
+
+	"Returns a new Duration from the supplied arguments."
+	days: days hours: hours minutes: minutes seconds: seconds
+	{	long d = ((IntegerArithmetic) days).primitiveLong();
+		long h = ((IntegerArithmetic) hours).primitiveLong();
+		long m = ((IntegerArithmetic) minutes).primitiveLong();
+		long s = ((IntegerArithmetic) seconds).primitiveLong();
+		long msecs = 0L;
+		msecs += d * MSecsPerDay;
+		msecs += h * MSecsPerHour;
+		msecs += m * MSecsPerMinute;
+		msecs += s * MSecsPerSecond;
+		return new Duration( msecs );
+	}
+
+	"Returns a new Duration with the supplied (seconds)."
+	seconds: seconds
+	{	long s = ((IntegerArithmetic) seconds).primitiveLong();
+		long msecs = s * MSecsPerSecond;
+		return new Duration( msecs );
+	}
+
+	"Returns a new Duration of zero."
+	zero
+	{	return new Duration( 0L );
+	}
+
+	"Establish the duration constants."
+	initialize
+	{	MSecsPerDay = 86400000L;
+		MSecsPerHour = 3600000L;
+		MSecsPerMinute = 60000L;
+		MSecsPerSecond =  1000L;
+		return this;
+	}
+]
+class:
+[
+	"The number of milliseconds in a day."
+	static MSecsPerDay (long).
+
+	"The number of milliseconds in an hour."
+	static MSecsPerHour (long).
+
+	"The number of milliseconds in a minute."
+	static MSecsPerMinute (long).
+
+	"The number of milliseconds in a second."
+	static MSecsPerSecond (long).
+
+	"Holds a primitive long value."
+	primitiveValue (long).
+
+	"Constructs a new Duration given a (primitiveLong)."
+	protected Duration: primitiveLong (long)
+	{	primitiveValue = primitiveLong;
+	}
+
+	"Constructs a new Duration."
+	protected Duration
+	{	primitiveValue = 0L;
+	}
+
+"converting"
+
+	"Converts the receiver to a primitive int value."
+	(int) primitiveInteger
+	{	return (int) primitiveValue;
+	}
+
+	"Converts the receiver to a primitive long value."
+	(long) primitiveLong
+	{	return primitiveValue;
+	}
+
+	"Converts the receiver to an elementary long value."
+	(java.lang.Long) elementaryLong
+	{	return new java.lang.Long( primitiveValue );
+	}
+
+	"Returns the number of complete days in the receiver."
+	days
+	{	long msecs = primitiveLong();
+		long days = msecs / MSecsPerDay;
+		return primitive.IntegerFrom( (int) days );
+	}
+
+	"Returns the number of complete hours in the receiver."
+	hours
+	{	long msecs = primitiveLong();
+		long days = msecs / MSecsPerDay;
+		msecs -= days * MSecsPerDay;
+		long hours = msecs / MSecsPerHour;
+		return primitive.IntegerFrom( (int) hours );
+	}
+
+	"Returns the number of complete minutes in the receiver."
+	minutes
+	{	long msecs = primitiveLong();
+		long days = msecs / MSecsPerDay;
+		msecs -= days * MSecsPerDay;
+		long hours = msecs / MSecsPerHour;
+		msecs -= hours * MSecsPerHour;
+		long mins = msecs / MSecsPerMinute;
+		return primitive.IntegerFrom( (int) mins );
+	}
+
+	"Returns the number of complete seconds in the receiver."
+	seconds
+	{	long msecs = primitiveLong();
+		long days = msecs / MSecsPerDay;
+		msecs -= days * MSecsPerDay;
+		long hours = msecs / MSecsPerHour;
+		msecs -= hours * MSecsPerHour;
+		long mins = msecs / MSecsPerMinute;
+		msecs -= mins * MSecsPerMinute;
+		long secs = msecs / MSecsPerSecond;
+		return primitive.IntegerFrom( (int) secs );
+	}
+
+	"Returns the number of seconds represented by the receiver."
+	asSeconds
+	{	long secs = primitiveLong() / MSecsPerSecond;
+		return primitive.IntegerFrom( (int) secs );
+	}
+
+	"Returns a string representation of the receiver."
+	printString
+	{	long msecs = primitiveLong();
+		long days = msecs / MSecsPerDay;
+		msecs -= days * MSecsPerDay;
+		long hours = msecs / MSecsPerHour;
+		msecs -= hours * MSecsPerHour;
+		long mins = msecs / MSecsPerMinute;
+		msecs -= mins * MSecsPerMinute;
+		long secs = msecs / MSecsPerSecond;
+		msecs -= secs * MSecsPerSecond;
+
+		java.text.DecimalFormat digits2 = new java.text.DecimalFormat( "00" );
+		java.text.DecimalFormat digits4 = new java.text.DecimalFormat( "0000" );
+		java.lang.StringBuffer result = new java.lang.StringBuffer();
+		if (primitiveLong() < 0) result.append( "-" );
+		result.append( java.lang.Integer.toString( (int) days ) );
+		result.append( ":" );
+		result.append( digits2.format( (int) hours ) );
+		result.append( ":" );
+		result.append( digits2.format( (int) mins ) );
+		result.append( ":" );
+		result.append( digits2.format( (int) secs ) );
+		result.append( "." );
+		result.append( digits4.format( (int) msecs ) );
+		return primitive.StringFrom( result.toString() );
+	}
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aDuration)."
+	= aDuration
+	{	IntegerArithmetic d = (IntegerArithmetic) aDuration;
+		return primitive.BooleanFrom( primitiveLong() == d.primitiveLong() );
+	}
+
+	"Indicates whether the receiver is less than (aDuration)."
+	< aDuration
+	{	IntegerArithmetic d = (IntegerArithmetic) aDuration;
+		return primitive.BooleanFrom( primitiveLong() < d.primitiveLong() );
+	}
+
+	"Indicates whether the receiver is more than (aDuration)."
+	> aDuration
+	{	IntegerArithmetic d = (IntegerArithmetic) aDuration;
+		return primitive.BooleanFrom( primitiveLong() > d.primitiveLong() );
+	}
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return elementaryLong().hashCode();
+	}
+
+"arithmetic"
+
+	"Returns the sum of the receiver and (aDuration)."
+	+ aDuration
+	{	IntegerArithmetic d = (IntegerArithmetic) aDuration;
+		return new Duration( primitiveLong() + d.primitiveLong() );
+	}
+
+	"Returns the difference between the receiver and (aDuration)."
+	- aDuration
+	{	IntegerArithmetic d = (IntegerArithmetic) aDuration;
+		return new Duration( primitiveLong() - d.primitiveLong() );
+	}
+
+	"Returns the product of the receiver and (aDuration)."
+	* aDuration
+	{	IntegerArithmetic d = (IntegerArithmetic) aDuration;
+		return new Duration( primitiveLong() * d.primitiveLong() );
+	}
+
+	"Returns the ratio of the receiver and (aDuration)."
+	/ aDuration
+	{	IntegerArithmetic d = (IntegerArithmetic) aDuration;
+		return new Duration( primitiveLong() / d.primitiveLong() );
+	}
+
+"cumulative math"
+
+	"Returns the receiver after adding (aDuration)."
+	+= aDuration (long)
+	{	primitiveValue += aDuration;
+		return this;
+	}
+
+	"Returns the receiver after adding (aDuration)."
+	+= aDuration (IntegerArithmetic)
+	{	return $incremented( aDuration.primitiveLong() );
+	}
+
+	"Returns the receiver after adding (aDuration)."
+	+= aDuration
+	{	return $incremented( (IntegerArithmetic) aDuration );
+	}
+
+	"Returns the receiver after subtracting (aDuration)."
+	-= aDuration (long)
+	{	primitiveValue -= aDuration;
+		return this;
+	}
+
+	"Returns the receiver after subtracting (aDuration)."
+	-= aDuration (IntegerArithmetic)
+	{	return $decremented( aDuration.primitiveLong() );
+	}
+
+	"Returns the receiver after subtracting (aDuration)."
+	-= aDuration
+	{	return $decremented( (IntegerArithmetic) aDuration );
+	}
+
+	"Returns the receiver after multiplying (aDuration)."
+	*= aDuration (long)
+	{	primitiveValue *= aDuration;
+		return this;
+	}
+
+	"Returns the receiver after multiplying (aDuration)."
+	*= aDuration (IntegerArithmetic)
+	{	return $magnified( aDuration.primitiveLong() );
+	}
+
+	"Returns the receiver after multiplying (aDuration)."
+	*= aDuration
+	{	return $magnified( (IntegerArithmetic) aDuration );
+	}
+
+	"Returns the receiver after dividing it by (aDuration)."
+	/= aDuration (long)
+	{	primitiveValue /= aDuration;
+		return this;
+	}
+
+	"Returns the receiver after dividing it by (aDuration)."
+	/= aDuration (IntegerArithmetic)
+	{	return $divided( aDuration.primitiveLong() );
+	}
+
+	"Returns the receiver after dividing it by (aDuration)."
+	/= aDuration
+	{	return $divided( (IntegerArithmetic) aDuration );
+	}
+
+"mathematics"
+
+	"Returns the absolute value of the receiver."
+	abs
+	{	return( primitiveLong() < 0 ? this.negated() : this );
+	}
+
+	"Returns the arithmetic inverse of the receiver."
+	negated
+	{	return new Duration( -primitiveLong() );
+	}
+
+	"Returns the arithmetic sign of the receiver."
+	sign
+	[	self strictlyPositive ifTrue: [ ^1 ].
+		self negative ifTrue: [ ^-1 ].
+		^0
+	]
+
+"testing"
+
+	"Indicates whether the receiver is less than zero."
+	negative
+	{	return primitive.BooleanFrom( primitiveLong() < 0L );
+	}
+
+	"Indicates whether the receiver is more than or equal to zero."
+	positive
+	{	return primitive.BooleanFrom( primitiveLong() >= 0L );
+	}
+
+	"Indicates whether the receiver is more than zero."
+	strictlyPositive
+	{	return primitive.BooleanFrom( primitiveLong() > 0L );
+	}
+]

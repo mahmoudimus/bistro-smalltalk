@@ -1,0 +1,27 @@
+"Magnitude.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Magnitude."
+Object subtype: Magnitude
+metatype: []
+type: [
+"comparing"
+
+	"Indicates whether the receiver is less than or equal to (aMagnitude)."
+	(Boolean) <= aMagnitude (Magnitude) []
+
+	"Indicates whether the receiver is more than (aMagnitude)."
+	(Boolean) > aMagnitude (Magnitude) []
+
+	"Indicates whether the receiver is more than or equal to (aMagnitude)."
+	(Boolean) >= aMagnitude (Magnitude) []
+
+	"Indicates whether the receiver is between (minimum) and (maximum)."
+	(Boolean) between: minimum (Magnitude) and: maximum (Magnitude) []
+
+	"Returns the greater of the receiver and (aMagnitude)."
+	(Magnitude) max: aMagnitude (Magnitude) []
+
+	"Returns the lesser of the receiver and (aMagnitude)."
+	(Magnitude) min: aMagnitude (Magnitude) []
+]

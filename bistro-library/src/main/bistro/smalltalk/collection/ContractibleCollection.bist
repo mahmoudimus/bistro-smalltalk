@@ -1,0 +1,18 @@
+"ContractibleCollection.bist"
+package: smalltalk.collection;
+
+"Supports element addition and removal.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: ContractibleCollection
+metatype: []
+type:
+[
+	"Removes the element at (index) from the receiver."
+	removeAtIndex: index []
+
+	"Removes the first element from the receiver."
+	removeFirst []
+
+	"Removes the last element from the receiver."
+	removeLast []
+]

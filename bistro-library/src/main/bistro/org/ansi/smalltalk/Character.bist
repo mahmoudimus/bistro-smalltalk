@@ -1,0 +1,59 @@
+"Character.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signatures for ANSI Smalltalk Character and Character factory."
+Object subtype: Character
+metatype:
+[
+"accessing flyweights"
+
+	"Returns a character that represents the code point (anInteger)."
+	(Character) codePoint: integer (Integer) []
+
+"accessing constants"
+
+	"Returns the character representing a carriage return."
+	(Character) cr []
+
+	"Returns the character representing a line feed."
+	(Character) lf []
+
+	"Returns the character representing a space."
+	(Character) space []
+
+	"Returns the character representing a tab."
+	(Character) tab []
+]
+type:
+[
+"converting"
+
+	"Returns a character which is the lower case representation of the receiver."
+	(Character) asLowercase []
+
+	"Returns a string that contains the receiver character."
+	(String) asString []
+
+	"Returns a character which is the upper case representation of the receiver."
+	(Character) asUppercase []
+
+	"Returns the code point represented by the receiver."
+	(Integer) codePoint []
+
+"testing"
+
+	"Indicates whether the receiver represents a letter or a digit."
+	(Boolean) isAlphaNumeric []
+
+	"Indicates whether the receiver represents a digit."
+	(Boolean) isDigit []
+
+	"Indicates whether the receiver represents a letter."
+	(Boolean) isLetter []
+
+	"Indicates whether the receiver represents a lower case letter."
+	(Boolean) isLowercase []
+
+	"Indicates whether the receiver represents an upper case letter."
+	(Boolean) isUppercase []
+]

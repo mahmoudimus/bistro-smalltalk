@@ -1,0 +1,59 @@
+"FileReadStream.bist"
+package: smalltalk.stream;
+import: java.io.RandomAccessFile;
+import: java.io.IOException;
+
+"Supports reading values sequentially from a file.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract FileStream subclass: FileReadStream
+implements: ReadableStream
+metaclass: []
+class: 
+[
+	"Constructs a new FileReadStream given a (primitiveFile)."
+	protected FileReadStream: primitiveFile (RandomAccessFile)
+	{	super( primitiveFile );
+	}
+
+"enumerating"
+
+	"Evaluates (aBlock) with each element remaining in the stream."
+	do: aBlock (OneArgumentBlock)
+	[	[ self atEnd ] whileFalse: [ aBlock value: self next ].
+	]
+
+"positioning"
+
+	"Skips the next (count) elements in the stream."
+	skip: count
+	[	[ file skipBytes: (count as: SmallInteger) primitiveInteger. ]
+		catch: [ :e (IOException) | ].
+	]
+
+	"Advances the stream to read the element 
+	after the next occurrence of (anObject)."
+	skipTo: anObject
+	[	[ self next = anObject ] whileFalse.
+	]
+
+"reading"
+
+	"Indicates whether the next element of the stream equals (anObject)."
+	nextMatchFor: anObject
+	[	^self next = anObject
+	]
+
+	"Returns the next element from the stream without advancing its position."
+	peek
+	[	self atEnd ifTrue: [ ^nil ].
+		position := self position.
+		result := self next.
+		self position: position.
+		^result
+	]
+
+	"Indicates whether the next element from the stream equals (anObject)."
+	peekFor: anObject
+	[	^self peek = anObject
+	]
+]

@@ -1,0 +1,497 @@
+"Object.bist"
+package: smalltalk.behavior;
+import: java.lang.reflect.*;
+import: java.io.*;
+
+"Object is the base of the Smalltalk class hierarchy. It defines many basic
+object operations. The Object metaclass provides facilities for accessing and
+creating the various primitive object types, including nil (UndefinedObject),
+true and false (Boolean), and instances of Character, SmallInteger, Float,
+and String.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subclass: Object
+implements: java.lang.Cloneable java.io.Serializable
+metaclass:
+[
+"testing existence"
+
+	"Returns whether (elementaryObject) is a primitive null."
+	isNull: elementaryObject (java.lang.Object) {
+		return primitive.BooleanFrom( elementaryObject == null );
+	}
+]
+class:
+[
+	"Provides utilities for primitive instantiation, etc."
+	public static primitive (PrimitiveFactory) := PrimitiveFactory initialize.
+
+	"Constructs a new Object."
+	Object []
+
+"synchronizing - primitive"
+
+	"Acquires a monitor on the receiver during the evaluation of (aBlock)."
+	synchronized acquireMonitorDuring: aBlock (ZeroArgumentBlock) {
+		return aBlock.value();
+	}
+
+	"Awakens all threads waiting on the monitor for the receiver."
+	synchronized awakenAllWaitingThreads {
+		notifyAll();
+		return this;
+	}
+
+	"Awakens a single thread waiting on the monitor for the receiver."
+	synchronized awakenWaitingThread {
+		notify();
+		return this;
+	}
+
+	"Waits (duration) for a change and evaluates (aBlock) if interrupted."
+	synchronized waitForChange: duration 
+	ifInterrupted: aBlock (ZeroArgumentBlock) {
+		try {
+			// SmallInteger is not yet defined
+			// Use hashCode to get the primitive duration
+			wait( duration.hashCode() );
+		} catch( InterruptedException e ) {
+			aBlock.value();
+		}
+		return this;
+	}
+
+	"Waits for a change and evaluates (aBlock) if interrupted."
+	synchronized waitForChangeIfInterrupted: aBlock (ZeroArgumentBlock) {
+		try {
+			wait();
+		} catch( InterruptedException e ) {
+			aBlock.value();
+		}
+		return this;
+	}
+
+"synchronizing"
+
+	"Acquires a monitor on the receiver during the evaluation of (aBlock)."
+	acquireMonitorDuring: aBlock [
+		self acquireMonitorDuring: (aBlock as: ZeroArgumentBlock).
+	]
+
+	"Waits (duration) for a change and evaluates (aBlock) if interrupted."
+	waitForChange: duration ifInterrupted: aBlock [
+		self waitForChange: duration 
+			ifInterrupted: (aBlock as: ZeroArgumentBlock).
+	]
+
+	"Waits for a change and evaluates (aBlock) if interrupted."
+	waitForChangeIfInterrupted: aBlock [
+		self waitForChangeIfInterrupted: (aBlock as: ZeroArgumentBlock).
+	]
+
+"accessing"
+
+	"Returns the receiver. Provides uniformity for evaluations."
+	value [
+		^self
+	]
+
+	"Returns the receiver."
+	yourself [
+		^self
+	]
+
+	"Returns a behavior used to clone the receiver."
+	(smalltalk.behavior.Behavior) species [
+		^self class
+	]
+
+"associating"
+
+	"Returns a new association between the receiver and (anObject)."
+	>> anObject
+	[	^'smalltalk.magnitude.Association'
+			resolvedToClass key: self value: anObject
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (anObject).
+	NOTE: Derived classes should override = rather than equals."
+	(boolean) equals: anObject (java.lang.Object)
+	{	try {
+			Object o = (Object) anObject;
+			return primitive.booleanFrom( o.$equal( this ) );
+		} catch( java.lang.ClassCastException e ) {
+			return false;
+		}
+	}
+
+	"Indicates whether the receiver is equivalent to (anObject)."
+	= anObject
+	[	^self == anObject
+	]
+
+	"Indicates whether the receiver is (anObject)."
+	== anObject
+	{	return primitive.BooleanFrom( this == anObject );
+	}
+
+	"Indicates whether the receiver is not equivalent to (anObject)."
+	~= anObject
+	[	^( self = anObject ) == false
+	]
+
+	"Indicates whether the receiver differs from (anObject)."
+	~~ anObject
+	[	^( self == anObject ) == false
+	]
+
+	"Returns an integer value that may be used for equivalence tests.
+	NOTE: Derived classes should override hashCode rather than hash."
+	hash
+	{	return primitive.IntegerFrom( hashCode() );
+	}
+
+	"Returns an integer value that may be used for identity tests."
+	identityHash
+	{	// primitive hashCode provides identity hash contract
+		// see java.lang.Object hashCode()
+		return primitive.IntegerFrom( hashCode() );
+	}
+
+"copying"
+
+	"Returns a copy of the receiver, typically shallow."
+	copy
+	[	^self shallowCopy
+	]
+
+	"Returns a deep copy of the receiver."
+	deepCopy {
+		// use java streams to copy an object graph.
+		int BUFFER_SIZE = 1024;
+		ByteArrayOutputStream bStream = null;
+		ObjectOutputStream oStream = null;
+		try {
+			bStream = new ByteArrayOutputStream( BUFFER_SIZE );
+			oStream = new ObjectOutputStream( bStream );
+			oStream.writeObject( this );
+			oStream.close();
+		} catch( java.lang.Exception e ) {
+			UnhandledJavaException.$class.raise( e );
+		}
+		byte[] bytes = bStream.toByteArray();
+		Object result = null;
+		ObjectInputStream iStream = null;
+		try {
+			ByteArrayInputStream aStream = new ByteArrayInputStream( bytes );
+			iStream = new ObjectInputStream( aStream );
+			result = (Object) iStream.readObject();
+			iStream.close();
+		} catch( java.lang.Exception e ) {
+			UnhandledJavaException.$class.raise( e );
+		}
+		return result;
+	}
+
+	"Returns a shallow copy of the receiver."
+	shallowCopy
+	{	try {
+			return (Object) this.clone();
+		} catch( CloneNotSupportedException e ) {
+			e.printStackTrace(); // should never happen
+			return null;
+		}
+	}
+
+"enumerating"
+
+	"Evaluates (aBlock) with the receiver."
+	do: aBlock (OneArgumentBlock)
+	[	^aBlock value: self
+	]
+
+"performing"
+
+	"Performs a method in the receiver named (selector) with all the supplied (arguments)."
+	perform: selector (java.lang.String)
+	withArguments: arguments (Object[]) [
+		^(MessageSend basicNew: self : selector : arguments) perform
+	]
+
+	"Performs a method in the receiver named (selector) with all the supplied (arguments)."
+	perform: selector
+	withArguments: arguments (Object[])
+	[	^self perform: ( primitive symbolFrom: selector ) 
+			withArguments: arguments
+	]
+
+	"Performs a method in the receiver named (selector) with the supplied arguments."
+	perform: selector (java.lang.String)
+	with: firstArgument with: secondArgument
+	with: thirdArgument with: fourthArgument
+	{	Object[] arguments = { 
+			firstArgument, secondArgument, thirdArgument, fourthArgument 
+		};
+		return perform_withArguments( selector, arguments );
+	}
+
+	"Performs a method in the receiver named (selector) with the supplied arguments."
+	perform: selector
+	with: firstArgument with: secondArgument
+	with: thirdArgument with: fourthArgument
+	{	Object[] arguments = { 
+			firstArgument, secondArgument, thirdArgument, fourthArgument 
+		};
+		return perform_withArguments( selector, arguments );
+	}
+
+	"Performs a method in the receiver named (selector) with the supplied arguments."
+	perform: selector (java.lang.String)
+	with: firstArgument with: secondArgument with: thirdArgument
+	{	Object[] arguments = { 
+			firstArgument, secondArgument, thirdArgument 
+		};
+		return perform_withArguments( selector, arguments );
+	}
+
+	"Performs a method in the receiver named (selector) with the supplied arguments."
+	perform: selector
+	with: firstArgument with: secondArgument with: thirdArgument
+	{	Object[] arguments = { 
+			firstArgument, secondArgument, thirdArgument 
+		};
+		return perform_withArguments( selector, arguments );
+	}
+
+	"Performs a method in the receiver named (selector) with the supplied arguments."
+	perform: selector (java.lang.String)
+	with: firstArgument with: secondArgument
+	{	Object[] arguments = { firstArgument, secondArgument };
+		return perform_withArguments( selector, arguments );
+	}
+
+	"Performs a method in the receiver named (selector) with the supplied arguments."
+	perform: selector
+	with: firstArgument with: secondArgument
+	{	Object[] arguments = { firstArgument, secondArgument };
+		return perform_withArguments( selector, arguments );
+	}
+
+	"Performs a method in the receiver named (selector) with the supplied (argument)."
+	perform: selector (java.lang.String) with: argument
+	{	Object[] arguments = { argument };
+		return perform_withArguments( selector, arguments );
+	}
+
+	"Performs a method in the receiver named (selector) with the supplied (argument)."
+	perform: selector with: argument
+	{	Object[] arguments = { argument };
+		return perform_withArguments( selector, arguments );
+	}
+
+	"Performs a method in the receiver named (selector)."
+	perform: selector (java.lang.String)
+	{	Object[] arguments = new Object[]{};
+		return perform_withArguments( selector, arguments );
+	}
+
+	"Performs a method in the receiver named (selector)."
+	perform: selector
+	{	Object[] arguments = new Object[]{};
+		return perform_withArguments( selector, arguments );
+	}
+
+"printing"
+
+	"Prints a representation of the receiver on (aStream)."
+	printOn: aStream
+	[	title := self class name.
+		prefix :=
+			title first isVowel
+				ifTrue: [ 'an ' ]
+				ifFalse: [ 'a ' ].
+
+		aStream nextPutAll: prefix; nextPutAll: title.
+	]
+
+	"Returns a printable representation of the receiver."
+	printString
+	[	title := self class name.
+		prefix :=
+			title first isVowel
+				ifTrue: [ 'an ' ]
+				ifFalse: [ 'a ' ].
+
+		^prefix , title
+	]
+
+	"Returns the receiver as a printable term in a formula."
+	printTerm
+	[	^'( ', self printString , ' )'
+	]
+
+"handling errors"
+
+	"Signals a MessageNotUnderstood exception."
+	doesNotUnderstand: message [
+		^(MessageNotUnderstood basicNew: message) signal
+	]
+
+	"Reports (aString) as an error message."
+	error: aString
+	{	System.err.println( primitive.stringFrom( aString ) );
+		if (true) throw new IllegalStateException( primitive.stringFrom( aString ) );
+		return this; // keep the compiler happy
+	}
+
+	"Reports an unsupported message."
+	invalidMessage
+	[	self error: 'An unsupported message was sent to this object'.
+	]
+
+"testing"
+
+	"Evaluates (nilBlock) if the receiver is nil.
+	Otherwise, returns nil."
+	ifNil: nilBlock (ZeroArgumentBlock)
+	[	^nil
+	]
+
+	"Evaluates (nilBlock) if the receiver is nil.
+	Otherwise, evaluates (extantBlock)."
+	ifNil: nilBlock (ZeroArgumentBlock)
+	ifExtant: extantBlock (ZeroArgumentBlock)
+	[	^extantBlock value
+	]
+
+	"Evaluates (extantBlock) if the receiver exists (i.e., is not nil).
+	Otherwise, returns nil."
+	ifExtant: extantBlock (ZeroArgumentBlock)
+	[	^extantBlock value
+	]
+
+	"Evaluates (extantBlock) if the receiver exists (i.e., is not nil).
+	Otherwise, evaluates (nilBlock)."
+	ifExtant: extantBlock (ZeroArgumentBlock)
+	ifNil: nilBlock (ZeroArgumentBlock)
+	[	^extantBlock value
+	]
+
+	"Evaluates (nilBlock) if the receiver is nil.
+	Otherwise, returns nil."
+	ifNil: nilBlock [
+		^self ifNil: (nilBlock as: ZeroArgumentBlock)
+	]
+
+	"Evaluates (nilBlock) if the receiver is nil.
+	Otherwise, evaluates (extantBlock)."
+	ifNil: nilBlock
+	ifExtant: extantBlock [
+		^self ifNil: (nilBlock as: ZeroArgumentBlock)
+			ifExtant: (extantBlock as: ZeroArgumentBlock)
+	]
+
+	"Evaluates (extantBlock) if the receiver exists (i.e., is not nil).
+	Otherwise, returns nil."
+	ifExtant: extantBlock [
+		^self ifExtant: (extantBlock as: ZeroArgumentBlock)
+	]
+
+	"Evaluates (extantBlock) if the receiver exists (i.e., is not nil).
+	Otherwise, evaluates (nilBlock)."
+	ifExtant: extantBlock
+	ifNil: nilBlock [
+		^self ifExtant: (extantBlock as: ZeroArgumentBlock)
+			ifNil: (nilBlock as: ZeroArgumentBlock)
+	]
+
+"testing behavior"
+
+	"Indicates whether the receiver is a (kind of) Array."
+	isArray
+	[	^false
+	]
+
+	"Indicates whether the receiver is a (kind of) Behavior."
+	isBehavior
+	[	^false
+	]
+
+	"Indicates whether the receiver is a Boolean."
+	isBoolean
+	[	^false
+	]
+
+	"Indicates whether the receiver is a Character."
+	isCharacter
+	[	^false
+	]
+
+	"Indicates whether the receiver is a Class."
+	isClass
+	[	^false
+	]
+
+	"Indicates whether the receiver is a (kind of) Collection."
+	isCollection
+	[	^false
+	]
+
+	"Indicates whether the receiver is a Float."
+	isFloat
+	[	^false
+	]
+
+	"Indicates whether the receiver is a (kind of) Integer."
+	isInteger
+	[	^false
+	]
+
+	"Indicates whether the receiver is a kind of literal."
+	isLiteral
+	[	^false
+	]
+
+	"Indicates whether the receiver is of the kind indicated by (candidateClass)."
+	isKindOf: candidateClass
+	[	^self class inheritsFrom: candidateClass
+	]
+
+	"Indicates whether the receiver class is (candidateClass)."
+	isMemberOf: candidateClass
+	[	^self class == candidateClass
+	]
+
+	"Indicates whether the receiver is a (kind of) Metaclass."
+	isMetaclass
+	[	^false
+	]
+
+	"Indicates whether the receiver is nil."
+	isNil
+	[	^false
+	]
+
+	"Indicates whether the receiver is a SmallInteger."
+	isSmallInteger
+	[	^false
+	]
+
+	"Indicates whether the receiver is a (kind of) String."
+	isString
+	[	^false
+	]
+
+	"Indicates whether the receiver is not nil."
+	notNil
+	[	^true
+	]
+
+	"Indicates whether the receiver has a method named (selector)."
+	respondsTo: selector
+	{	return primitive.BooleanFrom(
+			primitive.methodNamed( selector, $class(), 0 ) != null
+		);
+	}
+]

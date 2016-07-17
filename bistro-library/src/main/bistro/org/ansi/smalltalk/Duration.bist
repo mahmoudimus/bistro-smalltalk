@@ -1,0 +1,70 @@
+"Duration.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Duration."
+Magnitude subtype: Duration
+metatype: [
+
+	"Returns a new Duration from the supplied arguments."
+	(Duration) 
+	days: days (Integer) hours: hours (Integer) 
+	minutes: minutes (Integer) seconds: seconds (Number) []
+
+	"Returns a new Duration with the supplied (seconds)."
+	(Duration) seconds: seconds (Number) []
+
+	"Returns a new Duration of zero."
+	(Duration) zero []
+]
+type: [
+
+"converting"
+
+	"Returns the number of complete days in the receiver."
+	(Integer) days []
+
+	"Returns the number of complete hours in the receiver."
+	(Integer) hours []
+
+	"Returns the number of complete minutes in the receiver."
+	(Integer) minutes []
+
+	"Returns the number of complete seconds in the receiver."
+	(Number) seconds []
+
+	"Returns the number of seconds represented by the receiver."
+	(Number) asSeconds []
+
+	"Returns a string representation of the receiver."
+	(ReadableString) printString []
+
+"arithmetic"
+
+	"Returns the sum of the receiver and (aDuration)."
+	(Duration) + aDuration (Duration) []
+
+	"Returns the difference between the receiver and (aDuration)."
+	(Duration) - aDuration (Duration) []
+
+	"Returns the product of the receiver and (aDuration)."
+	(Duration) * aDuration (Duration) []
+
+	"Returns the ratio of the receiver and (aDuration)."
+	(Duration) / aDuration (Duration) []
+
+"mathematics"
+
+	"Returns the absolute value of the receiver."
+	(Duration) abs []
+
+	"Returns the arithmetic inverse of the receiver."
+	(Duration) negated []
+
+"testing"
+
+	"Indicates whether the receiver is less than zero."
+	(Boolean) negative []
+
+	"Indicates whether the receiver is more than or equal to zero."
+	(Boolean) positive []
+]

@@ -1,0 +1,105 @@
+"StringPattern.bist"
+package: smalltalk.collection;
+
+import: java.util.StringTokenizer;
+
+"Matches strings against a pattern expression. Pattern expressions may
+contain any number of wild cards. The wild card may be specified
+at construction time, or the standard wild card (*) will be used.
+The wild card delimits the segments of a pattern expression. To match,
+a string must include all the pattern segments in their proper order.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: StringPattern
+metaclass: []
+class: [
+
+	"The standard wild card."
+	public static final StandardWildcard (String) := '*'.
+
+	"The empty string."
+	protected static final EmptyString (String) := ''.
+
+	"Contains the pattern segments."
+	segments (java.lang.String[]).
+
+	"Constructs a new StringPattern (with the standard wild card)."
+	StringPattern: patternExpression {
+		this( patternExpression, StandardWildcard );
+	}
+
+	"Constructs a new StringPattern (with a supplied wild card)."
+	StringPattern: patternExpression : aWildcard {
+		java.lang.String expression = ((CharacterString) patternExpression).primitiveString();
+		java.lang.String wildcard = ((String) aWildcard).primitiveString();
+
+		// precompute the pattern segments to compare against
+		StringTokenizer parser = new StringTokenizer( expression, wildcard );
+		int count = parser.countTokens();
+		if (count == 0) {
+			// an expression with only wildcard(s) has no segments
+			segments = new java.lang.String[count];
+		} else {
+			if (expression.startsWith( wildcard )) {
+				count += 1; // provide for extra empty segment
+			}
+			if (expression.endsWith( wildcard )) {
+				count += 1; // provide for extra empty segment
+			}
+			segments = new java.lang.String[count];
+			int s = 0;
+			if (expression.startsWith( wildcard )) {
+				// empty first segment will always compare true
+				segments[s++] = EmptyString.primitiveString();
+			}
+			while( parser.hasMoreTokens() ) {
+				segments[s++] = parser.nextToken();
+			}
+			if (expression.endsWith( wildcard )) {
+				// empty final segment will always compare true
+				segments[s++] = EmptyString.primitiveString();;
+			}
+		}
+	}
+
+	"Returns whether (aString) matches the pattern expression."
+	accepts: aString {
+
+		if (!(aString instanceof CharacterString)) return primitive.literalFalse();
+		java.lang.String jString = ((CharacterString) aString).primitiveString();
+
+		// optimize the comparisons where possible
+		int count = segments.length - 1;
+		if (count < 0) {
+			// an empty pattern accepts everything
+			return primitive.literalTrue();
+		}
+		// does aString start with first segment?
+		if (!jString.startsWith( segments[0] )) {
+			return primitive.literalFalse();
+		}
+		// is there only one segment?
+		if (count == 0) {
+			return( 
+				primitive.BooleanFrom( 
+					jString.length() == segments[0].length() 
+				) 
+			);
+		}
+		// does aString end with the final segment?
+		if (!jString.endsWith( segments[count] )) {
+			return primitive.literalFalse();
+		}
+		// does aString include all the other segments?
+		if (count > 1) {
+			int p = segments[0].length();
+			for( int s = 1; s < count; s++ ) {
+				int x = jString.indexOf( segments[s], p );
+				if (x < 0)
+					return primitive.literalFalse();
+				else
+					p = x + segments[s].length();
+			}
+		}
+		return primitive.literalTrue();
+	}
+]

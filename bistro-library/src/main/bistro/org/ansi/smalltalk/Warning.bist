@@ -1,0 +1,7 @@
+"Warning.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Warning."
+Notification subtype: Warning
+metatype: []
+type: []

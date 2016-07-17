@@ -1,0 +1,32 @@
+"InitializableCollection.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an InitializableCollection."
+Collection subtype: InitializableCollection
+metatype: [
+
+	"Returns a new collection that contains (anObject)."
+	(Collection) with: anObject (Object) []
+
+	"Returns a new collection that contains the supplied objects."
+	(Collection) 
+	with: object1st (Object)
+	with: object2nd (Object) []
+
+	"Returns a new collection that contains the supplied objects."
+	(Collection) 
+	with: object1st (Object)
+	with: object2nd (Object)
+	with: object3rd (Object) []
+
+	"Returns a new collection that contains the supplied objects."
+	(Collection) 
+	with: object1st (Object)
+	with: object2nd (Object)
+	with: object3rd (Object)
+	with: object4th (Object) []
+
+	"Returns a new collection that contains (aCollection) of objects."
+	(Collection) withAll: aCollection (Collection) []
+]
+type: []

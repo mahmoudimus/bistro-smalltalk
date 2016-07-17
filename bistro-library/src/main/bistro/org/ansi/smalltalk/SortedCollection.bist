@@ -1,0 +1,18 @@
+"SortedCollection.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk SortedCollection."
+InitializableCollection, ExtensibleCollection, 
+SequencedContractibleCollection, SequencedReadableCollection
+subtype: SortedCollection
+metatype: []
+type: [
+
+"sorting elements"
+
+	"Returns the block used to sort the receiver elements."
+	(DyadicValuable) sortBlock []
+
+	"Establishes the block used to sort the receiver elements."
+	(SortedCollection) sortBlock: aBlock (DyadicValuable) []
+]

@@ -1,0 +1,96 @@
+"ReadStream.bist"
+package: smalltalk.stream;
+import: smalltalk.collection.SequenceableCollection;
+import: smalltalk.collection.OrderedCollection;
+
+"Supports reading from a stream of values.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+CollectionStream subclass: ReadStream
+implements: ReadableStream
+metaclass: 
+[
+	"Returns a new ReadStream on (aCollection)."
+	on: aCollection (SequenceableCollection)
+	[	^ReadStream basicNew: aCollection
+	]
+
+	"Returns a new ReadStream on (aCollection)."
+	on: aCollection
+	{	return this.on( (SequenceableCollection) aCollection );
+	}
+]
+class: 
+[
+	"Constructs a new ReadStream given (aCollection)."
+	protected ReadStream: aCollection (SequenceableCollection)
+	{	super( aCollection );
+	}
+
+"enumerating"
+
+	"Evaluates (aBlock) with each element remaining in the stream."
+	do: aBlock (OneArgumentBlock)
+	[	[ self atEnd ] whileFalse: [ aBlock value: self next ].
+	]
+
+"positioning"
+
+	"Skips the next (count) elements in the stream."
+	skip: count
+	[	position := position + count.
+	]
+
+	"Advances the stream to read the element 
+	after the next occurrence of (anObject)."
+	skipTo: anObject
+	[	[ self next = anObject ] whileFalse.
+	]
+
+"reading"
+
+	"Returns the next element from the stream."
+	next
+	[	position := position + 1.
+		^self contents at: position
+	]
+
+	"Returns the next (count) elements from the stream."
+	next: count
+	[	result (OrderedCollection) := OrderedCollection new: count.
+		1 to: count do: [ :index | result at: index put: self next ].
+		^result
+	]
+
+	"Returns the next line from the stream."
+	nextLine
+	[	^self class emptyString
+	]
+
+	"Indicates whether the next element of the stream equals (anObject)."
+	nextMatchFor: anObject
+	[	^self next = anObject
+	]
+
+	"Returns the next element from the stream without advancing its position."
+	peek
+	[	self atEnd ifTrue: [ ^nil ].
+		^self contents at: position + 1
+	]
+
+	"Indicates whether the next element from the stream equals (anObject)."
+	peekFor: anObject
+	[	^self peek = anObject
+	]
+
+	"Returns the elements from the stream up to, but not 
+	including, the next occurrence of (anObject)."
+	upTo: anObject
+	[	result := OrderedCollection new.
+		[ self atEnd ] whileFalse: [
+			element := self next.
+			element = anObject ifTrue: [ ^result ].
+			result add: element.
+		].
+		^result
+	]
+]

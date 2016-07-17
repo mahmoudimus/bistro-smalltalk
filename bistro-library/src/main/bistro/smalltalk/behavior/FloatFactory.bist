@@ -1,0 +1,15 @@
+"FloatFactory.bist"
+package: smalltalk.behavior;
+
+"Supports behavior for converting between primitive floats and Floats.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: FloatFactory
+metatype:
+[
+	"Returns a Float whose value is (primitiveFloat)."
+	FloatFrom: primitiveFloat (float) []
+
+	"Returns the primitive float value indicated by (aFloat)."
+	(float) floatFrom: aFloat []
+]
+type: []

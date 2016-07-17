@@ -1,0 +1,447 @@
+"Time.bist"
+package: smalltalk.magnitude;
+import: java.util.Calendar;
+import: java.util.TimeZone;
+import: java.util.Date;
+
+"Represents a moment in time with millisecond resolution.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Magnitude subclass: Time
+metaclass:
+[
+"measuring execution time"
+
+	"Returns the number of milliseconds needed to execute (aBlock)."
+	millisecondsToRun: aBlock
+	[	block (ZeroArgumentBlock) := aBlock.
+		^self millisecondsToRun: block
+	]
+
+	"Returns the number of milliseconds needed to execute (aBlock)."
+	millisecondsToRun: aBlock (ZeroArgumentBlock)
+	{	long before = java.lang.System.currentTimeMillis();
+		aBlock.value();
+		long after =  java.lang.System.currentTimeMillis();
+		return LongInteger.$class.from( after - before );
+	}
+
+	"Returns the number of milliseconds needed to 
+	repeat (aBlock) (count) times."
+	millisecondsAfter: count timesRepeating: aBlock
+	[	n (SmallInteger) := count.
+		block (ZeroArgumentBlock) := aBlock.
+		^self millisecondsToRun: [ n timesRepeat: block ]
+	]
+
+	"Returns the duration after which #now is guaranteed to produce
+	a different result."
+	clockPrecision
+	{	long a = java.lang.System.currentTimeMillis();
+		long b = java.lang.System.currentTimeMillis();
+		long c = b - a;
+		return new Duration( c > 0 ? c : 1 );
+	}
+
+"creating instances"
+
+	"Returns a new Time from the given arguments."
+	year: year month: month day: dayOfMonth 
+	hour: hour minute: minute second: second
+	{	IntegerArithmetic y = (IntegerArithmetic) year;
+		IntegerArithmetic n = (IntegerArithmetic) month;
+		IntegerArithmetic d = (IntegerArithmetic) dayOfMonth;
+		IntegerArithmetic h = (IntegerArithmetic) hour;
+		IntegerArithmetic m = (IntegerArithmetic) minute;
+		IntegerArithmetic s = (IntegerArithmetic) second;
+
+		Time result = (Time) this.now();
+		result.moment.set( Calendar.YEAR, y.primitiveInteger() );
+		result.moment.set( Calendar.MONTH, n.primitiveInteger() );
+		result.moment.set( Calendar.DAY_OF_MONTH, d.primitiveInteger() );
+		result.moment.set( Calendar.HOUR, h.primitiveInteger() );
+		result.moment.set( Calendar.MINUTE, m.primitiveInteger() );
+		result.moment.set( Calendar.SECOND, s.primitiveInteger() );
+		return result;
+    }
+
+	"Returns a new Time from the given arguments."
+	year: year month: month day: dayOfMonth 
+	hour: hour minute: minute second: second offset: offset
+	{	Time result = (Time) year_month_day_hour_minute_second(
+			year, month, dayOfMonth, hour, minute, second
+		);
+		IntegerArithmetic o = (IntegerArithmetic) offset;
+		result.moment.set( Calendar.ZONE_OFFSET, o.primitiveInteger() );
+		return result;
+	}
+
+	"Returns a new Time from the given arguments."
+	year: year day: dayOfYear 
+	hour: hour minute: minute second: second
+	{	IntegerArithmetic y = (IntegerArithmetic) year;
+		IntegerArithmetic d = (IntegerArithmetic) dayOfYear;
+		IntegerArithmetic h = (IntegerArithmetic) hour;
+		IntegerArithmetic m = (IntegerArithmetic) minute;
+		IntegerArithmetic s = (IntegerArithmetic) second;
+
+		Time result = (Time) this.now();
+		result.moment.set( Calendar.YEAR, y.primitiveInteger() );
+		result.moment.set( Calendar.DAY_OF_YEAR, d.primitiveInteger() );
+		result.moment.set( Calendar.HOUR, h.primitiveInteger() );
+		result.moment.set( Calendar.MINUTE, m.primitiveInteger() );
+		result.moment.set( Calendar.SECOND, s.primitiveInteger() );
+		return result;
+    }
+
+	"Returns a new Time from the given arguments."
+	year: year day: dayOfYear 
+	hour: hour minute: minute second: second offset: offset
+	{	Time result = (Time) year_day_hour_minute_second(
+			year, dayOfYear, hour, minute, second
+		);
+		IntegerArithmetic o = (IntegerArithmetic) offset;
+		result.moment.set( Calendar.ZONE_OFFSET, o.primitiveInteger() );
+		return result;
+	}
+
+	"Returns the current time."
+	now
+	{	return new Time();
+	}
+
+	"Initializes the constant name tables."
+	initialize
+	{	java.lang.String dayNames[] = {
+			"Sunday", "Monday", "Tuesday", "Wednesday", 
+			"Thursday", "Friday", "Saturday"
+		};
+		java.lang.String dayAbbreviations[] = {
+			"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+		};
+		java.lang.String monthNames[] = {
+			"January", "February", "March", "April", 
+			"May", "June", "July", "August", "September", 
+			"October", "November", "December"
+		};
+		java.lang.String monthAbbreviations[] = {
+			"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+			"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+		};
+		java.lang.String meridianAbbreviations[] = { "AM", "PM" };
+		java.lang.String timeZones[] = {
+			"IDLW", "NT", "HST", "YST", "PST", "MST",
+			"CST", "EST", "AST", "BST", "AT", "WAT",
+			"GMT",
+			"MET", "EET", "BT", "ZP4", "ZP5", "ZP6", 
+			"WAST", "CCT", "JST", "GST", "XRAY", "IDLE"
+		};
+
+		Time.dayNames = dayNames;
+		Time.monthNames = monthNames;
+		Time.dayAbbreviations = dayAbbreviations;
+		Time.monthAbbreviations = monthAbbreviations;
+		Time.meridianAbbreviations = meridianAbbreviations;
+		Time.zoneAbbreviations = timeZones;
+		return this;
+    }
+
+	"Returns a new Date from a (primitiveTime)."
+	fromTime: primitiveTime (long) {
+		return new Time( primitiveTime );
+	}
+
+	"Returns a new Date from a (primitiveTime)."
+	fromTime: primitiveTime (long) : offset (int) {
+		return new Time( primitiveTime, offset );
+	}
+]
+class:
+[
+	"Contains the names of the days of the week."
+	static dayNames (java.lang.String[]).
+
+	"Contains abbreviated names of the days of the week."
+	static dayAbbreviations (java.lang.String[]).
+
+	"Contains the names of the months of the year."
+	static monthNames (java.lang.String[]).
+
+	"Contains abbreviated names of the months of the year."
+	static monthAbbreviations (java.lang.String[]).
+
+	"Contains abbreviated names of the 12-hour clock meridians."
+	static meridianAbbreviations (java.lang.String[]).
+
+	"Contains abbreviated names of the time zones."
+	static zoneAbbreviations (java.lang.String[]).
+
+	"Contains a primitive date."
+	moment (Calendar).
+
+	"Constructs a new Time."
+	protected Time
+	{	moment = Calendar.getInstance();
+	}
+
+	"Constructs a new Time given a (primitiveTime)."
+	protected Time: primitiveTime (long)
+	{	this();
+		moment.setTime( new Date( primitiveTime ) );
+	}
+
+	"Constructs a new Time given a (primitiveTime) and (offset)."
+	protected Time: primitiveTime (long) : offset (int)
+	{	java.lang.String ids[] = TimeZone.getAvailableIDs( offset );
+		TimeZone zone = TimeZone.getTimeZone( ids[0] );
+		moment = Calendar.getInstance( zone );
+		moment.setTime( new Date( primitiveTime ) );
+	}
+
+	"Returns the number of milliseconds since the origin."
+	(long) primitiveTime
+	{	return moment.getTime().getTime();
+	}
+
+	"Returns the time equivalent to the receiver, but (offset) from UTC."
+	offset: offset {
+		IntegerArithmetic delta = (IntegerArithmetic) offset;
+		Time utc = (Time) this.asUTC();
+		return this.$class.fromTime( utc.primitiveTime(), delta.primitiveInteger() );
+	}
+
+"comparing"
+
+	"Indicates whether the receiver equals (aTime)."
+	= aTime
+	{	Time t = (Time) aTime;
+		return primitive.BooleanFrom( primitiveTime() == t.primitiveTime() );
+	}
+
+	"Indicates whether the receiver precedes (aTime)."
+	< aTime
+	{	Time t = (Time) aTime;
+		return primitive.BooleanFrom( primitiveTime() < t.primitiveTime() );
+	}
+
+	"Indicates whether the receiver succedes (aTime)."
+	> aTime
+	{	Time t = (Time) aTime;
+		return primitive.BooleanFrom( primitiveTime() > t.primitiveTime() );
+	}
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return moment.getTime().hashCode();
+	}
+
+"converting"
+
+	"Returns the local time representation of the receiver."
+	asLocal
+	{	int diff = moment.get( Calendar.ZONE_OFFSET );
+		if (diff > 0) return this;
+		Time result = (Time) this.$class.now();
+		int dst = result.moment.get( Calendar.DST_OFFSET );
+		return this.$class.fromTime( primitiveTime() - dst );
+	}
+
+	"Returns the UTC representation of the receiver."
+	asUTC
+	{	int diff = moment.get( Calendar.ZONE_OFFSET );
+		if (diff == 0) return this;
+		int dst = moment.get( Calendar.DST_OFFSET );
+		return this.$class.fromTime( primitiveTime() + dst, 0 );
+	}
+
+"arithmetic"
+
+	"Returns a new Time (duration) milliseconds after the receiver."
+	+ duration
+	{	IntegerArithmetic d = (IntegerArithmetic) duration;
+		return this.$class.fromTime( primitiveTime() + d.primitiveLong() );
+	}
+
+	"Returns a new Time (operand) milliseconds before the receiver, or
+	the duration between the receiver and (operand)."
+	- operand {
+		try {
+			return this.$minus( (Duration) operand );
+		} catch( ClassCastException e ) {
+			return this.$minus( (Time) operand );
+		}
+	}
+
+	"Returns a new Time (duration) milliseconds before the receiver."
+	- duration (Duration) {
+		return this.$class.fromTime( primitiveTime() - duration.primitiveLong() );
+	}
+
+	"Returns the duration in milliseconds between the receiver and (aTime)."
+	- aTime (Time) {
+		long delta = primitiveTime() - aTime.primitiveTime();
+		return new Duration( -delta );
+	}
+
+"accessing date"
+
+	"Returns the day of the month represented by the receiver."
+	dayOfMonth
+	{	return primitive.IntegerFrom( moment.get( Calendar.DAY_OF_MONTH ) );
+	}
+
+	"Returns the day of the week represented by the receiver."
+	dayOfWeek
+	{	return primitive.IntegerFrom( moment.get( Calendar.DAY_OF_WEEK ) + 1 );
+	}
+
+	"Returns the abbreviation for the day of the week."
+	dayOfWeekAbbreviation
+	{	return primitive.StringFrom(
+			dayAbbreviations[ moment.get( Calendar.DAY_OF_WEEK ) ]
+		);
+	}
+
+	"Returns the name for the day of the week."
+	dayOfWeekName
+	{	return primitive.StringFrom(
+			dayNames[ moment.get( Calendar.DAY_OF_WEEK ) ]
+		);
+	}
+
+	"Returns the day of the year represented by the receiver."
+	dayOfYear
+	{	return primitive.IntegerFrom( moment.get( Calendar.DAY_OF_YEAR ) );
+	}
+
+	"Indicates whether the receiver resides in a leap year."
+	isLeapYear
+	{	int year = moment.get( Calendar.YEAR );
+		if ((year % 4) != 0) return primitive.literalFalse();
+		if ((year % 100) != 0) return primitive.literalTrue();
+		if ((year % 400) == 0) return primitive.literalTrue();
+		return primitive.literalFalse();
+	}
+
+	"Returns an abbreviation for the name of the half day."
+	meridianAbbreviation
+	{	return primitive.StringFrom(
+			meridianAbbreviations[ moment.get( Calendar.AM_PM ) ]
+		);
+	}
+
+	"Returns the month of the year."
+	month
+	{	return primitive.IntegerFrom( moment.get( Calendar.MONTH ) + 1 );
+	}
+
+	"Returns the abbreviation for the month."
+	monthAbbreviation
+	{	return primitive.StringFrom(
+			monthAbbreviations[ moment.get( Calendar.MONTH ) ]
+		);
+	}
+
+	"Returns the name of the month."
+	monthName
+	{	return primitive.StringFrom(
+			monthNames[ moment.get( Calendar.MONTH ) ]
+		);
+	}
+
+	"Returns the abbreviation of the time zone."
+	timeZoneAbbreviation
+	{	long diff = moment.get( Calendar.ZONE_OFFSET );
+		int zone = (int) (diff / Duration.MSecsPerHour);
+		return primitive.StringFrom( zoneAbbreviations[ zone + 12 ] );
+	}
+
+	"Returns the name of the time zone."
+	timeZoneName
+	{	int diff = moment.get( Calendar.ZONE_OFFSET );
+		java.lang.String ids[] = TimeZone.getAvailableIDs( diff );
+		return primitive.StringFrom( ids[0] );
+	}
+
+	"Returns the year represented by the receiver."
+	year
+	{	return primitive.IntegerFrom( moment.get( Calendar.YEAR ) );
+	}
+
+"accessing time"
+
+	"Returns the hour in the day represented by the receiver."
+	hour
+	[	^self hour24
+	]
+
+	"Returns the hour in the day represented by the receiver."
+	hour12
+	{	return primitive.IntegerFrom( moment.get( Calendar.HOUR ) );
+	}
+
+	"Returns the hour in the day represented by the receiver."
+	hour24
+	{	return primitive.IntegerFrom( moment.get( Calendar.HOUR_OF_DAY ) );
+	}
+
+	"Returns the minute in the hour represented by the receiver."
+	minute
+	{	return primitive.IntegerFrom( moment.get( Calendar.MINUTE ) );
+	}
+
+	"Returns the second in the minute represented by the receiver."
+	second
+	{	return primitive.IntegerFrom( moment.get( Calendar.SECOND ) );
+	}
+
+	"Returns the difference between the local time and the UTC of the receiver."
+	offset {
+		return new Duration( moment.getTimeZone().getRawOffset() );
+	}
+
+"printing"
+
+	"Returns a formatted textual representation of the receiver."
+	printString
+	{	java.lang.String dash = "-";
+		java.lang.String colon = ":";
+		java.text.DecimalFormat digits2 = new java.text.DecimalFormat( "00" );
+		java.text.DecimalFormat digits4 = new java.text.DecimalFormat( "0000" );
+		java.lang.StringBuffer result = new java.lang.StringBuffer();
+		int year = moment.get( Calendar.YEAR );
+		int msec = moment.get( Calendar.MILLISECOND );
+		result.append( year < 0 ? "-" : " " );
+		result.append( digits4.format( year ) );
+		result.append( dash );
+		result.append( digits2.format( moment.get( Calendar.MONTH ) ) );
+		result.append( dash );
+		result.append( digits2.format( moment.get( Calendar.DAY_OF_MONTH ) ) );
+		result.append( "T" );
+		result.append( digits2.format( moment.get( Calendar.HOUR ) ) );
+		result.append( colon );
+		result.append( digits2.format( moment.get( Calendar.MINUTE ) ) );
+		result.append( colon );
+		result.append( digits2.format( moment.get( Calendar.SECOND ) ) );
+		if (msec > 0) {
+			result.append( "." );
+			result.append( digits4.format( msec ) );
+		}
+		long diff = moment.get( Calendar.ZONE_OFFSET );
+		if (diff >= 0) result.append( "+" );
+		long h = diff / Duration.MSecsPerHour;
+		diff -= h * Duration.MSecsPerHour;
+		long m = diff / Duration.MSecsPerMinute;
+		diff -= m * Duration.MSecsPerMinute;
+		long s = diff / Duration.MSecsPerSecond;
+		diff -= s * Duration.MSecsPerSecond;
+		result.append( digits2.format( h ) );
+		result.append( colon );
+		result.append( digits2.format( m ) );
+		if (diff > 0 || s > 0) {
+			result.append( digits2.format( s ) );
+			result.append( "." );
+			result.append( digits4.format( diff ) );
+		}
+		return primitive.StringFrom( result.toString() );
+	}
+]

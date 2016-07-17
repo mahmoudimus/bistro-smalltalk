@@ -1,0 +1,7 @@
+"MonadicBlock.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk MonadicBlock."
+MonadicValuable subtype: MonadicBlock
+metatype: []
+type: []

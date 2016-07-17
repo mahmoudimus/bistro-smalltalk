@@ -1,0 +1,297 @@
+"LargeInteger.bist"
+package: smalltalk.magnitude;
+import: java.math.BigInteger;
+
+"Represents an arbitrary precision integer.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Integer subclass: LargeInteger
+metaclass:
+[
+	"Returns a LargeInteger whose value is a (primitiveLong)."
+	protected coerce: primitiveLong (long)
+	{	return new LargeInteger( primitiveLong );
+	}
+
+	"Returns a LargeInteger whose value is (aNumber) as a primitive long."
+	coerce: aNumber (Number)
+	[	^self coerce: aNumber primitiveLong
+	]
+
+	"Initializes class variables."
+	protected initialize [
+		generality := 30.
+	]
+]
+class:
+[
+	"Used for numeric coercions."
+	static generality (SmallInteger).
+
+	"Holds a primitive BigInteger."
+	primitiveValue (BigInteger).
+
+	"Constructs a new LargeInteger."
+	protected LargeInteger: primitiveInteger (BigInteger)
+	{	primitiveValue = primitiveInteger;
+	}
+
+	"Constructs a new LargeInteger."
+	protected LargeInteger: primitiveLong (long)
+	{	this( BigInteger.valueOf( primitiveLong ) );
+	}
+
+	"Constructs a new LargeInteger."
+	protected LargeInteger
+	{	this( 0L );
+	}
+
+"arithmetic - final"
+
+	"Returns the sum of the receiver and (aNumber)."
+	final + aNumber (LargeInteger)
+	{	return new LargeInteger(
+			primitiveValue.add( aNumber.primitiveValue )
+		);
+	}
+
+	"Returns the product of the receiver and (aNumber)."
+	final * aNumber (LargeInteger)
+	{	return new LargeInteger(
+			primitiveValue.multiply( aNumber.primitiveValue )
+		);
+	}
+
+	"Returns the ratio of the receiver and (aNumber)."
+	final / aNumber (LargeInteger) {
+		if (aNumber.primitiveValue.equals( BigInteger.valueOf( 0L ))) zeroDivide();
+		return new LargeInteger(
+			primitiveValue.divide( aNumber.primitiveValue )
+		);
+	}
+
+"arithmetic"
+
+	"Returns the sum of the receiver and (aNumber)."
+	+ aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber + self ]
+			ifFalse: [ self + aNumber asLargeInteger ]
+	]
+
+	"Returns the product of the receiver and (aNumber)."
+	* aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber * self ]
+			ifFalse: [ self * aNumber asLargeInteger ]
+	]
+
+	"Returns the ratio of the receiver and (aNumber)."
+	/ aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ (self coerceTo: aNumber class) / aNumber ]
+			ifFalse: [ self / aNumber asLargeInteger ]
+	]
+
+"converting"
+
+	"Converts the receiver to a primitive byte value."
+	(byte) primitiveByte
+	{	return (byte) primitiveValue.intValue();
+	}
+
+	"Converts the receiver to a primitive char value."
+	(char) primitiveCharacter
+	{	return (char) primitiveValue.intValue();
+	}
+
+	"Converts the receiver to a primitive int value."
+	(int) primitiveInteger
+	{	return primitiveValue.intValue();
+	}
+
+	"Converts the receiver to a primitive long value."
+	(long) primitiveLong
+	{	return primitiveValue.longValue();
+	}
+
+	"Converts the receiver to a primitive float value."
+	(float) primitiveFloat
+	{	return primitiveValue.floatValue();
+	}
+
+	"Converts the receiver to a primitive double value."
+	(double) primitiveDouble
+	{	return primitiveValue.doubleValue();
+	}
+
+	"Converts the receiver to an elementary integer."
+	(BigInteger) elementaryInteger
+	{	return primitiveValue;
+	}
+
+	"Converts the receiver to a BigInteger."
+	(BigInteger) asBigInteger [
+		^self elementaryInteger
+	]
+
+	"Converts the receiver to an elementary number."
+	(java.lang.Number) elementaryNumber
+	{	return elementaryInteger();
+	}
+
+	"Converts the receiver to a large integer."
+	(LargeInteger) asLargeInteger
+	[	^self
+	]
+
+	"Returns the level of generality used in coercion."
+	generality
+	[	^generality
+	]
+
+	"Converts the receiver to the narrowest kind of integer."
+	narrowGenerality
+	{	int bits = primitiveValue.bitLength();
+		if (bits < 32) return new SmallInteger( primitiveInteger() );
+		if (bits < 64) return new LongInteger( primitiveLong() );
+		return this;
+	}
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aNumber)."
+	final = aNumber (LargeInteger)
+	{	return primitive.BooleanFrom(
+			this.primitiveValue.compareTo( aNumber.primitiveValue ) == 0
+		);
+	}
+
+	"Indicates whether the receiver is less than (aNumber)."
+	final < aNumber (LargeInteger)
+	{	return primitive.BooleanFrom(
+			this.primitiveValue.compareTo( aNumber.primitiveValue ) < 0
+		);
+	}
+
+	"Indicates whether the receiver is equivalent to (aNumber)."
+	= aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber = self ]
+			ifFalse: [ self = aNumber asLargeInteger ]
+	]
+
+	"Indicates whether the receiver is less than (aNumber)."
+	< aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber > self ]
+			ifFalse: [ self < aNumber asLargeInteger ]
+	]
+
+	"Indicates whether the receiver is more than (aNumber)."
+	> aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber < self ]
+			ifFalse: [ aNumber asLargeInteger < self ]
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return primitiveValue.hashCode();
+	}
+
+"mathematics"
+
+	"Returns the arithmetic inverse of the receiver."
+	negated
+	{	return new LargeInteger( primitiveValue.negate() );
+	}
+
+	"Returns the greatest common divisor of the receiver and (anInteger)."
+	gcd: anInteger (LargeInteger)
+	{	return new LargeInteger( primitiveValue.gcd( anInteger.primitiveValue ) );
+	}
+
+	"Returns the greatest common divisor of the receiver and (anInteger)."
+	gcd: anInteger
+	[	^self gcd: (anInteger as: Integer) asLargeInteger
+	]
+
+	"Returns the result of raising the receiver to (anInteger) power."
+	raisedToInteger: anInteger (SmallInteger)
+	{	return new LargeInteger( primitiveValue.pow( anInteger.primitiveInteger() ) );
+	}
+
+	"Returns the result of raising the receiver to (anInteger) power."
+	raisedToInteger: anInteger
+	[	^self raisedToInteger: (anInteger as: Integer) asSmallInteger
+	]
+
+"manipulating bits"
+
+	"Returns the bitwise intersection of the receiver and (anInteger)."
+	bitAnd: anInteger (LargeInteger)
+	{	return new LargeInteger(
+			primitiveValue.and( anInteger.primitiveValue )
+		);
+	}
+
+	"Returns the bitwise union of the receiver and (anInteger)."
+	bitOr: anInteger (LargeInteger)
+	{	return new LargeInteger(
+			primitiveValue.or( anInteger.primitiveValue )
+		);
+	}
+
+	"Returns the bitwise exclusive or of the receiver and (anInteger)."
+	bitXor: anInteger (LargeInteger)
+	{	return new LargeInteger(
+			primitiveValue.xor( anInteger.primitiveValue )
+		);
+	}
+
+	"Returns the bitwise intersection of the receiver and (anInteger)."
+	bitAnd: anInteger (Integer)
+	[	^self bitAnd: anInteger asLargeInteger
+	]
+
+	"Returns the bitwise union of the receiver and (anInteger)."
+	bitOr: anInteger (Integer)
+	[	^self bitOr: anInteger asLargeInteger
+	]
+
+	"Returns the bitwise exclusive or of the receiver and (anInteger)."
+	bitXor: anInteger (Integer)
+	[	^self bitXor: anInteger asLargeInteger
+	]
+
+	"Returns the bitwise inverse of the recevier."
+	bitInvert
+	{	return new LargeInteger( primitiveValue.not() );
+	}
+
+	"Returns the value of the bit at (index)."
+	bitAt: index (SmallInteger)
+	{	return primitive.IntegerFrom(
+			primitiveValue.testBit( index.primitiveInteger() ) ? 1 : 0
+		);
+	}
+
+	"Returns the result of changing the bit at (index) in the receiver."
+	bitAt: index (SmallInteger) put: bitValue (SmallInteger)
+	{	return new LargeInteger(
+			bitValue.primitiveInteger() == 0 ?
+				primitiveValue.clearBit( index.primitiveInteger() ) :
+				primitiveValue.setBit( index.primitiveInteger() )
+		);
+	}
+
+	"Returns the bitwise shift of the receiver by (count)."
+	bitShift: count (SmallInteger)
+	{	int shift = count.primitiveInteger();
+		return new LargeInteger(
+			shift < 0 ?
+				primitiveValue.shiftRight( - shift ) :
+				primitiveValue.shiftLeft( shift )
+		);
+	}
+]

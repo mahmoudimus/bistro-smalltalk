@@ -1,0 +1,287 @@
+"Exception.bist"
+package: smalltalk.behavior;
+
+"Represents an exception raised by a thread.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Object subclass: Exception
+metaclass:
+[
+"creating exception sets"
+
+	"Returns a new ExceptionSet containing the receiver and the (argument)."
+	, argument [
+		^(ExceptionSet with: self) , argument
+	]
+
+"testing"
+
+	"Indicates whether the receiver can handle (anException)."
+	handles: anException [
+		"The exception handling framework uses this message to 
+		resolve a handler for a signaled exception. Derived
+		classes may override this implementation to select
+		a handler differently."
+
+		^anException isKindOf: self
+	]
+
+"signaling exceptions"
+
+	"Signals the occurrence of the exception represented by this class."
+	signal [
+		^(self new as: Exception) signal
+	]
+
+	"Signals the occurrence of the exception represented by this class 
+	along with the supplied (message)."
+	signal: message [
+		^(self new as: Exception) 
+			messageText: message;
+			signal
+	]
+
+]
+class:
+[
+"accessing the exception environment"
+
+	"Returns the current exception environment."
+	environment [
+		^ExceptionHandler environmentForCurrentThread
+	]
+
+"accessing an exception handler"
+
+	"Identifies the currently active exception handler."
+	currentHandler := nil.
+
+	"Returns the exception handler that is currently active"
+	protected activeHandler [
+		^currentHandler
+	]
+
+	"Establishes the exception handler that is currently active."
+	activeHandler: handler [
+		currentHandler := handler
+	]
+
+"completing an exception"
+
+	"Returns the supplied (value) as the result of the handler block."
+	exit: value [
+		"If the exception is resumable this will be equivalent to #resume:.
+		If the exception is non-resumable this is equivalent to #return:."
+
+		self isResumable
+			ifTrue: [ self resume: value ]
+			ifFalse: [ self return: value ].
+	]
+
+	"Returns nil as the result of the message that signaled this exception."
+	resume [
+		self resume: nil.
+	]
+
+	"Returns the supplied (value) as the result of the message that signaled this exception."
+	resume: value [
+		self isResumable ifFalse: [
+			ControlError signal: 'Attempt to resume from a non-resumable exception'
+		].
+		self activeHandler resume: value. "will not return"
+	]
+
+	"Returns nil as the result of the block guarded by the active exception handler."
+	return [
+		self return: nil.
+	]
+
+	"Returns the supplied (value) as the result of the block guarded by the active exception handler."
+	return: value [
+		self activeHandler return: value.
+	]
+
+"describing an exception"
+
+	"Returns a description of the exception."
+	protected defaultDescriptionString [
+		"Derived classes often override this method."
+		^self class name
+	]
+
+	"Returns a description of the exception."
+	description [
+		message := self messageText.
+		^message == nil
+			ifTrue: [ self defaultDescriptionString ]
+			ifFalse: [ message ]
+	]
+
+	"Contains a message from the signaler."
+	messageText := nil.
+
+	"Returns the message associated with this exception."
+	messageText [
+		^messageText
+	]
+
+	"Establishes (aMessage) for this exception."
+	messageText: aMessage [
+		messageText := aMessage.
+	]
+
+	"Contains a tag that identifies this exception."
+	tag := nil.
+
+	"Returns the tag or the message text for this exception."
+	tag [
+		tag isNil ifFalse: [ ^tag ].
+		messageText isNil ifFalse: [ ^messageText ].
+		^nil
+	]
+
+	"Establishes the tag that identifies this exception."
+	tag: aTag [
+		tag := aTag.
+	]
+
+"handling an exception"
+
+	"Returns the result of handling the receiver exception."
+	protected activateHandler: environment [
+		self resignalContinuation == nil ifTrue: [
+			"the block serves as its own flag value"
+			self resignalContinuation: [ ^self resignalContinuation ]
+		].
+		^environment == nil
+			ifTrue: [ self defaultAction ]
+			ifFalse: [ environment findHandler: self ]
+	]
+
+	"Performs the default action if this exception is signaled without an active handler."
+	defaultAction [
+		UnhandledException raise: self.
+		"better would be to launch a debugger..."
+	]
+
+	"Abandons an unresumable exception."
+	protected abandonAction [
+		UnhandledException raise: UnresumableException basicNew.
+	]
+
+	"Finds the active handler for this exception and activates it."
+	handle [
+		result := self activateHandler: self environment.
+		result == self resignalContinuation ifTrue: [ ^self replacementException signal ].
+		self isResumable ifFalse: [ self abandonAction ].
+		^result
+	]
+
+	"Activate the enclosing hander for this exception. Afterwards, if this exception 
+	is resumable, the current handler will continue executing with the resumption value 
+	from the enclosing handler returned as the value of this message."
+	outer [
+		^self activeHandler passFrom: self
+	]
+
+	"Passes the receiver to the next enclosing exception handler."
+	pass [
+		^self exit: (self activeHandler passFrom: self)
+	]
+
+"resignaling an exception"
+
+	"Identifies a replacement exception."
+	resignalException := nil.
+
+	"Returns the exception to be signaled in place of the receiver."
+	protected replacementException [
+		^resignalException
+	]
+
+	"Establishes the exception to be signaled in place of the receiver"
+	replacementException: anException [
+		resignalException := anException
+	]
+
+	"Resignals with (anException) as the raised exception, replacing the receiver."
+	resignalAs: anException	[
+		self replacementException: anException.
+		self resignalContinuation value. "never returns!"
+	]
+
+	"Causes a resignal."
+	resignalBlock := nil.
+
+	"Returns a block whose evaluation causes a resignal."
+	protected resignalContinuation [
+		^resignalBlock
+	]
+
+	"Establishes a block whose evaluation causes a resignal."
+	protected resignalContinuation: aBlock [
+		resignalBlock := aBlock.
+	]
+
+"retrying an exception"
+
+	"Aborts the current exception handler and reattempts evaluation of the protected block."
+	retry [
+		self activeHandler retry.
+	]
+
+	"Aborts the current exception handler, replaces the protected block with (aBlock), 
+	and evaluates the new protected block under the protection of the handler."
+	retryUsing: aBlock [
+		self activeHandler retry: aBlock.
+	]
+
+"signaling an exception"
+
+	"Identifies the environment active when the exception was signaled."
+	signalEnvironment := nil.
+
+	"Signals that this exception occurred, finds and executes the appropriate handler."
+	signal [
+		self isActive ifTrue: [ 
+			^ControlError signal: 'Signaling an already signaled exception' 
+		].
+		self signalEnvironment: self environment.
+		^self handle
+	]
+
+	"Signals the occurrence of the exception represented by this class 
+	along with the supplied (message)."
+	signal: message [
+		^self messageText: message; signal
+	]
+
+	"Return the environment active at the time the exception is signaled."
+	signalEnvironment [
+		^signalEnvironment
+	]
+
+	"Establishes the environment active at the time the exception is signaled."
+	protected signalEnvironment: exceptionEnvironment [
+		signalEnvironment := exceptionEnvironment.
+	]
+
+"testing"
+
+	"Indicates whether this exception is currently being handled."
+	protected isActive [
+		^self activeHandler ~~ nil
+	]
+
+	"Indicates whether this is a resumable exception."
+	isResumable [
+		"Resumable derived classes should override this method."
+		^false
+	]
+
+	"Indicates whether the handler for this exception is nested."
+	isNested [
+		handler := self activeHandler.
+		handler isNil ifTrue: [ ^false ].
+		^(handler handlerFor: self) notNil
+	]
+]

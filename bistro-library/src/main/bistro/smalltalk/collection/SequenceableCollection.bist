@@ -1,0 +1,475 @@
+"SequenceableCollection.bist"
+package: smalltalk.collection;
+
+"Supports sequential access of the elements in a collection.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Collection subclass: SequenceableCollection
+implements: IndexedCollection
+metaclass: []
+class:
+[
+"accessing"
+
+	"Returns the first element of the receiver."
+	first
+	[	self emptyCheck.
+		^self at: 1
+	]
+
+	"Returns the last element of the receiver."
+	last
+	[	self emptyCheck.
+		^self at: self size
+	]
+
+	"Returns the element at (index)."
+	at: index
+	[	^self at: index ifAbsent: [ ^self indexRangeError ]
+	]
+
+"locating elements"
+
+	"Returns the index of the next occurrence of an (element) between the
+	(start) and (stop) indexes."
+	nextIndexOf: element from: start to: stop
+	[	^self nextIndexOf: element from: start to: stop ifAbsent: [ ^nil ]
+	]
+
+	"Returns the index of the next occurrence of an (element) between the
+	(start) and (stop) indexes. Evaluates (exceptionBlock) if the (element) 
+	cannot be found."
+	nextIndexOf: element from: start to: stop 
+	ifAbsent: exceptionBlock (ZeroArgumentBlock)
+	[	start to: stop do: [ :i |
+			(self at: i) = element ifTrue: [ ^i ]
+		].
+		^exceptionBlock value
+	]
+
+	"Returns the index of the last occurrence of an (element) between the
+	(start) and the (stop) indexes."
+	prevIndexOf: element from: start to: stop
+	[	^self prevIndexOf: element from: start to: stop ifAbsent: [ ^nil ]
+	]
+
+	"Returns the index of the last occurrence of an (element) between the
+	(start) and the (stop) indexes. Evaluates (exceptionBlock) if the (element) 
+	cannot be found."
+	prevIndexOf: element from: start to: stop
+	ifAbsent: exceptionBlock (ZeroArgumentBlock)
+	[	start to: stop by: -1 do: [ :i |
+			(self at: i) = element ifTrue: [ ^i ]
+		].
+		^exceptionBlock value
+	]
+
+	"Returns the element after (leadingElement)."
+	after: leadingElement
+	[	index := self 
+			nextIndexOf: leadingElement
+			from: 1 to: self size
+			ifAbsent: [ ^self elementNotFound ].
+
+		^index = self size
+			ifTrue: [ self elementNotFound ]
+			ifFalse: [ self at: index + 1 ]
+	]
+
+	"Returns the element before (trailingElement)."
+	before: trailingElement
+	[	index := self 
+			prevIndexOf: trailingElement
+			from: self size to: 1
+			ifAbsent: [ ^self elementNotFound ].
+
+		^index = 1
+			ifTrue: [ self elementNotFound ]
+			ifFalse: [ self at: index - 1 ]
+	]
+
+	"Returns the index of the first occurrence of (anElement) within the 
+	receiver.  If the receiver does not contain anElement, answer 0."
+	indexOf: anElement 
+	[	^self indexOf: anElement ifAbsent: [ 0 ]
+	]
+
+	"Returns the index of the first occurrence of (anElement) within the 
+	receiver.  If the receiver does not contain anElement, answer the 
+	result of evaluating the (exceptionBlock)."
+	indexOf: anElement ifAbsent: exceptionBlock (ZeroArgumentBlock)
+	[	^self 
+			nextIndexOf: anElement 
+			from: 1 to: self size
+			ifAbsent: exceptionBlock
+	]
+
+	"Returns the index of the first occurrence of a (subCollection) within
+	the receiver starting at (anIndex). Returns 0 if no match is found."
+	indexOfSubCollection: subCollection startingAt: anIndex 
+	[	^self indexOfSubCollection: subCollection 
+			startingAt: anIndex
+			ifAbsent: [ ^0 ]
+
+	]
+
+	"Returns the index of the first occurrence of a (subCollection) within
+	the receiver starting at (anIndex). Returns the result of evaluating
+	(exceptionBlock) if no match is found."
+	indexOfSubCollection: subCollection startingAt: anIndex 
+	ifAbsent: exceptionBlock (ZeroArgumentBlock)
+	[	subSize := subCollection size.
+		subSize = 0 ifTrue: [ ^exceptionBlock value ].
+
+		firstElement := subCollection at: 1.
+		subSize = 1 ifTrue: [
+			^self nextIndexOf: firstElement 
+				from: anIndex to: self size
+				ifAbsent: [ ^exceptionBlock value ]
+		].
+		matchIndex := anIndex.
+		finalIndex := self size - subSize + 1.
+		[ matchIndex <= finalIndex ] whileTrue: [
+			(self at: matchIndex) = firstElement ifTrue: [
+				index := 2.
+				[	(self at: matchIndex + index - 1) = 
+					(subCollection at: index) 
+				]
+				whileTrue: [
+					index = subSize ifTrue: [ ^matchIndex ].
+					index := index + 1
+				]
+			].
+			matchIndex := matchIndex + 1
+		].
+		^exceptionBlock value
+	]
+
+	"Returns the number of elements in the receiver that are equal to (anObject)."
+	occurrencesOf: anObject
+	[	tally := 0.
+		1 to: self size do: [ :index | 
+			anObject = (self at: element) ifTrue: [ tally := tally + 1 ]
+		].
+		^tally
+	]
+
+"copying elements"
+
+	"Returns a copy of the receiver concatenated with the argument, (aCollection)."
+	, aCollection 
+	[	^self copyReplaceFrom: self size + 1 
+			to: self size with: aCollection
+	]
+
+	"Returns a copy of a subset of the receiver, starting from the element 
+	at index (start) until the element at index (stop)."
+	copyFrom: start to: stop 
+	[	newSize := stop - start + 1.
+		^(self species new: newSize)
+			replaceFrom: 1 to: newSize
+			with: self startingAt: start
+	]
+
+	"Returns a copy of the receiver in which all occurrences of (oldElements) 
+	have been replaced by (newElements). Returns a copy of the receiver if 
+	there are no such occurrences."
+	copyReplaceAll: oldElements with: newElements 
+	[
+		"If there are no matches, answer the receiver."
+		oldIndex := 1.
+		matchIndex := self indexOfSubCollection: oldElements startingAt: oldIndex.
+		matchIndex > 0 ifFalse: [ ^self copy ].
+
+		"Locate all the occurrences."
+		matchIndices := OrderedCollection with: matchIndex.
+		[
+			matchIndex := self 
+				indexOfSubCollection: oldElements 
+				startingAt: matchIndex + oldElements size.
+
+			matchIndex > 0
+		]
+		whileTrue: [ matchIndices addLast: matchIndex ].
+
+		"Copy the collection, replacing all the occurrences."
+		newIndex := 1.
+		newPlace := 0.
+		result := self species new: self size + 
+			((newElements size - oldElements size) * matchIndices size).
+
+		[ matchIndices isEmpty ] whileFalse: [
+			matchIndex := matchIndices removeFirst.
+			"Copy the subcollection up to the match."
+			newPlace := newIndex + matchIndex - oldIndex.
+			result replaceFrom: newIndex to: newPlace - 1
+				with: self startingAt: oldIndex.
+
+			oldIndex := matchIndex + oldElements size.
+			"Insert the new subcollection."
+			newIndex := newPlace + newElements size.
+			result replaceFrom: newPlace to: newIndex - 1
+				with: newElements startingAt: 1
+		].
+
+		"Copy the collection beyond the last match."
+		result replaceFrom: newIndex to: result size
+			with: self startingAt: oldIndex.
+
+		^result
+	]
+
+	"Returns a copy of the receiver satisfying the following conditions:
+		If stop is less than start, then this is an insertion;  
+			stop should be exactly start-1,  
+			start = 1 means insert before the first element,  
+			start = size+1 means append after last element.  
+		Otherwise, this is a replacement;  
+			start and stop have to be within the receiver's bounds.
+	"
+	copyReplaceFrom: start to: stop with: replacements
+	[	newSize := self size - (stop - start + 1) + replacements size.
+		end := start - 1 + replacements size.
+		^(self species new: newSize)
+			replaceFrom: 1 to: start - 1 with: self startingAt: 1;
+			replaceFrom: start to: end with: replacements startingAt: 1;
+			replaceFrom: end + 1 to: newSize with: self startingAt: stop + 1
+	]
+
+	"Returns a copy of the receiver in which the elements between (start) and
+	(stop) inclusive have been replaced by the (replacement)."
+	copyReplaceFrom: start to: stop withObject: replacement [
+		size := stop - start.
+		size := size < 0 ifTrue: [ 1 ] ifFalse: [ size + 1 ].
+		replacements := (Array new: size) atAllPut: replacement; yourself.
+		^self copyReplaceFrom: start to: stop with: replacements
+	]
+
+	"Returns a copy of the receiver that is 1 bigger than the 
+	receiver and has (newElement) at the last element."
+	copyWith: newElement
+	[	newSize := self size + 1.
+		^(self species new: newSize)
+			at: newSize put: newElement;
+			replaceFrom: 1 to: self size with: self startingAt: 1
+	]
+
+	"Returns a copy of the receiver in which all occurrences 
+	of (oldElement) have been left out."
+	copyWithout: oldElement 
+	[	aStream := 'smalltalk.stream.WriteStream' resolvedToClass on: (self species new: self size).
+		self do: [ :element | 
+			oldElement = element ifFalse: [ aStream nextPut: element ]
+		].
+		^aStream contents
+	]
+
+	"Returns a copy of the receiver in which all occurrences of 
+	{oldElement) have been replaced by (newElement)."
+	copyReplacing: oldElement withObject: newElement
+	[	^self collect: [ :each | 
+			each = oldElement 
+				ifTrue: [ newElement ] 
+				ifFalse: [ each ] ]
+	]
+
+	"Returns a copy of the receiver in reverse order."
+	reverse
+	[	size := self size.
+		result := self species new: size.
+		self size to: 1 by: -1 do: [ :index | 
+			result at: size + 1 - index put: (self at: index)
+		].
+		^result
+	]
+
+"enumerating"
+
+	"Returns a new collection created passing the receiver elements
+	through a (filterBlock)."
+	collect: filterBlock (OneArgumentBlock)
+	[	result := self species new: self size.
+		1 to: self size do: [ :index |
+			result at: index put: (filterBlock value: (self at: index))
+		].
+		^result
+	]
+
+	"Returns the index of the first receiver element
+	for which (testBlock) evaluates to true."
+	findFirst: testBlock (OneArgumentBlock)
+	[	^self findFirst: testBlock ifAbsent: [ ^0 ]
+	]
+
+	"Returns the index of the first receiver element
+	for which (testBlock) evaluates to true."
+	findFirst: testBlock
+	{	return findFirst( (OneArgumentBlock) testBlock );
+	}
+
+	"Returns the index of the first receiver element
+	for which (testBlock) evaluates to true. Evaluates
+	(exceptionBlock) if no match can be found."
+	findFirst: testBlock (OneArgumentBlock)
+	ifAbsent: exceptionBlock (ZeroArgumentBlock)
+	[	1 to: self size do: [ :index |
+			(testBlock value: (self at: index)) ifTrue: [ ^index ]
+		].
+		^exceptionBlock value
+	]
+
+	"Returns the index of the first receiver element
+	for which (testBlock) evaluates to true. Evaluates
+	(exceptionBlock) if no match can be found."
+	findFirst: testBlock
+	ifAbsent: exceptionBlock (ZeroArgumentBlock)
+	{	return findFirst_ifAbsent( 
+			(OneArgumentBlock) testBlock, exceptionBlock
+		);
+	}
+
+	"Returns the index of the last receiver element
+	for which (testBlock) evaluates to true."
+	findLast: testBlock (OneArgumentBlock)
+	[	self findLast: testBlock ifAbsent: [ ^0 ]
+	]
+
+	"Returns the index of the last receiver element
+	for which (testBlock) evaluates to true."
+	findLast: testBlock
+	{	return findLast( (OneArgumentBlock) testBlock );
+	}
+
+	"Returns the index of the last receiver element
+	for which (testBlock) evaluates to true. Evaluates
+	(exceptionBlock) if no match can be found."
+	findLast: testBlock (OneArgumentBlock)
+	ifAbsent: exceptionBlock (ZeroArgumentBlock)
+	[	self size to: 1 by: -1 do: [ :index |
+			(testBlock value: (self at: index)) ifTrue: [ ^index ]
+		].
+		^exceptionBlock value
+	]
+
+	"Returns the index of the last receiver element
+	for which (testBlock) evaluates to true. Evaluates
+	(exceptionBlock) if no match can be found."
+	findLast: testBlock
+	ifAbsent: exceptionBlock (ZeroArgumentBlock)
+	{	return findLast_ifAbsent( 
+			(OneArgumentBlock) testBlock, exceptionBlock
+		);
+	}
+
+	"Evaluates (aBlock) with each receiver element between (start) and (stop)."
+	from: start to: stop do: aBlock (OneArgumentBlock)
+	[	start to: stop do: [ :i | aBlock value: (self at: i) ]
+	]
+
+	"Evaluates (aBlock) with each receiver element between (start) and (stop)."
+	from: start to: stop do: aBlock
+	{	return from_to_do( 
+			start, stop, (OneArgumentBlock) aBlock 
+		);
+	}
+
+	"Evaluates (aBlock) with each receiver element and its index between 
+	(start) and (stop)."
+	from: start to: stop keysAndValuesDo: aBlock (TwoArgumentBlock)
+	[	start to: stop do: [ :i | aBlock value: (self at: i) value: i ]
+	]
+
+	"Evaluates (aBlock) with each receiver element and its index between 
+	(start) and (stop)."
+	from: start to: stop keysAndValuesDo: aBlock
+	{	return from_to_keysAndValuesDo( 
+			start, stop, (TwoArgumentBlock) aBlock 
+		);
+	}
+
+	"Evaluates (aBlock) with each receiver element and its index."
+	keysAndValuesDo: aBlock (TwoArgumentBlock)
+	[	self from: 1 to: self size keysAndValuesDo: aBlock
+	]
+
+	"Evaluates (aBlock) with each receiver element and its index."
+	keysAndValuesDo: aBlock
+	{	return keysAndValuesDo( (TwoArgumentBlock) aBlock );
+	}
+
+	"Evaluates (aBlock) with each receiver element."
+	do: aBlock (OneArgumentBlock)
+	[	1 to: self size do: [ :i | aBlock value: (self at: i) ]
+	]
+
+	"Evaluates (aBlock) with each receiver element and evaluates 
+	(separateBlock) in between the elements."
+	do: aBlock (OneArgumentBlock)
+	separatedBy: separateBlock (ZeroArgumentBlock)
+	[	self isEmpty ifTrue: [ ^self ].
+		aBlock value: (self at: 1).
+		2 to: self size do: [ :i |
+			separateBlock value.
+			aBlock value: (self at: i)
+		]
+	]
+
+	"Evaluates (aBlock) with each receiver element in reverse order."
+	reverseDo: aBlock (OneArgumentBlock)
+	[	self size to: 1 by: -1 do: [ :i | aBlock value: (self at: i) ]
+	]
+
+	"Evaluates (aBlock) with each receiver element in reverse order."
+	reverseDo: aBlock
+	{	return reverseDo( (OneArgumentBlock) aBlock );
+	}
+
+	"Evaluates (aBlock) with each receiver element and its corresponding
+	element from (aCollection)."
+	with: aCollection do: aBlock (TwoArgumentBlock)
+	[	self size == aCollection size ifFalse: [ 
+			^self error: 'Collections are of different sizes'
+		].
+		1 to: self size do: [ :index |
+			aBlock value: (self at: index) value: (aCollection at: index)
+		]
+	]
+
+	"Evaluates (aBlock) with each receiver element and its corresponding
+	element from (aCollection)."
+	with: aCollection do: aBlock
+	{	return with_do( aCollection, (TwoArgumentBlock) aBlock );
+	}
+
+"streaming"
+
+	"Returns a new stream for reading the receiver."
+	readStream
+	[	^'smalltalk.stream.ReadStream' resolvedToClass on: self
+	]
+
+"testing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection 
+	[	self species == aCollection species ifFalse: [ ^false ].
+		size := self size.
+		size = aCollection size ifFalse: [ ^false ].
+		1 to: size do: [ :index |
+			(self at: index) = (aCollection at: index) ifFalse: [ ^false ]
+		].
+		^true
+	]
+
+	"Indicates whether the collection includes (index)."
+	includesIndex: index
+	{	try {
+			Number aNumber = (Number) index;
+			Number size = (Number) this.size();
+			int i = aNumber.primitiveInteger() - 1;
+			return primitive.BooleanFrom( i >= 0 && i < size.primitiveInteger() );
+		} catch( java.lang.ClassCastException e ) {
+			this.indexError();
+		}
+		return primitive.literalFalse();
+	}
+]

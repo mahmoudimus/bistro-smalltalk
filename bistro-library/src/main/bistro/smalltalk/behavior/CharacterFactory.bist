@@ -1,0 +1,15 @@
+"CharacterFactory.bist"
+package: smalltalk.behavior;
+
+"Supports behavior for converting between primitive characters and Characters.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: CharacterFactory
+metatype:
+[
+	"Returns a Character whose value is (primitiveCharacter)."
+	CharacterFrom: primitiveCharacter (char) []
+
+	"Returns the primitive char value indicated by (aCharacter)."
+	(char) charFrom: aCharacter []
+]
+type: []

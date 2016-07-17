@@ -1,0 +1,17 @@
+"ExceptionSelectorFactory.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk ExceptionSelector factory."
+ExceptionSelector subtype: ExceptionSelectorFactory
+metatype: [
+
+"handling exceptions"
+
+	"Returns an exception set that contains the receiver and (anException)."
+	(ExceptionSet) , anException (ExceptionSelector) []
+
+	"Indicates whether the exception handler associated with the receiver
+	handles the supplied (exception)."
+	(Boolean) handles: exception (ExceptionDescription) []
+]
+type: []

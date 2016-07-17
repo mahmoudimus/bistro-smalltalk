@@ -1,0 +1,133 @@
+"DateAndTime.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk DateAndTime."
+Magnitude subtype: DateAndTime
+metatype: [
+
+"measuring execution time"
+
+	"Returns the duration after which #now is guaranteed to produce
+	a different result."
+	(Duration) clockPrecision []
+
+"creating instances"
+
+	"Returns a new Time from the given arguments."
+	(DateAndTime) 
+	year: year (Integer) month: month (Integer) day: dayOfMonth (Integer) 
+	hour: hour (Integer) minute: minute (Integer) second: second (Number) []
+
+	"Returns a new Time from the given arguments."
+	(DateAndTime) 
+	year: year (Integer) month: month (Integer) day: dayOfMonth (Integer) 
+	hour: hour (Integer) minute: minute (Integer) second: second (Number) 
+	offset: offset (Duration) []
+
+	"Returns a new Time from the given arguments."
+	(DateAndTime) 
+	year: year (Integer) day: dayOfYear (Integer) 
+	hour: hour (Integer) minute: minute (Integer) second: second (Number) []
+
+	"Returns a new Time from the given arguments."
+	(DateAndTime) 
+	year: year (Integer) day: dayOfYear (Integer) 
+	hour: hour (Integer) minute: minute (Integer) second: second (Number) 
+	offset: offset (Duration) []
+
+	"Returns the current time."
+	(DateAndTime) now []
+]
+type: [
+
+"converting"
+
+	"Returns the local time representation of the receiver."
+	(DateAndTime) asLocal []
+
+	"Returns the UTC representation of the receiver."
+	(DateAndTime) asUTC []
+
+"arithmetic"
+
+	"Returns a new Time (duration) milliseconds after the receiver."
+	(DateAndTime) + duration (Duration) []
+
+	"Returns a new Time (duration) milliseconds before the receiver."
+	(DateAndTime) - duration (Duration) []
+
+	"Returns a new Duration that represents the difference between the receiver and a (time)."
+	(Duration) - time (DateAndTime) []
+
+"accessing date"
+
+	"Returns the day of the month represented by the receiver."
+	(Integer) dayOfMonth []
+
+	"Returns the day of the week represented by the receiver."
+	(Integer) dayOfWeek []
+
+	"Returns the abbreviation for the day of the week."
+	(ReadableString) dayOfWeekAbbreviation []
+
+	"Returns the name for the day of the week."
+	(ReadableString) dayOfWeekName []
+
+	"Returns the day of the year represented by the receiver."
+	(Integer) dayOfYear []
+
+	"Indicates whether the receiver resides in a leap year."
+	(Boolean) isLeapYear []
+
+	"Returns the month of the year."
+	(Integer) month []
+
+	"Returns the abbreviation for the month."
+	(ReadableString) monthAbbreviation []
+
+	"Returns the name of the month."
+	(ReadableString) monthName []
+
+	"Returns the year represented by the receiver."
+	(Integer) year []
+
+"accessing zone"
+
+	"Returns the offset between the local time and the coincident UTC."
+	(Duration) offset []
+
+	"Establishes the offset between the local time and the coincident UTC."
+	(DateAndTime) offset: offset (Duration) []
+
+	"Returns the abbreviation of the time zone."
+	(ReadableString) timeZoneAbbreviation []
+
+	"Returns the name of the time zone."
+	(ReadableString) timeZoneName []
+
+
+"accessing time"
+
+	"Returns the hour in the day represented by the receiver."
+	(Integer) hour []
+
+	"Returns the hour in the day represented by the receiver."
+	(Integer) hour12 []
+
+	"Returns the hour in the day represented by the receiver."
+	(Integer) hour24 []
+
+	"Returns an abbreviation for the name of the half day."
+	(ReadableString) meridianAbbreviation []
+
+	"Returns the minute in the hour represented by the receiver."
+	(Integer) minute []
+
+	"Returns the second in the minute represented by the receiver."
+	(Number) second []
+
+"printing"
+
+	"Returns a formatted textual representation of the receiver."
+	(ReadableString) printString []
+]

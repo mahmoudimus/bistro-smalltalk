@@ -1,0 +1,11 @@
+"DyadicValuable.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk DyadicValuable."
+Valuable subtype: DyadicValuable
+metatype: []
+type: [
+
+	"Returns the result of evaluating the receiver."
+	(Any) value: firstArgument (Any) value: secondsArgument (Any) []
+]

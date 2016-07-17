@@ -1,0 +1,360 @@
+"Character.bist"
+package: smalltalk.magnitude;
+import: smalltalk.Name;
+
+"Represents a literal character and manages flyweight instances for the
+ASCII character range (0-255). Provides utility methods for conversions
+and tests of letters and digits.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Magnitude subclass: Character
+implements: CharacterFactory
+metaclass:
+[
+"accessing flyweights"
+
+	"Indicates the range of flyweight ASCII instances."
+	private static AsciiMaximum (int) := 256 asPrimitive.
+
+	"Holds the flyweight instances of the ASCII characters."
+	private asciiCharacter (Character[]).
+
+	"Instantiates the flyweight ASCII Character instances."
+	protected initialize {
+		asciiCharacter = new Character[AsciiMaximum];
+		for( char c = 0; c < AsciiMaximum; c++ ) {
+			asciiCharacter[c] = new Character( c );
+		}
+		return this;
+	}
+
+	"Returns a character that represents the code point (anInteger)."
+	codePoint: anInteger
+	[	^self CharacterFrom: (anInteger as: SmallInteger)
+	]
+
+	"Returns a character that represents the code point (anInteger)."
+	value: anInteger
+	[	^self codePoint: anInteger
+	]
+
+"accessing constants"
+
+	"Returns the character representing a null."
+	null
+	[	^self codePoint: 0
+	]
+
+	"Returns the character representing a backspace."
+	bs
+	[	^self codePoint: 8
+	]
+
+	"Returns the character representing a backspace."
+	backspace
+	[	^self bs
+	]
+
+	"Returns the character representing a carriage return."
+	cr
+	[	^self codePoint: 13
+	]
+
+	"Returns the character representing a carriage return."
+	carriageReturn
+	[	^self cr
+	]
+
+	"Returns the character representing a line feed."
+	lf
+	[	^self codePoint: 10
+	]
+
+	"Returns the character representing a line feed."
+	lineFeed
+	[	^self lf
+	]
+
+	"Returns the character representing a new line."
+	newLine
+	[	^self lf
+	]
+
+	"Returns the character representing a delete."
+	del
+	[	^self codePoint: 127
+	]
+
+	"Returns the character representing a delete."
+	delete
+	[	^self del
+	]
+
+	"Returns the character representing an escape."
+	esc
+	[	^self codePoint: 27
+	]
+
+	"Returns the character representing an escape."
+	escape
+	[	^self esc
+	]
+
+	"Returns the character representing a form feed."
+	ff
+	[	^self codePoint: 12
+	]
+
+	"Returns the character representing a form feed."
+	formFeed
+	[	^self ff
+	]
+
+	"Returns the character representing a new page."
+	newPage
+	[	^self ff
+	]
+
+	"Returns the character representing a space."
+	space
+	[	^self codePoint: 32
+	]
+
+	"Returns the character representing a tab."
+	tab
+	[	^self codePoint: 9
+	]
+
+"converting characters"
+
+	"Returns a Character whose value is (primitiveCharacter)."
+	CharacterFrom: primitiveCharacter (char)
+	{	return(
+			primitiveCharacter < AsciiMaximum ?
+			asciiCharacter[ primitiveCharacter ] :
+			new Character( primitiveCharacter )
+		);
+	}
+
+	"Returns the primitive char value indicated by (aCharacter)."
+	(char) charFrom: anObject
+	[	^(anObject as: Character) primitiveCharacter
+	]
+
+	"Returns a Character whose value is (anInteger)."
+	(Character) CharacterFrom: anInteger (int)
+	{	return (Character) CharacterFrom( (char) anInteger );
+	}
+
+	"Returns a Character whose value is (anInteger)."
+	(Character) CharacterFrom: anInteger (SmallInteger)
+	[	^self CharacterFrom: anInteger primitiveInteger
+	]
+
+	"Returns a Character whose value is (primitiveCharacter)."
+	from: primitiveCharacter (int)
+	[	^self CharacterFrom: primitiveCharacter
+	]
+]
+class:
+[
+	"Holds a primitive character value."
+	primitiveValue (char).
+
+	"Constructs a new Character given a (primitiveCharacter)."
+	protected Character: primitiveCharacter (char)
+	{	primitiveValue = primitiveCharacter;
+	}
+
+	"Constructs a new Character."
+	protected Character
+	{	primitiveValue = 0;
+	}
+
+"converting"
+
+	"Converts the receiver to a primitive char value."
+	(char) primitiveCharacter
+	{	return primitiveValue;
+	}
+
+	"Converts the receiver to a primitive char value."
+	(char) asPrimitive [
+		^self primitiveCharacter
+	]
+
+	"Converts the receiver to a primitive int value."
+	(int) primitiveInteger
+	{	return (int) primitiveValue;
+	}
+
+	"Converts the receiver to a Character."
+	asCharacter
+	[	^self
+	]
+
+	"Converts the receiver to a SmallInteger."
+	asInteger
+	{	return primitive.IntegerFrom( primitiveInteger() );
+	}
+
+	"Returns a character which is the lower case representation of the receiver."
+	asLowercase
+	{	return primitive.CharacterFrom(
+			java.lang.Character.toLowerCase( primitiveValue )
+		);
+	}
+
+	"Returns a character which is the lower case representation of the receiver."
+	asLowerCase
+	[	^self asLowercase
+	]
+
+	"Returns a string that contains the receiver character."
+	asString
+	{	return primitive.StringFrom( String.valueOf( primitiveValue ) );
+	}
+
+	"Returns a character which is the upper case representation of the receiver."
+	asUppercase
+	{	return primitive.CharacterFrom(
+			java.lang.Character.toUpperCase( primitiveValue )
+		);
+	}
+
+	"Returns a character which is the upper case representation of the receiver."
+	asUpperCase
+	[	^self asUppercase
+	]
+
+	"Returns the code point represented by the receiver."
+	codePoint
+	[	^self asInteger
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is (anObject)."
+	= anObject
+	{	try {
+			Character c = (Character) anObject;
+			return primitive.BooleanFrom(
+				this.primitiveValue == c.primitiveValue
+			);
+		} catch( ClassCastException e ) {
+			return primitive.literalFalse();
+		}
+	}
+
+	"Indicates whether the receiver is less than (aMagnitude)."
+	< aMagnitude
+	{	Character c = (Character) aMagnitude;
+		return primitive.BooleanFrom(
+			this.primitiveValue < c.primitiveValue
+		);
+	}
+
+	"Indicates whether the receiver is less than or equal to (aMagnitude)."
+	<= aMagnitude
+	{	Character c = (Character) aMagnitude;
+		return primitive.BooleanFrom(
+			this.primitiveValue <= c.primitiveValue
+		);
+	}
+
+	"Indicates whether the receiver is greater than (aMagnitude)."
+	> aMagnitude
+	{	Character c = (Character) aMagnitude;
+		return primitive.BooleanFrom(
+			this.primitiveValue > c.primitiveValue
+		);
+	}
+
+	"Indicates whether the receiver is greater than or equal to (aMagnitude)."
+	>= aMagnitude
+	{	Character c = (Character) aMagnitude;
+		return primitive.BooleanFrom(
+			this.primitiveValue >= c.primitiveValue
+		);
+	}
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	[	^self primitiveInteger
+	]
+
+"printing"
+
+	"Appends the receiver to (aStream)."
+	printOn: aStream
+	[	aStream nextPut: self.
+	]
+
+	"Returns a printable representation of the receiver."
+	printString
+	{	return primitive.StringFrom( String.valueOf( primitiveCharacter() ) );
+	}
+
+"testing"
+
+	"Indicates whether the receiver represents a letter or a digit."
+	isAlphaNumeric
+	{	return primitive.BooleanFrom(
+			java.lang.Character.isLetterOrDigit( primitiveValue )
+		);
+	}
+
+	"Indicates whether the receiver represents a digit."
+	isDigit
+	{	return primitive.BooleanFrom(
+			java.lang.Character.isDigit( primitiveValue )
+		);
+	}
+
+	"Indicates whether the receiver represents a letter."
+	isLetter
+	{	return primitive.BooleanFrom(
+			java.lang.Character.isLetter( primitiveValue )
+		);
+	}
+
+	"Indicates whether the receiver represents a lower case letter."
+	isLowercase
+	{	return primitive.BooleanFrom(
+			java.lang.Character.isLowerCase( primitiveValue )
+		);
+	}
+
+	"Indicates whether the receiver represents a lower case letter."
+	isLowerCase
+	[	^self isLowercase
+	]
+
+	"Indicates whether the receiver represents an upper case letter."
+	isUppercase
+	{	return primitive.BooleanFrom(
+			java.lang.Character.isUpperCase( primitiveValue )
+		);
+	}
+
+	"Indicates whether the receiver represents an upper case letter."
+	isUpperCase
+	[	^self isUppercase
+	]
+
+	"Indicates whether the receiver represents a vowel."
+	isVowel
+	[	^primitive BooleanFrom: (Name isVowel: self primitiveCharacter)
+	]
+
+"testing behavior"
+
+	"Indicates whether the receiver is a Character."
+	isCharacter
+	[	^true
+	]
+
+	"Indicates whether the receiver is a kind of literal."
+	isLiteral
+	[	^true
+	]
+]

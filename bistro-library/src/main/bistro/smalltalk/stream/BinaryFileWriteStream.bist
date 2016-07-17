@@ -1,0 +1,54 @@
+"BinaryFileWriteStream.bist"
+package: smalltalk.stream;
+import: smalltalk.collection.ByteArray;
+import: java.io.RandomAccessFile;
+import: java.io.IOException;
+
+"Supports writing bytes sequentially into a binary file.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+FileWriteStream subclass: BinaryFileWriteStream
+metaclass:
+[
+"creating instances"
+
+	"Opens a new instance of the receiver on a (primitiveFile)."
+	protected on: primitiveFile (RandomAccessFile)
+	[	^BinaryFileWriteStream basicNew: primitiveFile
+	]
+]
+class:
+[
+	"Constructs a new BinaryFileWriteStream."
+	protected BinaryFileWriteStream: primitiveFile (RandomAccessFile)
+	{	super( primitiveFile );
+	}
+
+"accessing"
+
+	"Returns the next (count) elements from the stream."
+	next: count
+	[	^self nextBytes: (count as: Integer) asSmallInteger
+	]
+
+"writing"
+
+	"Appends an (element) to the stream backing store."
+	nextPut: element
+	[	[ file writeByte: (element as: SmallInteger) primitiveInteger. ]
+		catch: [ :e (IOException) | ]
+	]
+
+	"Appends (elements) to the stream backing store."
+	nextPutAll: elements (ByteArray)
+	[	[ file write: elements primitiveContents. ] 
+		catch: [ :e (IOException) | ]
+	]
+
+	"Appends (elements) to the stream backing store."
+	nextPutAll: elements
+	[	[ ^self nextPutAll: (elements as: ByteArray) ]
+		catch: [ :e (java.lang.ClassCastException) |
+			elements do: [ :element | self nextPut: element ].
+		]
+	]
+]

@@ -1,0 +1,53 @@
+"IntegerArithmetic.bist"
+package: smalltalk.magnitude;
+
+"Supports basic arithmetic operations.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: IntegerArithmetic
+metatype: []
+type:
+[
+"arithmetic"
+
+	"Returns the sum of the receiver and (anInteger)."
+	+ anInteger []
+
+	"Returns the difference between the receiver and (anInteger)."
+	- anInteger []
+
+	"Returns the product of the receiver and (anInteger)."
+	* anInteger []
+
+	"Returns the ratio of the receiver and (anInteger)."
+	/ anInteger []
+
+"converting"
+
+	"Returns the receiver value as a primitive integer."
+	(int) primitiveInteger []
+
+	"Returns the receiver value as a primitive long."
+	(long) primitiveLong []
+
+"mathematics"
+
+	"Returns the absolute value of the receiver."
+	abs []
+
+	"Returns the arithmetic inverse of the receiver."
+	negated []
+
+	"Returns the arithmetic sign of the receiver."
+	sign []
+
+"testing"
+
+	"Indicates whether the receiver is less than zero."
+	negative []
+
+	"Indicates whether the receiver is more than or equal to zero."
+	positive []
+
+	"Indicates whether the receiver is more than zero."
+	strictlyPositive []
+]

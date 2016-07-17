@@ -1,0 +1,40 @@
+"Date.bist"
+package: smalltalk.magnitude;
+
+"Represents a moment in time within a specific date.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Time subclass: Date
+metaclass: [
+
+	"Returns the current date."
+	now
+	{	return new Date();
+	}
+
+	"Returns a new Date from a (primitiveTime)."
+	fromTime: primitiveTime (long) {
+		return new Date( primitiveTime );
+	}
+
+	"Returns a new Date from a (primitiveTime)."
+	fromTime: primitiveTime (long) : offset (int) {
+		return new Date( primitiveTime, offset );
+	}
+]
+class: [
+
+	"Constructs a new Date."
+	protected Date {
+		super();
+	}
+
+	"Constructs a new Date given a (primitiveTime)."
+	protected Date: primitiveTime (long) {
+		super( primitiveTime );
+	}
+
+	"Constructs a new Date given a (primitiveTime) and (offset)."
+	protected Date: primitiveTime (long) : offset (int) {
+		super( primitiveTime, offset );
+	}
+]

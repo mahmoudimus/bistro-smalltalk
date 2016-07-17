@@ -1,0 +1,257 @@
+"Array.bist"
+package: smalltalk.collection;
+
+"Represents a literal array.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+ArrayedCollection subclass: Array
+implements: ArrayFactory
+metaclass:
+[
+"creating instances"
+
+	"Returns a new Array that contains the supplied (primitiveArray)."
+	ArrayFrom: primitiveArray (Object[]) [
+		^self withAll: primitiveArray
+	]
+
+	"Returns the primitive array contained in (anArray)."
+	(Object[]) arrayFrom: anArray [
+		^(anArray as: Array) primitiveContents
+	]
+
+	"Returns a new empty Array."
+	new
+	[	^self new: 0
+	]
+
+	"Returns a new Array with the supplied (capacity)."
+	new: capacity
+	[	^Array basicNew: (capacity as: Number)
+	]
+
+	"Returns a new Array with the supplied (elements)."
+	withAll: elements (Object[])
+	[	^Array basicNew: elements
+	]
+
+	"Returns a new Array of Strings that contains the supplied (primitiveStrings)."
+	withStrings: primitiveStrings (java.lang.String[])
+	[	size := self lengthOf: primitiveStrings.
+		result := self new: size.
+		1 to: size do: [ :i | 
+			aString (java.lang.String) := self elementAt: i - 1 from: primitiveStrings.
+			result at: i put: (primitive StringFrom: aString).
+		].
+		^result
+	]
+
+"accessing primitive array length"
+
+	"Returns the length of a (primitiveArray)."
+	lengthOf: primitiveArray (java.lang.Object[])
+	{	return primitive.IntegerFrom( primitiveArray.length );
+	}
+
+	"Returns the length of a (primitiveArray)."
+	lengthOf: primitiveArray (byte[])
+	{	return primitive.IntegerFrom( primitiveArray.length );
+	}
+
+	"Returns the length of a (primitiveArray)."
+	lengthOf: primitiveArray (char[])
+	{	return primitive.IntegerFrom( primitiveArray.length );
+	}
+
+	"Returns the length of a (primitiveArray)."
+	lengthOf: primitiveArray (int[])
+	{	return primitive.IntegerFrom( primitiveArray.length );
+	}
+
+	"Returns the length of a (primitiveArray)."
+	lengthOf: primitiveArray (long[])
+	{	return primitive.IntegerFrom( primitiveArray.length );
+	}
+
+	"Returns the length of a (primitiveArray)."
+	lengthOf: primitiveArray (float[])
+	{	return primitive.IntegerFrom( primitiveArray.length );
+	}
+
+	"Returns the length of a (primitiveArray)."
+	lengthOf: primitiveArray (double[])
+	{	return primitive.IntegerFrom( primitiveArray.length );
+	}
+
+"accessing primitive array elements."
+
+	"Returns the element at (index) from a (primitiveArray)."
+	(java.lang.Object) elementAt: index from: primitiveArray (java.lang.Object[])
+	{	return primitiveArray[((SmallInteger)index).primitiveInteger()];
+	}
+
+	"Stores (anObject) at (index) in a (primitiveArray)."
+	(void) put: anObject (java.lang.Object) at: index in: primitiveArray (java.lang.Object[])
+	{	primitiveArray[((SmallInteger)index).primitiveInteger()] = anObject;
+	}
+
+	"Returns the element at (index) from a (primitiveArray)."
+	(byte) elementAt: index from: primitiveArray (byte[])
+	{	return primitiveArray[((SmallInteger)index).primitiveInteger()];
+	}
+
+	"Stores (aByte) at (index) in a (primitiveArray)."
+	(void) put: aByte (byte) at: index in: primitiveArray (byte[])
+	{	primitiveArray[((SmallInteger)index).primitiveInteger()] = aByte;
+	}
+
+	"Returns the element at (index) from a (primitiveArray)."
+	(char) elementAt: index from: primitiveArray (char[])
+	{	return primitiveArray[((SmallInteger)index).primitiveInteger()];
+	}
+
+	"Stores (aCharacter) at (index) in a (primitiveArray)."
+	(void) put: aCharacter (char) at: index in: primitiveArray (char[])
+	{	primitiveArray[((SmallInteger)index).primitiveInteger()] = aCharacter;
+	}
+
+	"Returns the element at (index) from a (primitiveArray)."
+	(int) elementAt: index from: primitiveArray (int[])
+	{	return primitiveArray[((SmallInteger)index).primitiveInteger()];
+	}
+
+	"Stores (anInteger) at (index) in a (primitiveArray)."
+	(void) put: anInteger (int) at: index in: primitiveArray (int[])
+	{	primitiveArray[((SmallInteger)index).primitiveInteger()] = anInteger;
+	}
+
+	"Returns the element at (index) from a (primitiveArray)."
+	(long) elementAt: index from: primitiveArray (long[])
+	{	return primitiveArray[((SmallInteger)index).primitiveInteger()];
+	}
+
+	"Stores (aLong) at (index) in a (primitiveArray)."
+	(void) put: aLong (long) at: index in: primitiveArray (long[])
+	{	primitiveArray[((SmallInteger)index).primitiveInteger()] = aLong;
+	}
+
+	"Returns the element at (index) from a (primitiveArray)."
+	(float) elementAt: index from: primitiveArray (float[])
+	{	return primitiveArray[((SmallInteger)index).primitiveInteger()];
+	}
+
+	"Stores (aFloat) at (index) in a (primitiveArray)."
+	(void) put: aFloat (float) at: index in: primitiveArray (float[])
+	{	primitiveArray[((SmallInteger)index).primitiveInteger()] = aFloat;
+	}
+
+	"Returns the element at (index) from a (primitiveArray)."
+	(double) elementAt: index from: primitiveArray (double[])
+	{	return primitiveArray[((SmallInteger)index).primitiveInteger()];
+	}
+
+	"Stores (aDouble) at (index) in a (primitiveArray)."
+	(void) put: aDouble (double) at: index in: primitiveArray (double[])
+	{	primitiveArray[((SmallInteger)index).primitiveInteger()] = aDouble;
+	}
+
+"creating primitive arrays."
+
+	"Returns a new array of primitive bytes."
+	(byte[]) ofBytes: size (SmallInteger)
+	{	return new byte[ size.primitiveInteger() ];
+	}
+
+	"Returns a new array of primitive characters."
+	(char[]) ofCharacters: size (SmallInteger)
+	{	return new char[ size.primitiveInteger() ];
+	}
+
+	"Returns a new array of primitive integers."
+	(int[]) ofIntegers: size (SmallInteger)
+	{	return new int[ size.primitiveInteger() ];
+	}
+
+	"Returns a new array of primitive longs."
+	(long[]) ofLongs: size (SmallInteger)
+	{	return new long[ size.primitiveInteger() ];
+	}
+]
+class:
+[
+	"Contains the array elements."
+	contents (Object[]).
+
+	"Constructs a new (empty) Array."
+	protected Array
+	{	contents = new Object[0];
+	}
+
+	"Constructs a new Array given its initial (capacity)."
+	protected Array: capacity (Number)
+	{	contents = new Object[ capacity.primitiveInteger() ];
+	}
+
+	"Constructs a new Array with its initial (elements)."
+	protected Array: elements (Object[])
+	[	contents := elements.
+	]
+
+"accessing"
+
+	"Returns the primitive contents of the receiver."
+	(Object[]) primitiveContents
+	[	^contents
+	]
+
+	"Returns the number of elements contained in the receiver."
+	size
+	{	return primitive.IntegerFrom( contents.length );
+	}
+
+"accessing elements"
+
+	"Returns the element at (index), or evaluates (aBlock),
+	if the receiver does not include an (index)."
+	at: index ifAbsent: aBlock (ZeroArgumentBlock)
+	{	int i = this.checkIndex_ifAbsent( index, aBlock );
+		return contents[i];
+	}
+
+	"Returns (element) after storing it at (index) in the receiver."
+	at: index put: element
+	{	int i = this.checkIndex( index );
+		contents[i] = element;
+		return element;
+	}
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection (Array)
+	[	^primitive BooleanFrom: 
+			(contents equals: aCollection primitiveContents)
+	]
+
+	"Indicates whether the receiver is equivalent to (aCollection)."
+	= aCollection
+	[	[ ^self = (aCollection as: Array) ] 
+			catch: [ :e (java.lang.ClassCastException) | ].
+
+		^super = aCollection
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return primitiveContents().hashCode();
+	}
+
+"enumerating"
+
+	"Evaluates (aBlock) with each receiver element."
+	do: aBlock (OneArgumentBlock)
+	{	for( int i = 0; i < contents.length; i++ ) {
+			aBlock.value( contents[i] );
+		}
+		return this;
+	}
+]

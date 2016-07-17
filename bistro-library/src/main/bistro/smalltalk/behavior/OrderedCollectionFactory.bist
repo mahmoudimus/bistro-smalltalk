@@ -1,0 +1,15 @@
+"OrderedCollectionFactory.bist"
+package: smalltalk.behavior;
+
+"Supports behavior for converting between primitive arrays and OrderedCollections.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: OrderedCollectionFactory
+metatype:
+[
+	"Returns an OrderedCollection which contains the elements in a (primitiveArray)."
+	OrderedCollectionFrom: primitiveArray (Object[]) []
+
+	"Returns a primitive array that contains the elements from (anOrderedCollection)."
+	(Object[]) arrayedCollectionFrom: anOrderedCollection []
+]
+type: []

@@ -1,0 +1,71 @@
+"Class.bist"
+package: smalltalk.behavior;
+import: smalltalk.Smalltalk;
+
+"Supports basic classification of the behavior of objects.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+ClassDescription subclass: Class
+metaclass: 
+[
+"creating classes"
+
+	"Returns a new instance of Metaclass, but this will never be used."
+	new
+	{	return new Class();
+	}
+]
+class:
+[
+	"Refers to the associated primitive class."
+	primitiveClass (java.lang.Class).
+
+	"Refers to the associated metaclass."
+	metaclass (Metaclass).
+
+	"Constructs a new Class given (aClass) which is primitive."
+	Class: aClass (java.lang.Class)
+	{	super();
+		primitiveClass = aClass;
+		if (aClass != null) {
+			methodDictionary = new MethodCache( aClass );
+			Smalltalk.registerClass( aClass, this );
+			metaclass = new Metaclass( this );
+			metaclass.initialize();
+			this.initialize();
+		}
+	}
+
+	"Constructs a new Class, but this will never be used."
+	Class
+	{	this( null ); // keep the compiler happy
+	}
+
+"accessing"
+
+	"Returns the associated primitive class."
+	(java.lang.Class) primitiveClass
+	{	return primitiveClass;
+	}
+
+	(Behavior) class {
+		return metaclass;
+	}
+
+	"Returns the receiver superclass."
+	(Behavior) superclass {
+		java.lang.Class aClass = primitiveClass.getSuperclass();
+		return (Behavior) Smalltalk.classRegistry.get( aClass );
+	}
+
+	"Returns the name of the class."
+	name {
+		return primitive.StringFrom( primitiveClass.getName() );
+	}
+
+"testing behavior"
+
+	"Indicates whether the receiver is a Class."
+	isClass
+	[	^true
+	]
+]

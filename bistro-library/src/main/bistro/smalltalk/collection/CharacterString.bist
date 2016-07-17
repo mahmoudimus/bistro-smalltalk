@@ -1,0 +1,197 @@
+"CharacterString.bist"
+package: smalltalk.collection;
+
+"Supports conversion to a string.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract ArrayedCollection subclass: CharacterString
+metaclass: []
+class:
+[
+"accessing"
+
+	"Returns a primitive string contents of the receiver."
+	abstract (java.lang.String) primitiveString []
+
+	"Returns a primitive string contents of the receiver."
+	(java.lang.String) asPrimitive [
+		^self primitiveString
+	]
+
+	"Returns a primitive string contents of the receiver."
+	(java.lang.String) toString [
+		^self primitiveString
+	]
+
+	"Returns the length of the string."
+	size
+	{	return primitive.IntegerFrom( primitiveString().length() );
+	}
+
+"accessing classes"
+
+	"Returns the class named by the receiver."
+	(Behavior) resolvedToClass
+	{	return primitive.classFrom( this.primitiveString() );
+	}
+
+"locating elements"
+
+	"Returns the index of an (element), or evaluates (aBlock)
+	if the receiver does not contain (element)."
+	indexOf: element ifAbsent: aBlock (ZeroArgumentBlock)
+	{	try {
+			Character c = (Character) element;
+			int index = this.primitiveString().indexOf( c.primitiveCharacter() );
+			if (index < 0) return aBlock.value();
+			return( index < 0 ? aBlock.value() : 
+				primitive.IntegerFrom( index + 1 )
+			);
+		} catch( java.lang.ClassCastException e ) {
+			return aBlock.value();
+		}
+	}
+
+"comparing"
+
+	"Indicates whether the receiver is equal to (aMagnitude)."
+	= aMagnitude
+	{	CharacterString aString = (CharacterString) aMagnitude;
+		return primitive.BooleanFrom(
+			this.primitiveString().equals( aString.primitiveString() )
+		);
+	}
+
+	"Indicates whether the receiver is less than (aMagnitude)."
+	< aMagnitude
+	{	CharacterString aString = (CharacterString) aMagnitude;
+		int result = this.primitiveString().compareTo( aString.primitiveString() );
+		return primitive.BooleanFrom( result < 0 );
+	}
+
+	"Indicates whether the receiver is less than or equal to (aMagnitude)."
+	<= aMagnitude
+	{	CharacterString aString = (CharacterString) aMagnitude;
+		int result = this.primitiveString().compareTo( aString.primitiveString() );
+		return primitive.BooleanFrom( result < 0 || result == 0 );
+	}
+
+	"Indicates whether the receiver is greater than (aMagnitude)."
+	> aMagnitude
+	{	CharacterString aString = (CharacterString) aMagnitude;
+		int result = this.primitiveString().compareTo( aString.primitiveString() );
+		return primitive.BooleanFrom( result > 0 );
+	}
+
+	"Indicates whether the receiver is greater than or equal to (aMagnitude)."
+	>= aMagnitude
+	{	CharacterString aString = (CharacterString) aMagnitude;
+		int result = this.primitiveString().compareTo( aString.primitiveString() );
+		return primitive.BooleanFrom( result > 0 || result == 0 );
+	}
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return primitiveString().hashCode();
+	}
+
+"testing"
+
+	"Indicates whether the receiver is a (kind of) String."
+	isString
+	[	^true
+	]
+
+	"Indicates whether the receiver collates the same as (aString)."
+	sameAs: aString
+	[	^aString sameAsString: self
+	]
+
+	"Indicates whether the (a) collates the same as (b)."
+	protected static collates: a (java.lang.String) with: b (java.lang.String)
+	[	^primitive BooleanFrom: (a equalsIgnoreCase: b)
+	]
+
+	"Indicates whether the receiver collates the same as (aString)."
+	sameAsString: aString (CharacterString)
+	[	^self collates: self primitiveString with: aString primitiveString
+	]
+
+	"Indicates whether the receiver collates the same as (aString)."
+	sameAsString: aString
+	{	try {
+			return this.sameAsString( (CharacterString) aString );
+		} catch( ClassCastException e ) {
+			return primitive.literalFalse();
+		}
+	}
+
+"enumerating"
+
+	"Returns a reversed copy of the receiver."
+	reverse
+	{	java.lang.StringBuffer result = new java.lang.StringBuffer();
+		java.lang.String aString = this.primitiveString();
+		for( int i = aString.length() - 1; i >= 0; i-- ) {
+			result.append( aString.charAt( i ) );
+		}
+		return primitive.StringFrom( result.toString() );
+	}
+
+"copying elements"
+
+	"Returns a string copy of the receiver."
+	asString
+	[	^self
+	]
+
+	"Returns a copy of the receiver converted to lower case."
+	asLowercase
+	{	return new String( this.primitiveString().toLowerCase() );
+	}
+
+	"Returns a copy of the receiver converted to upper case."
+	asUppercase
+	{	return new String( this.primitiveString().toUpperCase() );
+	}
+
+"matching patterns"
+
+	"Indicates whether (aString) matches the receiver pattern."
+	matches: aString [
+		^(StringPattern basicNew: self) accepts: aString
+	]
+
+"parsing subcollections"
+
+	"Returns an array of the substrings separated 
+	by the supplied (separators) from the receiver."
+	subStrings: separators
+	{	String s = null;
+		Array result = null;
+		try {
+			s = (String) separators;
+			java.util.StringTokenizer t = 
+				new java.util.StringTokenizer( 
+					this.primitiveString(), s.primitiveString() );
+
+			int count = t.countTokens();
+			SmallInteger unity = (SmallInteger) primitive.IntegerFrom( 1 );
+			FastInteger index = unity.asFastInteger();
+			result = new Array( (Number) primitive.IntegerFrom( count ) );
+			while( t.hasMoreTokens() ) {
+				result.at_put( index, 
+					primitive.StringFrom( t.nextToken() ) );
+
+				index.$incremented( 1 );
+			}
+			return result;
+		} catch( ClassCastException e ) {
+			return this.compatibilityError();
+		}
+	}
+
+	"Returns an array of the substrings separated by blanks from the receiver."
+	subStrings
+	[	^self subStrings: ' '
+	]
+]

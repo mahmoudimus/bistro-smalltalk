@@ -1,0 +1,39 @@
+"FileStream.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk FileStream."
+SequencedStream subtype: FileStream
+metatype: [
+
+	"Returns a new FileReadStream on (fileName)."
+	(ReadFileStream) read: fileName (ReadableString) []
+
+	"Returns a new FileReadStream on (fileName) of type (fileType).
+	The (fileType) must be #binary or #text."
+	(ReadFileStream) read: fileName (ReadableString) type: fileType (Symbol) []
+
+	"Returns a new FileWriteStream on (fileName)."
+	(WriteFileStream) write: fileName (ReadableString) []
+
+	"Returns a new FileWriteStream on (fileName) of type (fileType).
+	The (fileType) must be #binary or #text."
+	(WriteFileStream) write: fileName (ReadableString) type: fileType (Symbol) []
+
+	"Returns a new FileWriteStream on (fileName) of type (fileType).
+	The (fileType) must be #binary or #text. The (mode) indicates whether to
+	#append, #create, or #truncate the file. The (check) indicates whether the
+	file must exist."
+	(WriteFileStream) write: fileName (ReadableString) mode: mode (Symbol) 
+	check: check (Boolean) fileType: fileType (Symbol) []
+]
+type: [
+
+	"Returns a symbol that identifies the external stream type."
+	(Symbol) externalType []
+
+	"Indicates whether the stream contains binary data."
+	(Boolean) isBinary []
+
+	"Indicates whether the stream contains character data."
+	(Boolean) isText []
+]

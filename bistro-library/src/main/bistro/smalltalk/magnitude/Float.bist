@@ -1,0 +1,374 @@
+"Float.bist"
+package: smalltalk.magnitude;
+
+"Represents an approximation of a real number (single precision).
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+LimitedPrecisionReal subclass: Float
+implements: FloatFactory
+metaclass:
+[
+	"Returns a Float whose value is (primitiveFloat)."
+	FloatFrom: primitiveFloat (float)
+	{	return new Float( primitiveFloat );
+	}
+
+	"Returns the primitive float value indicated by (aFloat)."
+	(float) floatFrom: anObject
+	{	Float aFloat = (Float) anObject;
+		return aFloat.primitiveFloat();
+	}
+
+	"Returns a Float whose value is (aNumber)."
+	coerce: aNumber (Number)
+	[	^aNumber asFloat
+	]
+
+	"Initializes class variables."
+	initialize
+	{	radiansPerDegree = (float)(java.lang.Math.PI / 180.0);
+		degreesPerRadian = (float)(180.0 / java.lang.Math.PI);
+		generality = new SmallInteger( 60 );
+		return this;
+	}
+
+"constants"
+
+	"Returns the value of the constant e."
+	e
+	{	return new Float( (float) java.lang.Math.E );
+	}
+
+	"Returns the value of the constant pi."
+	pi
+	{	return new Float( (float) java.lang.Math.PI );
+	}
+
+	"Returns the additive identity."
+	zero
+	{	return new Float( 0.0f );
+	}
+
+	"Returns the multiplicative identity."
+	unity
+	{	return new Float( 1.0f );
+	}
+
+"characterization"
+
+	"Indicates whether denormalized values are supported."
+	denormalized
+	[	^false
+	]
+
+	"Returns the largest exponent supported."
+	emax
+	[	^38
+	]
+
+	"Returns the smallest exponent supported."
+	emin
+	[	^-45
+	]
+
+	"Returns the relative spacing in the primitive representation."
+	epsilon
+	[	^self radix raisedTo: (1 - self precision)
+	]
+
+	"Returns the maximum supported value."
+	fmax
+	{	return new Float( java.lang.Float.MAX_VALUE );
+	}
+
+	"Returns the minimum supported value."
+	fmin
+	{	return new Float( java.lang.Float.MIN_VALUE );
+	}
+
+	"Returns the minimum denormalized value supported."
+	fminDenormalized
+	[	^self radix raisedTo: (self emin - self precision)
+	]
+
+	"Returns the minimum normalized value supported."
+	fminNormalized
+	[	^self radix raisedTo: (self emin - 1)
+	]
+
+	"Returns the precision of the primitive representation."
+	precision
+	[	^32
+	]
+
+	"Returns the radix of the primitive representation."
+	radix
+	[	^2
+	]
+
+	"Returns the capacity in significant digits."
+	significance
+	[	^8
+	]
+]
+class:
+[
+	"Used to convert degress to radians."
+	static radiansPerDegree (float).
+
+	"Used to convert radians to degrees."
+	static degreesPerRadian (float).
+
+	"Used for numeric coercions."
+	static generality (SmallInteger).
+
+	"Holds a primitive float value."
+	primitiveValue (float).
+
+	"Constructs a new Float given a (primitiveFloat)."
+	protected Float: primitiveFloat (float)
+	{	primitiveValue = primitiveFloat;
+	}
+
+	"Constructs a new Float."
+	protected Float
+	{	primitiveValue = 0.0f;
+	}
+
+"converting"
+
+	"Converts the receiver to a primitive byte value."
+	(byte) primitiveByte
+	{	return (byte) primitiveValue;
+	}
+
+	"Converts the receiver to a primitive char value."
+	(char) primitiveCharacter
+	{	return (char) primitiveValue;
+	}
+
+	"Converts the receiver to a primitive int value."
+	(int) primitiveInteger
+	{	return (int) primitiveValue;
+	}
+
+	"Converts the receiver to a primitive long value."
+	(long) primitiveLong
+	{	return (long) primitiveValue;
+	}
+
+	"Converts the receiver to a primitive float value."
+	(float) primitiveFloat
+	{	return primitiveValue;
+	}
+
+	"Converts the receiver to a primitive double value."
+	(double) primitiveDouble
+	{	return (double) primitiveValue;
+	}
+
+	"Converts the receiver to an elementary float."
+	(java.lang.Float) elementaryFloat
+	{	return new java.lang.Float( primitiveValue );
+	}
+
+	"Converts the receiver to an elementary number."
+	(java.lang.Number) elementaryNumber
+	{	return this.elementaryFloat();
+	}
+
+	"Converts the receiver to a primitive float value."
+	(float) asPrimitive [
+		^self primitiveFloat
+	]
+
+	"Returns a floating point approximation of the receiver."
+	asFloat
+	[	^self
+	]
+
+	"Returns a single precision floating point approximation of the receiver."
+	asFloatE
+	[	^self
+	]
+
+	"Returns the level of generality used in coercion."
+	generality
+	[	^generality
+	]
+
+"comparing"
+
+	"Indicates whether the receiver is equivalent to (aNumber)."
+	final = aNumber (Float)
+	{	return primitive.BooleanFrom(
+			this.primitiveValue == aNumber.primitiveValue
+		);
+	}
+
+	"Indicates whether the receiver is less than (aNumber)."
+	final < aNumber (Float)
+	{	return primitive.BooleanFrom(
+			this.primitiveValue < aNumber.primitiveValue
+		);
+	}
+
+	"Indicates whether the receiver is equivalent to (aNumber)."
+	= aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber = self ]
+			ifFalse: [ self = (aNumber asFloat as: Float) ]
+	]
+
+	"Indicates whether the receiver is less than (aNumber)."
+	< aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber > self ]
+			ifFalse: [ self < (aNumber asFloat as: Float) ]
+	]
+
+	"Indicates whether the receiver is more than (aNumber)."
+	> aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber < self ]
+			ifFalse: [ (aNumber asFloat as: Float) < self ]
+	]
+
+	"Returns an integer value that may be used for equivalence tests."
+	(int) hashCode
+	{	return elementaryFloat().hashCode();
+	}
+
+"arithmetic"
+
+	"Returns the sum of the receiver and (aNumber)."
+	final + aNumber (Float)
+	{	return new Float(
+			this.primitiveValue + aNumber.primitiveValue
+		);
+	}
+
+	"Returns the product of the receiver and (aNumber)."
+	final * aNumber (Float)
+	{	return new Float(
+			this.primitiveValue * aNumber.primitiveValue
+		);
+	}
+
+	"Returns the ratio of the receiver and (aNumber)."
+	final / aNumber (Float) {
+		if (aNumber.primitiveValue == 0.0) zeroDivide();
+		return new Float(
+			this.primitiveValue / aNumber.primitiveValue
+		);
+	}
+
+	"Returns the sum of the receiver and (aNumber)."
+	+ aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber + self ]
+			ifFalse: [ self + (aNumber asFloat as: Float) ]
+	]
+
+	"Returns the product of the receiver and (aNumber)."
+	* aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ aNumber * self ]
+			ifFalse: [ self * (aNumber asFloat as: Float) ]
+	]
+
+	"Returns the ratio of the receiver and (aNumber)."
+	/ aNumber (Number)
+	[	^self generality < aNumber generality
+			ifTrue: [ (self coerceTo: aNumber class) / aNumber ]
+			ifFalse: [ self / (aNumber asFloat as: Float) ]
+	]
+
+"mathematics"
+
+	"Returns the inverse cosine of the receiver in radians."
+	arcCos
+	{	return new Float( (float) java.lang.Math.acos( primitiveFloat() ) );
+	}
+
+	"Returns the inverse sine of the receiver in radians."
+	arcSin
+	{	return new Float( (float) java.lang.Math.asin( primitiveFloat() ) );
+	}
+
+	"Returns the inverse tangent of the receiver in radians."
+	arcTan
+	{	return new Float( (float) java.lang.Math.atan( primitiveFloat() ) );
+	}
+
+	"Returns the cosine of the receiver in radians."
+	cos
+	{	return new Float( (float) java.lang.Math.cos( primitiveFloat() ) );
+	}
+
+	"Returns the radians value of the receiver degrees."
+	degreesToRadians
+	{	return new Float( (float)(primitiveFloat() * radiansPerDegree) );
+	}
+
+	"Returns the natural exponential of the receiver."
+	exp
+	{	return new Float( (float) java.lang.Math.exp( primitiveFloat() ) );
+	}
+
+	"Returns the largest integer less than or equal to the logarithm to the
+	base of the receiver."
+	floorLog: radix
+	[	^(self log: radix asFloat) floor
+	]
+
+	"Returns the natural logarithm of the receiver."
+	ln
+	{	return new Float( (float) java.lang.Math.log( primitiveFloat() ) );
+	}
+
+	"Returns the logarithm to the base radix of the receiver."
+	log: radix
+	[	^self ln / radix asFloat ln
+	]
+
+	"Returns the arithmetic inverse of the receiver."
+	negated
+	{	return new Float( - primitiveFloat() );
+	}
+
+	"Returns the degrees value of the receiver radians."
+	radiansToDegrees
+	{	return new Float( (float)(primitiveFloat() * degreesPerRadian) );
+	}
+
+	"Returns the sine of the receiver in radians."
+	sin
+	{	return new Float( (float) java.lang.Math.sin( primitiveFloat() ) );
+	}
+
+	"Returns the tangent of the receiver in radians."
+	tan
+	{	return new Float( (float) java.lang.Math.tan( primitiveFloat() ) );
+	}
+
+"printing"
+
+	"Returns a printable representation of the receiver."
+	printString
+	{	return primitive.StringFrom(
+			java.lang.Float.toString( primitiveFloat() ).replace( 'E', 'e' )
+		);
+	}
+
+"testing behavior"
+
+	"Indicates whether the receiver is a Float."
+	isFloat
+	[	^true
+	]
+
+	"Indicates whether the receiver is a kind of literal."
+	isLiteral
+	[	^true
+	]
+]

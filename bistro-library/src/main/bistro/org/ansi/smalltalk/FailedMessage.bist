@@ -1,0 +1,14 @@
+"FailedMessage.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk FailedMessage."
+Object subtype: FailedMessage
+metatype: []
+type: [
+
+	"Returns the failed message arguments."
+	(SequencedReadableCollection) arguments []
+
+	"Returns the failed message selector."
+	(Selector) selector []
+]

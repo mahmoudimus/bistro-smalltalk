@@ -1,0 +1,35 @@
+"ZeroDivide.bist"
+package: smalltalk.magnitude;
+
+"Represents an exception raised upon a division by zero.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+ArithmeticError subclass: ZeroDivide
+metaclass: [
+
+	"Signals a zero divide exception."
+	dividend: aDividend [
+		(ZeroDivide basicNew: aDividend) signal.
+	]
+]
+class: [
+
+	"The number for which a zero division was attempted."
+	dividend.
+
+	"Constructs a new ZeroDivide."
+	ZeroDivide: aDividend [
+		dividend := aDividend.
+	]
+
+	"Returns the dividend."
+	dividend [
+		^dividend
+	]
+
+"testing"
+
+	"Indicates whether this is a resumable exception."
+	isResumable [
+		^true
+	]
+]

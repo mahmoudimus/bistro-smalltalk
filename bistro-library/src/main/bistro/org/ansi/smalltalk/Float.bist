@@ -1,0 +1,88 @@
+"Float.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Float."
+Number subtype: Float
+metatype:
+[
+"constants"
+
+	"Returns the value of the constant e."
+	(Float) e []
+
+	"Returns the value of the constant pi."
+	(Float) pi []
+
+"characterization"
+
+	"Indicates whether denormalized values are supported."
+	(Boolean) denormalized []
+
+	"Returns the largest exponent supported."
+	(Integer) emax []
+
+	"Returns the smallest exponent supported."
+	(Integer) emin []
+
+	"Returns the relative spacing in the primitive representation."
+	(Float) epsilon []
+
+	"Returns the maximum supported value."
+	(Float) fmax []
+
+	"Returns the minimum supported value."
+	(Float) fmin []
+
+	"Returns the minimum denormalized value supported."
+	(Float) fminDenormalized []
+
+	"Returns the minimum normalized value supported."
+	(Float) fminNormalized []
+
+	"Returns the precision of the primitive representation."
+	(Integer) precision []
+
+	"Returns the radix of the primitive representation."
+	(Integer) radix []
+]
+type:
+[
+"mathematics"
+
+	"Returns the inverse cosine of the receiver in radians."
+	(Float) arcCos []
+
+	"Returns the inverse sine of the receiver in radians."
+	(Float) arcSin []
+
+	"Returns the inverse tangent of the receiver in radians."
+	(Float) arcTan []
+
+	"Returns the cosine of the receiver in radians."
+	(Float) cos []
+
+	"Returns the radians value of the receiver degrees."
+	(Float) degreesToRadians []
+
+	"Returns the natural exponential of the receiver."
+	(Float) exp []
+
+	"Returns the largest integer less than or equal to the logarithm to the
+	base of the receiver."
+	(Integer) floorLog: radix (Number) []
+
+	"Returns the natural logarithm of the receiver."
+	(Float) ln []
+
+	"Returns the logarithm to the base radix of the receiver."
+	(Float) log: radix (Number) []
+
+	"Returns the degrees value of the receiver radians."
+	(Float) radiansToDegrees []
+
+	"Returns the sine of the receiver in radians."
+	(Float) sin []
+
+	"Returns the tangent of the receiver in radians."
+	(Float) tan []
+]

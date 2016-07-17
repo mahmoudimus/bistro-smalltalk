@@ -1,0 +1,33 @@
+"PositionableStream.bist"
+package: smalltalk.stream;
+
+"Defines the abstract services supported by all positionable streams.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Stream subclass: PositionableStream
+metaclass: []
+class:
+[
+"accessing"
+
+	"Returns the entire contents of the stream."
+	abstract contents []
+
+"positioning"
+
+	"Returns the current position within the stream."
+	abstract position []
+
+	"Establishes the current position within the stream."
+	abstract position: count []
+
+	"Resets the position to the beginning of the stream."
+	abstract reset []
+
+	"Repositions to the end of the stream."
+	abstract setToEnd []
+
+"testing"
+
+	"Indicates whether the stream is empty."
+	abstract isEmpty []
+]

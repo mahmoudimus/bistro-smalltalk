@@ -1,0 +1,17 @@
+"SequencedContractibleCollection.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk SequencedContractibleCollection."
+Collection subtype: SequencedContractibleCollection
+metatype: []
+type:
+[
+	"Removes the element at (index) from the receiver."
+	(Object) removeAtIndex: index (Integer) []
+
+	"Removes the first element from the receiver."
+	(Object) removeFirst []
+
+	"Removes the last element from the receiver."
+	(Object) removeLast []
+]

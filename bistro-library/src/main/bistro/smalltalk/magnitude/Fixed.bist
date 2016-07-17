@@ -1,0 +1,373 @@
+"Fixed.bist"
+package: smalltalk.magnitude;
+
+import: java.math.BigDecimal;
+
+"Represents a fixed point decimal number.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+Rational subclass: Fixed
+implements: FixedFactory
+metaclass:
+[
+	"Returns a new fixed point instance from a (fixedString) representation."
+	FixedFrom: fixedString (java.lang.String)
+	{	int point = fixedString.indexOf( '.' );
+		int mark  = fixedString.indexOf( 's' );
+		java.lang.String iString = fixedString.substring( 0, point );
+		java.lang.String fString = fixedString.substring( point + 1, mark );
+		java.lang.String sString = fixedString.substring( mark + 1 );
+		int numerator = 0;
+		int denominator = 1;
+		int scale = 0;
+		for( int i = 0; i < fString.length(); i++ ) denominator *= 10;
+		try {
+			numerator = java.lang.Integer.parseInt( iString + fString );
+			scale = java.lang.Integer.parseInt( sString );
+		} catch( NumberFormatException e ) {
+			// should never happen
+		}
+		return new Fixed( 
+			new SmallInteger( numerator ), 
+			new SmallInteger( denominator ), 
+			new SmallInteger( scale )
+		);
+	}
+
+	"Returns the character used to mark the scale in a printed representation."
+	exponentCharacter
+	[	^$s
+	]
+
+	"Answer a new FixedPoint numInteger/denInteger."
+	numerator: numerator denominator: denominator scale: scale 
+	[	^Fixed basicNew: 
+			(numerator truncated as: Integer) : 
+			(denominator truncated as: Integer) :
+			(scale truncated as: Integer)
+	]
+
+	"Returns a Fraction whose value is (aNumber)."
+	coerce: aNumber (Number)
+	[	^aNumber asScaledDecimal: 0
+	]
+
+	"Initializes class variables."
+	initialize
+	[	generality := 50.
+	]
+]
+class:
+[
+	"Used for numeric coercions."
+	static generality (SmallInteger).
+
+	"The numerator of a fixed point representation."
+	numerator (Integer).
+
+	"The denominator of a fixed point representation."
+	denominator (Integer).
+
+	"The scale of a fixed point representation."
+	scale (Integer).
+
+	"Constructs a new Fixed point number."
+	protected Fixed: aNumerator (Integer) : 
+	aDenominator (Integer) : aScale (Integer)
+	{	numerator   = aNumerator;
+		denominator = aDenominator;
+		scale       = aScale;
+	}
+
+	"Constructs a new Fixed point number."
+	protected Fixed
+	{	numerator   = (SmallInteger) primitive.IntegerFrom( 0 );
+		denominator = (SmallInteger) primitive.IntegerFrom( 1 );
+		scale       = (SmallInteger) primitive.IntegerFrom( 0 );
+	}
+
+"accessing"
+
+	"Returns the numerator."
+	numerator
+	[	^numerator
+	]
+
+	"Returns the denominator."
+	denominator
+	[	^denominator
+	]
+
+	"Returns the scale."
+	scale
+	[	^scale
+	]
+
+	"Returns a fixed point number with the receiver numerator and denominator, 
+	and the specified (newScale)."
+	withScale: newScale
+	[	^self class
+			numerator: numerator
+			denominator: denominator
+			scale: newScale
+	]
+
+"arithmetic"
+
+	"Returns the sum of the receiver and (aNumber)."
+	+ aNumber (Fixed)
+	[	denominator = aNumber denominator ifTrue: [ 
+			^self class 
+				numerator: numerator + aNumber numerator
+				denominator: denominator
+				scale: (scale max: aNumber scale)
+		].
+		^self class
+			numerator: 
+				(numerator * aNumber denominator) + 
+				(denominator * aNumber numerator)
+			denominator:
+				(denominator * aNumber denominator)
+			scale: 
+				(scale max: aNumber scale)
+	]
+
+	"Returns the product of the receiver and (aNumber)."
+	* aNumber (Fixed)
+	[	^self class
+			numerator: (numerator * aNumber numerator)
+			denominator: (denominator * aNumber denominator)
+			scale: (scale max: aNumber scale)
+	]
+
+	"Returns the ratio of the receiver and (aNumber)."
+	/ aNumber (Fixed)
+	[	^self class
+			numerator: (numerator * aNumber denominator)
+			denominator: (denominator * aNumber numerator)
+			scale: (scale max: aNumber scale)
+	]
+
+	"Returns the sum of the receiver and (aNumber)."
+	+ aNumber (Number)
+	[	self generality = aNumber generality ifTrue: [ 
+			^self + (aNumber as: Fixed) 
+		].
+		self generality < aNumber generality ifTrue: [ 
+			^aNumber + self 
+		].
+		^self + (aNumber asFraction withScale: scale)
+	]
+
+	"Returns the product of the receiver and (aNumber)."
+	* aNumber (Number)
+	[	self generality = aNumber generality ifTrue: [ 
+			^self * (aNumber as: Fixed) 
+		].
+		self generality < aNumber generality ifTrue: [ 
+			^aNumber * self 
+		].
+		^self * (aNumber asFraction withScale: scale)
+	]
+
+	"Returns the ratio of the receiver and (aNumber)."
+	/ aNumber (Number)
+	[	self generality = aNumber generality ifTrue: [ 
+			^self / (aNumber as: Fixed) 
+		].
+		self generality < aNumber generality ifTrue: [ 
+			^(self coerceTo: aNumber class) / aNumber
+		].
+		^self / (aNumber asFraction withScale: scale)
+	]
+
+"converting"
+
+	"Converts the receiver to a primitive byte value."
+	(byte) primitiveByte
+	{	return (byte) primitiveLong();
+	}
+
+	"Converts the receiver to a primitive char value."
+	(char) primitiveCharacter
+	{	return (char) primitiveLong();
+	}
+
+	"Converts the receiver to a primitive int value."
+	(int) primitiveInteger
+	{	return (int) primitiveLong();
+	}
+
+	"Converts the receiver to a primitive long value."
+	(long) primitiveLong
+	{	double d = primitiveDouble();
+		return (long)( d < 0 ? 
+			java.lang.Math.ceil( d ) : java.lang.Math.floor( d )
+		);
+	}
+
+	"Converts the receiver to a primitive float value."
+	(float) primitiveFloat
+	{	return numerator.primitiveFloat() / denominator.primitiveFloat();
+	}
+
+	"Converts the receiver to a primitive double value."
+	(double) primitiveDouble
+	{	return numerator.primitiveDouble() / denominator.primitiveDouble();
+	}
+
+	"Converts the receiver to an elementary double."
+	(java.lang.Double) elementaryDouble
+	{	return new java.lang.Double( primitiveDouble() );
+	}
+
+	"Converts the receiver to an elementary number."
+	(java.lang.Number) elementaryNumber
+	{	return this.elementaryDouble();
+	}
+
+	"Converts the receiver to a BigDecimal."
+	(BigDecimal) asBigDecimal [
+		^BigDecimal basicNew: numerator asBigInteger : scale primitiveInteger
+	]
+
+	"Converts the receiver to a BigDecimal."
+	(BigDecimal) asPrimitive [
+		^self asBigDecimal
+	]
+
+	"Converts the receiver to a fractional approximation."
+	asFraction 
+	[	^Fraction 
+			numerator: numerator 
+			denominator: denominator
+	]
+
+	"Converts the receiver to a fixed point number."
+	asScaledDecimal: newScale
+	[	^self withScale: newScale
+	]
+
+	"Converts the receiver to a fixed point number."
+	asFixedPoint: newScale
+	[	^self withScale: newScale
+	]
+
+	"Returns the level of generality used in coercion."
+	generality
+	[	^generality
+	]
+
+"mathematics"
+
+	"Returns the arithmetic inverse of the receiver."
+	negated
+	[	^self class 
+			numerator: numerator negated 
+			denominator: denominator
+			scale: scale
+	]
+
+	"Returns the multiplicative inverse of the receiver."
+	reciprocal
+	[	^self class 
+			numerator: denominator 
+			denominator: numerator
+			scale: scale
+	]
+
+	"Returns a reduction of the receiver."
+	reduced
+	[	gcd := numerator gcd: denominator.
+		gcd = 1 ifTrue: [ ^self ].
+		^self class
+			numerator: numerator // gcd
+			denominator: denominator // gcd
+			scale: scale
+	]
+
+"printing"
+
+	"Appends a printable representation of the receiver on (aStream)."
+	printOn: aStream
+	{	SmallInteger ten = new SmallInteger( 10 );
+		SmallInteger d = (SmallInteger) ten.raisedToInteger( scale );
+		long n = numerator.primitiveLong() * d.primitiveLong();
+		n += denominator.primitiveLong() >> 1;
+		n /= denominator.primitiveLong();
+		if (numerator.primitiveInteger() < 0) {
+			primitive.CharacterFrom( '-' ).printOn( aStream );
+			n = 0 - n;
+		}
+		long quo = n / d.primitiveLong();
+		long rem = n % d.primitiveLong();
+		SmallInteger q = new SmallInteger( (int) quo );
+		q.printOn( (Object) aStream );
+		primitive.CharacterFrom( '.' ).printOn( aStream );
+		int s = scale.primitiveInteger();
+		while( s-- > 0 ) {
+			rem = rem * 10L;
+			int digit = (int)(rem / d.primitiveLong());
+
+			SmallInteger.$class
+				.digitValue( new SmallInteger( digit ) )
+					.printOn( aStream );
+
+			rem = rem % d.primitiveLong();
+		};
+		$class.exponentCharacter().printOn( aStream );
+		scale.printOn( (Object) aStream );
+		return this;
+	}
+
+	"Returns a printable representation of the receiver."
+	printString [
+		aStream := 'smalltalk.stream.WriteStream' resolvedToClass 
+                                on: 'smalltalk.collection.String' resolvedToClass new.
+
+		self printOn: aStream.
+		^aStream contents		
+	]
+
+"rounding"
+
+	"Returns a fixed point number that is rounded to the receiver's scale."
+	roundedToScale
+	{	SmallInteger ten = new SmallInteger( 10 );
+		SmallInteger d = (SmallInteger) ten.raisedToInteger( scale );
+		long n = numerator.primitiveLong() * d.primitiveLong();
+		n += denominator.primitiveLong() >> 1;
+		n /= denominator.primitiveLong();
+		return $class.numerator_denominator_scale(
+			new SmallInteger( (int) n ), d, scale
+		)
+		.perform( "reduced" );
+	}
+
+"truncation"
+
+	"Returns the least integer more than or equal to the receiver."
+	ceiling
+	{	return new SmallInteger( (int)
+			java.lang.Math.ceil( primitiveDouble() )
+		);
+	}
+
+	"Returns the greatest integer less than or equal to the receiver."
+	floor
+	{	return new SmallInteger( (int)
+			java.lang.Math.floor( primitiveDouble() )
+		);
+	}
+
+	"Returns a fixed point number truncated to the receiver's scale."
+	truncatedToScale
+	{	SmallInteger ten = new SmallInteger( 10 );
+		SmallInteger d = (SmallInteger) ten.raisedToInteger( scale );
+		long n = numerator.primitiveLong() * d.primitiveLong();
+		n /= denominator.primitiveLong();
+		return $class.numerator_denominator_scale(
+			new SmallInteger( (int) n ), d, scale
+		)
+		.perform( "reduced" );
+	}
+]

@@ -1,0 +1,42 @@
+"MethodExit.java"
+package: smalltalk.behavior;
+
+"Passes an object value directly out of a method scope.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+
+RuntimeException subclass: MethodExit
+class: [
+
+	"Identifies the method scope to exit."
+	scope (String).
+
+	"Holds a method result value."
+	value (Object).
+
+	"Constructs a new MethodExit.
+	@param exitValue a method result value."
+	MethodExit: scopeID (String) : exitValue (Object) {
+		super();
+		scope = scopeID;
+		value = exitValue;
+	}
+
+	"Returns the name of the method to be exited.
+	@return the name of the method to be exited."
+	(String) scopeID [
+		^scope
+	]
+
+	"Returns the method result value held by this exit.
+	@return the method result value held by this exit."
+	(Object) exitValue [
+		^value
+	]
+
+	"Returns the method result or rethrows itself if (scopeID) matches.
+	@return the method result or rethrows itself if (scopeID) matches."
+	(Object) exitOn: scopeID (String) {
+		if (scope == scopeID) return value;
+		throw this;
+	}
+]

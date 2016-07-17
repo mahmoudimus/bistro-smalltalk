@@ -1,0 +1,15 @@
+"IntegerFactory.bist"
+package: smalltalk.behavior;
+
+"Supports behavior for converting between primitive integers and SmallIntegers.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+nil subtype: IntegerFactory
+metatype:
+[
+	"Returns a SmallInteger whose value is (primitiveInteger)."
+	IntegerFrom: primitiveInteger (int) []
+
+	"Returns the primitive int value indicated by (anInteger)."
+	(int) intFrom: anInteger []
+]
+type: []

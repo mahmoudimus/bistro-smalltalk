@@ -1,0 +1,14 @@
+"Stream.bist"
+package: smalltalk.stream;
+
+"Defines the abstract services supported by all streams.
+@author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
+abstract Object subclass: Stream
+metaclass: []
+class:
+[
+"managing"
+
+	"Closes the primitive stream."
+	abstract close []
+]

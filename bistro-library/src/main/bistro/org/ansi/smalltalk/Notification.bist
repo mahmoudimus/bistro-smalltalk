@@ -1,0 +1,7 @@
+"Notification.bist"
+package: org.ansi.smalltalk;
+
+"Defines the type signature for an ANSI Smalltalk Notification."
+Exception subtype: Notification
+metatype: []
+type: []
