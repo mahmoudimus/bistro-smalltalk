@@ -64,7 +64,7 @@ class:
 	"Report thread information."
 	report: startTime index: threadID
 	[	Transcript printLine: (
-			String class new writeStream
+			String new writeStream
 				nextPutAll: 'thread ';
 				nextPutAll: threadID printString;
 				nextPutAll: ' ';

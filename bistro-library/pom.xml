@@ -41,6 +41,27 @@
                     <target>${version.java}</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>../libs-smalltalk/src/main/java</directory>
+                            <includes>
+                                <include>org/**/*.java</include>
+                                <include>smalltalk/behavior/**/*.java</include>
+                                <include>smalltalk/collection/**/*.java</include>
+                                <include>smalltalk/example/**/*.java</include>
+                                <include>smalltalk/geometry/**/*.java</include>
+                                <include>smalltalk/magnitude/**/*.java</include>
+                                <include>smalltalk/stream/**/*.java</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

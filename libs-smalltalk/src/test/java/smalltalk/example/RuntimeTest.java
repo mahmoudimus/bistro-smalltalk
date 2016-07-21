@@ -37,7 +37,7 @@ public class RuntimeTest {
         TestStreams.class,
         TestLiterals.class,
         TestExceptions.class,
-//        TestSends.class,
-//        TestThreads.class,
+        TestSends.class,
+        TestThreads.class,
     };
 }
