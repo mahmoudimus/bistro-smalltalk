@@ -1,0 +1,435 @@
+//==================================================================================================
+// Copyright 2010,2015 Nikolas S. Boyd. All rights reserved.
+//==================================================================================================
+
+group HootWalker;
+
+emitTypeScope(notice,packageName,imports,comment,notes,signature,parts) ::=
+<<
+/**
+* <notice>
+*/
+package <packageName>;
+
+import Hoot.Runtime.*;
+<if(imports)><emitLines(imports)><endif>
+
+<if(comment)>
+/**
+ * <comment>
+ */
+<endif>
+<notes>
+<signature> 
+{
+<if(parts)>
+  <parts>
+<endif>
+}
+>>
+
+emitTypeSignature(typeName,details,superTypes) ::= 
+<<
+public interface <typeName><details> 
+<if(superTypes)>  extends <emitList(superTypes)><endif>
+>>
+
+emitMetatype(superType,typeName,typeUnary,parts) ::= 
+<<
+
+public static interface MetaType <if(superType)>extends <superType>.MetaType<endif> {
+  <parts>
+}
+
+>>
+
+emitSubjectMetatype(typeName,typeUnary,parts) ::= 
+<<
+
+public static interface MetaType extends Classified {
+  <parts>
+}
+
+>>
+
+
+emitClassScope(notice,packageName,imports,comment,notes,signature,parts) ::=
+<<
+/**
+* <notice>
+*/
+package <packageName>;
+
+import Hoot.Runtime.*;
+<if(imports)><emitLines(imports)><endif>
+
+<if(comment)>
+/**
+ * <comment>
+ */
+<endif>
+<notes>
+<signature>
+{
+  <parts>
+}
+>>
+
+emitNilSubclassSignature(notes,className,details,faces) ::=
+<<
+public <notes> class <className><details> 
+<if(faces)>  implements <faces><endif>
+>>
+
+emitClassSignature(notes,className,details,superClass,faces) ::= 
+<<
+public <notes> class <className><details> extends <superClass> 
+<if(faces)>  implements <faces><endif>
+>>
+
+emitObjectMetaclass(superClass,className,classUnary,parts) ::= 
+<<
+
+private static final MetaClass Factory = new MetaClass(Object.class);
+public static class MetaClass extends Metaclass {
+  public MetaClass(java.lang.Class primitiveClass) {
+    super(primitiveClass);
+  }
+  <parts>
+}
+
+@Override public <className>.MetaClass _class() {
+  return Factory;
+}
+
+>>
+
+emitMetaclass(superClass,className,classUnary,parts) ::= 
+<<
+
+private static final MetaClass Factory = new MetaClass(<className>.class);
+public static class MetaClass extends <superClass>.MetaClass {
+  public MetaClass(java.lang.Class primitiveClass) {
+    super(primitiveClass);
+  }
+  <parts>
+}
+
+@Override public <className>.MetaClass _class() {
+  return Factory;
+}
+
+@Override public boolean equals(java.lang.Object candidate) {
+  if (!(candidate instanceof <className>)) return false;
+  return this.equals((<className>) candidate).primitiveBoolean();
+}
+
+>>
+
+emitMetaclassClass(superClass,className,classUnary,parts) ::=
+<<
+
+private static final MetaClass Factory = new MetaClass(Metaclass.class);
+public static class MetaClass extends <superClass>.MetaClass {
+  public MetaClass(java.lang.Class primitiveClass) {
+    super(primitiveClass);
+  }
+  <parts>
+}
+
+@Override public <className>.MetaClass _class() {
+  return Factory;
+}
+
+>>
+
+emitProtocol(className,classUnary,members) ::= 
+<<
+<members>
+>>
+
+emitVariable(comment,notes,type,name,upper,value) ::=
+<<
+<if(name)><if(comment)>
+/**
+ * <comment>
+ */
+<endif>
+<if(notes)><notes><endif>
+<type> <name><if(value)> = <value><endif>;
+<endif>
+>>
+
+emitProperty(comment,notes,type,name,upper,value,className) ::=
+<<
+<if(name)><if(comment)>
+/**
+ * <comment>
+ */
+<endif>
+public <type> <name>() { return this.<name>; }
+public Object get<upper>() { return this.<name>; }
+
+public <className> <name>(<type> value) { this.<name> = value; return this; }
+public void set<upper>(Object value) { this.<name> = (<type>)value; }
+
+<if(notes)><notes><endif>
+<type> <name><if(value)> = <value><endif>;
+<endif>
+>>
+
+emitMethodEmpty(comment,notes,type,signature) ::= 
+<<
+
+<if(comment)>
+/**
+ * <if(type)>@return <endif><comment>
+ */
+<endif><if(notes)><notes><endif>
+<signature>;
+>>
+
+emitMethodScope(comment,notes,type,signature,blocks,content) ::= 
+<<
+
+<if(comment)>
+/**
+ * <if(type)>@return <endif><comment>
+ */
+<endif><if(notes)><notes><endif>
+<signature>
+{
+  <content>
+}
+>>
+
+emitMethodSignature(notes,details,type,name,arguments) ::= 
+<<
+<if(notes)><notes><endif> <details> <type> 
+<name>(<if(arguments)>final <arguments; separator=", final "><endif>)
+>>
+
+emitNamedArgument(notes,type,name) ::= 
+"<if(notes)><notes><endif><type> <name>"
+
+emitFrameArgument(typeName,valueName,id,index) ::=
+"<typeName> <valueName> = <id>.getValue(<index>).value();"
+
+emitBlockScope(blockName,blockType,resultName,resultType,types,locals,content) ::=
+<<
+<if(locals)>
+<locals>
+<endif>
+<content>
+>>
+
+emitFramedScope(count,scope,type,id) ::=
+<<
+(<type>)Closure.with(<count>, <id> -> {
+  <scope>
+})
+>>
+
+emitBlockUsage(blockName,blockType,names) ::= "<blockName>"
+
+emitClosure(blockType, types) ::=
+"<blockType>.Closure<if(types)><emitDetails(types)><endif>"
+
+emitBlockType(blockType,types) ::=
+"<blockType><if(types)><emitDetails(types)><endif>"
+
+emitStatements(items) ::= 
+<<
+<items; wrap, separator="\n">
+>>
+
+emitAssignment(notes,type,name,value) ::= 
+"<if(notes)><notes; separator=\" \"> <endif><type> <name> = <value>;"
+
+emitEvaluation(value) ::= "<value>;"
+emitResult(value) ::= "<if(value)>return <value>;<endif>"
+emitAnswer(value) ::= "<if(value)><value><endif>"
+emitYourself() ::= "return yourself();"
+emitCast(type,value) ::= "((<type>)<value>)"
+emitPath(value) ::= ".<value>"
+emitConstruct(reference,arguments) ::= "<reference>(<arguments; separator=\", \">);"
+emitExpression(operand,messages) ::= "<operand><if(messages)><messages><endif>"
+emitCalls(calls) ::= "<calls; separator=\"\">"
+emitCall(methodName,arguments) ::= ".<methodName>(<arguments; separator=\", \">)"
+emitOperation(operator,argument) ::= "<operator> <argument>"
+emitTerm(value) ::= "(<value>)"
+
+emitThrowSelf() ::= "throw this"
+emitThrow(item) ::= "throw <item>"
+emitNew(className,arguments) ::= "new <className>(<arguments; separator=\", \">)"
+emitNewArray(className,size) ::= "new <className>[<size>]"
+emitElementGet(name,index) ::= "<name>[<index>]"
+emitElementSet(name,index,value) ::= "<name>[<index>] = <value>"
+emitInstanceOf(name,className) ::= "<name> instanceof <className>"
+
+emitIfTrue(condition,trueValue) ::=
+<<
+if (<condition>) {
+  <trueValue>
+}
+>>
+
+emitIfFalse(condition,falseValue) ::=
+<<
+if (!(<condition>)) {
+  <falseValue>
+}
+>>
+
+emitIfTrueFalse(condition,trueValue,falseValue) ::=
+<<
+if (<condition>) {
+  <trueValue>
+}
+else {
+  <falseValue>
+}
+>>
+
+emitIfFalseTrue(condition,falseValue,trueValue) ::=
+<<
+if (!(<condition>)) {
+  <trueValue>
+}
+else {
+  <falseValue>
+}
+>>
+
+emitTrueExit(condition,trueValue) ::=
+<<
+if (<condition>) {
+  <trueValue>
+}
+>>
+
+emitFalseExit(condition,falseValue) ::=
+<<
+if (!(<condition>)) {
+  <falseValue>
+}
+>>
+
+emitTrueFalseExit(condition,trueValue,falseValue) ::=
+<<
+if (<condition>) {
+  <trueValue>
+}
+else {
+  <falseValue>
+}
+>>
+
+emitWhileTrue(condition, guardedBlock) ::=
+<<
+while(<condition>) {
+  <guardedBlock>
+}
+>>
+
+emitWhileFalse(condition, guardedBlock) ::=
+<<
+while(!(<condition>)) {
+  <guardedBlock>
+}
+>>
+
+emitOnlyTry(tryBlock) ::=
+<<
+try {
+  <tryBlock>
+}
+>>
+
+emitOnlyEnsure(finallyBlock) ::=
+<<
+finally {
+  <finallyBlock>
+}
+>>
+
+emitOnlyCatch(exceptionClass, catchBlock) ::=
+<<
+catch (<exceptionClass> ex) {
+  <catchBlock>
+}
+>>
+
+emitUseResource(resource, block) ::=
+<<
+try (<resource>) {
+  <block>
+}
+>>
+
+emitExclusivelyDo(resource, block) ::=
+<<
+synchronized (<resource>) {
+  <block>
+}
+>>
+
+emitExclusivelyDoEach(resource,elementType,elementName,block) ::=
+<<
+synchronized (<resource>) {
+  for (<elementType> <elementName> : <resource>) {
+    <block>
+  }
+}
+>>
+
+emitAlternatives(condition,trueValue,falseValue) ::=
+"(<condition> ? <trueValue> : <falseValue>)"
+
+emitSections(sections) ::=
+<<
+<sections; wrap, separator="\n\n">
+>>
+
+emitImport(className) ::= "import <className>;"
+emitSequence(items) ::= "<items; separator=\" \"> "
+emitList(items) ::= "<items; separator=\", \">"
+emitLines(lines) ::= "<lines; wrap, separator=\"\n\">"
+emitNote(name,values) ::= "@<name><if(values)>(<values>)<endif>"
+emitPair(name,value) ::= "<name>=<value>"
+emitItem(item) ::= "<item>"
+
+emitExtendedType(type,base) ::= "<type><if(base)> extends <base><endif>"
+emitDetailedType(type,details) ::= "<type><details>"
+emitDetails(values) ::= "<if(values)>\<<values; separator=\", \">><endif>"
+
+emitCharacter(value) ::= "Character.from(<value>)"
+emitString(value) ::= "String.from(<value>)"
+emitSymbol(value) ::= "Symbol.from(<value>)"
+
+emitRadical(value) ::= "Integer.parseRadix(<value>)"
+emitDecimal(value) ::= "ScaledDecimal.from(<value>)"
+emitInteger(value) ::= "SmallInteger.from(<value>)"
+emitFloat(value) ::= "Float.from(<value>)"
+emitBoolean(value) ::= "<value>.literal()"
+
+emitScalar(factory,value) ::= "Object.primitive.<factory>From(<value>)"
+
+emitVoid() ::= "void"
+emitObject() ::= "Object"
+emitSelf() ::= "this"
+emitSuper() ::= "super"
+emitNull() ::= "null"
+emitNil() ::= "UndefinedObject.literal()"
+emitFalse() ::= "False.literal()"
+emitTrue() ::= "True.literal()"
+emitEmpty() ::= ""
+
+emitQuoted(value) ::= <<"<value>">>
+
+emitArray(values) ::= 
+<<
+{
+  <values; wrap, separator=", ">
+}
+>>

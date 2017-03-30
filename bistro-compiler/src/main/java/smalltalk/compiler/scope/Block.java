@@ -4,6 +4,7 @@
 package smalltalk.compiler.scope;
 
 import java.util.*;
+import smalltalk.compiler.Emission;
 
 import smalltalk.compiler.element.Selector;
 import smalltalk.compiler.element.Reference;
@@ -15,7 +16,7 @@ import smalltalk.compiler.element.Operand;
  * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
  */
 public class Block extends Code {
-    
+
     static {
         Reference.BlockClass = Block.class;
     }
@@ -189,7 +190,7 @@ public class Block extends Code {
     public Variable currentArgument() {
         return arguments.currentSymbol();
     }
-    
+
     public boolean hasArgument(String symbol) {
         return arguments.containsSymbol(symbol);
     }
@@ -331,7 +332,7 @@ public class Block extends Code {
         if (reference.isSelfish()) {
             return currentFace().typeClass();
         }
-        
+
         if (this.hasLocal(symbol)) {
             return locals.symbolNamed(symbol).resolvedType();
         }
@@ -354,7 +355,7 @@ public class Block extends Code {
         if (reference.isSelfish()) {
             return currentFace().name();
         }
-        
+
         if (this.hasLocal(symbol)) {
             return locals.symbolNamed(symbol).type();
         }
@@ -452,11 +453,19 @@ public class Block extends Code {
      * @param aVisitor visits the receiver for its information.
      */
     public void acceptStatementVisitor(Operand.Visitor aVisitor) {
-        if (statements.isEmpty()) {
-            return;
+        if (!statements.isEmpty()) {
+            statements.stream().forEach((s) -> {
+                aVisitor.visit(s);
+            });
         }
-        for (Operand s : statements) {
-            aVisitor.visit(s);
+    }
+
+    public void statementVisitResult(Operand.Emitter aVisitor) {
+        List<Emission> list = new ArrayList();
+        if (!statements.isEmpty()) {
+            statements.stream().forEach((s) -> {
+                list.add(aVisitor.visitResult(s));
+            });
         }
     }
 }

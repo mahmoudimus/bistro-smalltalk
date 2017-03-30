@@ -4,6 +4,7 @@
 package smalltalk.compiler.scope;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.element.Reference;
@@ -73,7 +74,7 @@ public abstract class Code extends Scope {
         type = "";
         locals = new Table(this);
     }
-    
+
     public String elementName() {
         return getClass().getSimpleName() + "::" + name();
     }
@@ -172,7 +173,7 @@ public abstract class Code extends Scope {
     public boolean hasLocals() {
         return localCount() > 0;
     }
-    
+
     public boolean hasLocal(String symbol) {
         return locals().containsSymbol(symbol);
     }
@@ -244,6 +245,10 @@ public abstract class Code extends Scope {
      */
     public List<String> modifiers() {
         return new ArrayList(modifiers);
+    }
+
+    public List<String> modifiersWithoutWrapped() {
+        return modifiers.stream().filter(m -> !m.equals("wrapped")).collect(Collectors.toList());
     }
 
     /**

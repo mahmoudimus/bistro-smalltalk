@@ -5,6 +5,10 @@ package smalltalk.compiler;
 
 import java.io.*;
 import java.util.*;
+import org.stringtemplate.v4.AutoIndentWriter;
+import org.stringtemplate.v4.ST;
+import static smalltalk.compiler.Emission.*;
+import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.*;
 import smalltalk.compiler.constant.*;
 import smalltalk.compiler.expression.*;
@@ -105,6 +109,7 @@ public abstract class BistroJavaEncoder {
      * Refers to the target stream for Java code generation.
      */
     protected PrintWriter oStream;
+    protected AutoIndentWriter writer;
 
     /**
      * Indicates the identation level of the output code.
@@ -117,8 +122,9 @@ public abstract class BistroJavaEncoder {
      * @param aStream for the output Java code.
      */
     public BistroJavaEncoder(PrintWriter aStream) {
-        oStream = aStream;
         tabCount = 0;
+        oStream = aStream;
+        writer = new AutoIndentWriter(oStream);
     }
 
     /**
@@ -135,16 +141,110 @@ public abstract class BistroJavaEncoder {
      * Returns the encoder for statements.
      */
     public abstract Operand.Visitor statementEncoder();
+    public abstract Operand.Emitter statementEmitter();
 
     /**
      * Returns the encoder for results.
      */
     public abstract Operand.Visitor resultantEncoder();
+    public abstract Operand.Emitter resultantEmitter();
 
     /**
      * Returns the encoder for operands.
      */
     public abstract Operand.Visitor operandEncoder();
+    public abstract Operand.Emitter operandEmitter();
+
+    // emissions
+    public void write(Emission e) {
+        e.write(writer);
+    }
+
+    public Emission emitItem(String value) {
+        return emit("Item").item(value);
+    }
+
+    public Emission emitTerm(Emission e) {
+        return emit("Term").value(e.result());
+    }
+
+    public Emission emitTerm(String value) {
+        return emit("Term").value(value);
+    }
+
+    public Emission emitCast(Variable argument) {
+        if (argument.type().equals(Base.RootClass)) {
+            return emitItem(argument.name());
+        }
+
+        return emit("Cast")
+                .type(emitTerm(argument.type()).result())
+                .value(emitItem(argument.name()).result());
+    }
+
+    public Emission emitTypeName(String typeName) {
+        // simplify the root class name whenever possible
+        return emitItem(Base.RootClass.equals(typeName) ? Base.SimpleRoot : typeName);
+    }
+
+    public Emission emitScalar(Scalar operand) {
+        return emit("Scalar")
+                .value(operand.encodedValue())
+                .with("factory", operand.primitiveFactoryName());
+    }
+
+    public Emission emitSequence(List<String> items) {
+        return emit("Sequence").with(Items, items);
+    }
+
+    public Emission emitOperand(Operand operand) {
+        // should be resolved by (operand) type refinement.
+        return operand.visitResult(operandEmitter());
+    }
+
+    public Emission emitOnlyStatements(final Block block) {
+        Emission result = emit("Statements");
+        block.statementVisitResult(new Operand.Emitter() {
+            int s = 1;
+
+            @Override
+            public Emission visitResult(Operand statement) {
+                s++;
+                Emission result = statement.visitResult(statementEmitter());
+                result.with(Items, result);
+                return result;
+            }
+        });
+        if (!block.returnsVoid()) {
+            result.with(Items, emit("Result").value(emit("Null")));
+        }
+        return result;
+    }
+
+    public Emission emitAllStatements(final Block block) {
+        final int count = block.statementCount();
+        Emission result = emit("Statements");
+        block.statementVisitResult(new Operand.Emitter() {
+            int s = 1;
+
+            @Override
+            public Emission visitResult(Operand statement) {
+                if (s < count || block.isConstructor()) {
+                    s++;
+                    Emission result = statement.visitResult(statementEmitter());
+                    result.with(Items, result);
+                    return result;
+                } else {
+                    s++;
+                    Emission result = statement.visitResult(resultantEmitter());
+                    result.with(Items, result);
+                    return result;
+                }
+            }
+        });
+        return result;
+    }
+
 
     // punctuation
     /**
@@ -207,14 +307,7 @@ public abstract class BistroJavaEncoder {
      * @param variable a Variable.
      */
     public void encodeModifiers(Variable variable) {
-        variable.acceptModifierVisitor(
-                new Reference.Visitor() {
-            public void visit(String modifier) {
-                oStream.print(modifier);
-                oStream.print(SPACE);
-            }
-        }
-        );
+        write(emitSequence(variable.modifiers()));
     }
 
     /**
@@ -223,14 +316,7 @@ public abstract class BistroJavaEncoder {
      * @param code a Code scope.
      */
     public void encodeModifiers(Code code) {
-        code.acceptModifierVisitor(
-                new Reference.Visitor() {
-            public void visit(String modifier) {
-                oStream.print(modifier);
-                oStream.print(SPACE);
-            }
-        }
-        );
+        write(emitSequence(code.modifiersWithoutWrapped()));
     }
 
     // references
@@ -240,11 +326,7 @@ public abstract class BistroJavaEncoder {
      * @param typeName identifies a type.
      */
     public void encodeTypeName(String typeName) {
-        if (typeName.equals(Base.RootClass)) {
-            oStream.print(Base.SimpleRoot);
-        } else {
-            oStream.print(typeName);
-        }
+        write(emitTypeName(typeName));
     }
 
     /**
@@ -253,9 +335,7 @@ public abstract class BistroJavaEncoder {
      * @param typeName identifies a type.
      */
     public void encodeType(String typeName) {
-        oStream.print(NEW_TERM);
-        encodeTypeName(typeName);
-        oStream.print(END_TERM);
+        write(emitTerm(typeName));
     }
 
     /**
@@ -264,13 +344,7 @@ public abstract class BistroJavaEncoder {
      * @param argument a Variable argument.
      */
     public void encodeCast(Variable argument) {
-        if (argument.type().equals(Base.RootClass)) {
-            oStream.print(argument.name());
-        } else {
-            encodeType(argument.type());
-            oStream.print(SPACE);
-            oStream.print(argument.name());
-        }
+        write(emitCast(argument));
     }
 
     /**
@@ -786,12 +860,13 @@ public abstract class BistroJavaEncoder {
      * @param operand a Scalar.
      */
     public void encodeOperand(Scalar operand) {
-        oStream.print("Object.primitive.");
-        oStream.print(operand.primitiveFactoryName());
-        oStream.print("From");
-        oStream.print(NEW_TERM);
-        oStream.print(operand.encodedValue());
-        oStream.print(END_TERM);
+        write(emitScalar(operand));
+//        oStream.print("Object.primitive.");
+//        oStream.print(operand.primitiveFactoryName());
+//        oStream.print("From");
+//        oStream.print(NEW_TERM);
+//        oStream.print(operand.encodedValue());
+//        oStream.print(END_TERM);
     }
 
     /**
@@ -1166,6 +1241,7 @@ public abstract class BistroJavaEncoder {
      * @param operand an Operand.
      */
     public void encodeBooleanTerm(Operand operand) {
+        emitTerm(emitTerm(BooleanType));
         oStream.print(NEW_TERM);
         oStream.print(BooleanType);
         encodeTerm(operand);
@@ -1672,10 +1748,10 @@ public abstract class BistroJavaEncoder {
      */
     public void encodeAllStatements(final Block block) {
         final int count = block.statementCount();
-        block.acceptStatementVisitor(
-                new Operand.Visitor() {
+        block.acceptStatementVisitor(new Operand.Visitor() {
             int s = 1;
 
+            @Override
             public void visit(Operand statement) {
                 if (s > 1) {
                     encodeNewLine();
@@ -1687,8 +1763,7 @@ public abstract class BistroJavaEncoder {
                 }
                 s++;
             }
-        }
-        );
+        });
     }
 
     /**
@@ -1701,7 +1776,7 @@ public abstract class BistroJavaEncoder {
                 new Operand.Visitor() {
             int s = 0;
 
-            @Override 
+            @Override
             public void visit(Operand statement) {
                 if (s > 0) {
                     encodeNewLine();
