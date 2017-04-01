@@ -7,6 +7,7 @@ import org.junit.Test;
  * Confirms proper operation of the Bistro Smalltalk library code.
  * @author nik
  */
+@SuppressWarnings("unchecked")
 public class RuntimeTest {
 
     @Test
@@ -15,7 +16,7 @@ public class RuntimeTest {
             runTest(testClass);
         }
     }
-    
+
     private void runTest(Class testClass) throws Exception {
         System.out.println();
         System.out.println("running " + testClass.getName());
@@ -25,7 +26,7 @@ public class RuntimeTest {
         Method m = testClass.getMethod("main", argTypes);
         m.invoke(null, (Object)args);
     }
-    
+
     private static final Class[] TestClasses = {
         HelloWorld.class,
         SimpleHanoi.class,
