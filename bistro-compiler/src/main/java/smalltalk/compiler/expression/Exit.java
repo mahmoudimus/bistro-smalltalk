@@ -3,6 +3,7 @@
 //====================================================================
 package smalltalk.compiler.expression;
 
+import smalltalk.compiler.Emission;
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.scope.Block;
 

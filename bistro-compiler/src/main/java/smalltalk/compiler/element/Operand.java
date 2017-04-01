@@ -3,6 +3,8 @@
 //====================================================================
 package smalltalk.compiler.element;
 
+import smalltalk.compiler.Emission;
+
 /**
  * Represents an operand and translates it into Java.
  *
@@ -16,6 +18,11 @@ public class Operand extends Container {
     public static interface Visitor {
 
         public void visit(Operand operand);
+    }
+
+    public static interface Emitter {
+
+        public Emission visitResult(Operand operand);
     }
 
     /**
@@ -149,5 +156,9 @@ public class Operand extends Container {
      */
     public void acceptVisitor(Visitor aVisitor) {
         aVisitor.visit(this);
+    }
+
+    public Emission visitResult(Emitter aVisitor) {
+        return aVisitor.visitResult(this);
     }
 }
