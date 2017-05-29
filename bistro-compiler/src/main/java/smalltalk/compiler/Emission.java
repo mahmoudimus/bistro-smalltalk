@@ -25,6 +25,8 @@ public class Emission {
 
     private static final String Empty = "";
     private static final String Emit = "emit";
+
+    private static final ST None = null;
     private static final String CodeFile = "CodeTemplates.stg";
     private static final STGroupFile CodeGroup = new STGroupFile(CodeFile);
 
@@ -88,8 +90,7 @@ public class Emission {
         return this.with("signature", signature);
     }
 
-
-    public Emission type(ST type) {
+    public Emission type(String type) {
         return this.with("type", type);
     }
 
@@ -118,6 +119,10 @@ public class Emission {
         return this.with("name", name);
     }
 
+    public Emission name(Emission value) {
+        return this.with("name", value == null ? None : value.result());
+    }
+
     public Emission values(List<ST> values) {
         return this.with(Values, values);
     }
@@ -127,7 +132,7 @@ public class Emission {
     }
 
     public Emission value(Emission value) {
-        return this.value(value.result());
+        return this.value(value == null ? None : value.result());
     }
 
     public Emission value(ST value) {
@@ -172,7 +177,7 @@ public class Emission {
     }
 
     public Emission with(String name, Emission e) {
-        return this.with(name, e.result());
+        return this.with(name, e == null ? None : e.result());
     }
 
     public Emission with(String name, ST item) {

@@ -4,6 +4,7 @@
 package smalltalk.compiler.constant;
 
 import org.antlr.runtime.Token;
+import smalltalk.compiler.Emission;
 import smalltalk.compiler.element.Container;
 import smalltalk.compiler.element.Operand;
 
@@ -111,5 +112,15 @@ public class LiteralNil extends Scalar {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitPrimitive() {
+        return emitItem(rawValue());
+    }
+
+    @Override
+    public Emission emitOperand() {
+        return emitItem(encodedValue());
     }
 }

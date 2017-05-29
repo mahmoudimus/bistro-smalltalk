@@ -6,6 +6,9 @@ package smalltalk.compiler.element;
 import java.util.*;
 import org.antlr.runtime.Token;
 import smalltalk.Name;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
+import smalltalk.compiler.scope.*;
 
 /**
  * Represents and encodes a symbolic reference to a variable.
@@ -13,8 +16,6 @@ import smalltalk.Name;
  * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
  */
 public class Reference extends Operand {
-    
-    public static Class<?> BlockClass;
 
     /**
      * Defines an interface for visiting instances.
@@ -43,10 +44,13 @@ public class Reference extends Operand {
     /**
      * Java package root.
      */
-    protected static final String rootPackage = "java.";
-    protected static final String xRootPackage = "javax.";
-    
-    static final String[] RootPackages = { "java", "javax", "smalltalk" };
+    protected static final String RootJava = "java.";
+    protected static final String RootJavaX = "javax.";
+    protected static final String[] ElementaryPackages = { RootJava, RootJavaX, };
+    public static final List<String> ElementaryRoots = Arrays.asList(ElementaryPackages);
+
+    protected static String trim(String value) { return value.replace(".", ""); }
+    static final String[] RootPackages = { trim(RootJava), trim(RootJavaX), "smalltalk", };
     public static final List<String> PackageRoots = Arrays.asList(RootPackages);
 
     /**
@@ -56,8 +60,7 @@ public class Reference extends Operand {
      * @return whether the supplied (typeName) is elementary.
      */
     public static boolean isElementary(String typeName) {
-        return (typeName.startsWith(rootPackage)
-                || typeName.startsWith(xRootPackage));
+        return (ElementaryRoots.stream().anyMatch((root) -> (typeName.startsWith(root))));
     }
 
     /**
@@ -168,13 +171,17 @@ public class Reference extends Operand {
     public boolean isEmpty() {
         return name.isEmpty();
     }
-    
+
+    public boolean isDeeper(Container c) {
+        return container().nestLevel() > c.nestLevel();
+    }
+
     public boolean isSimple() {
         if (name.isEmpty()) return false;
         if (Character.isUpperCase(name.charAt(0))) return false;
         return Name.packageName(name).isEmpty();
     }
-    
+
     public boolean isSystemic() {
         if (name.startsWith(SystemPrefix)) return true;
         if (name.equals(SystemPrefix.replace("\\.", " ").trim())) return true;
@@ -199,10 +206,10 @@ public class Reference extends Operand {
     public boolean isMember() {
         return (name.startsWith(SelfPrefix));
     }
-    
+
     /**
      * Indicates whether the containing face resolved this reference.
-     * @return 
+     * @return
      */
     public boolean isHeritage() {
         return facialScope().resolves(this);
@@ -234,7 +241,7 @@ public class Reference extends Operand {
     public boolean isPrimitive() {
         return (name.equals(Primitive));
     }
-    
+
     /**
      * Indicates whether this reference has a package name qualifier.
      * @return whether this has a package name
@@ -255,11 +262,20 @@ public class Reference extends Operand {
         }
         return false;
     }
-    
+
+    public boolean isTransient() {
+        Scope s = containerScope().scopeResolving(this);
+        if (s == null || !s.isBlock()) return false;
+
+        Variable v = s.localNamed(name());
+        if (v == null) return false;
+        return v.isTransient();
+    }
+
     public boolean isLocal() {
         if (!isSimple()) return false;
-        if (!BlockClass.isAssignableFrom(container().getClass())) return false;
-        return container().resolves(this);
+        if (!containerScope().isBlock()) return false;
+        return containerScope().resolves(this);
     }
 
     /**
@@ -278,11 +294,17 @@ public class Reference extends Operand {
         return (globalClass != null);
     }
 
+    @Override
+    public boolean isReference() {
+        return true;
+    }
+
     /**
      * Returns whether the name refers to a Bistro metaclass.
      *
      * @return whether the name refers to a Bistro metaclass.
      */
+    @Override
     public boolean refersToMetaclass() {
         String typeName = resolvedTypeName();
         return RootMetaclass.equals(typeName);
@@ -303,7 +325,7 @@ public class Reference extends Operand {
         Container c = resolvingScope();
         return (c == null);
     }
-    
+
     public void resolveUndefined() {
 //        if (this.isSystemic()) {
 //            return;
@@ -321,13 +343,15 @@ public class Reference extends Operand {
     }
 
     /**
-     * Cleans out any residue left from the parsing process and 
+     * Cleans out any residue left from the parsing process and
      * prepares the receiver for code generation.
      */
     @Override
     public void clean() {
         super.clean();
-        if (this.needsLocalResolution()) resolveUndefined();
+        if (this.needsLocalResolution()) {
+            resolveUndefined();
+        }
     }
 
     /**
@@ -346,9 +370,7 @@ public class Reference extends Operand {
      */
     protected Reference globalReference() {
         String globalName = globalName();
-        if (globalName == null) {
-            return null;
-        }
+        if (globalName.isEmpty()) return null;
         return Reference.named(globalName, fileScope());
     }
 
@@ -361,7 +383,7 @@ public class Reference extends Operand {
         if (isMember()) {
             return name.substring(SelfPrefix.length());
         }
-        
+
         return name;
     }
 
@@ -380,13 +402,17 @@ public class Reference extends Operand {
      * @return the scope that resolves this reference.
      */
     public Container resolvingScope() {
+        if ("result".equals(name()) && facialScope().name().equals("Behavior")) {
+            getLogger().info("");
+        }
+
         if (this.isReserved()) return null;
         if (this.isMember())   return facialScope();
-        if (this.isLocal())    return container();
+        if (this.isLocal())    return containerScope();
         if (this.isHeritage()) return facialScope();
         if (this.isGlobal())   return fileScope();
 
-        return container().scopeResolving(this);
+        return containerScope().scopeResolving(this);
     }
 
     /**
@@ -399,7 +425,7 @@ public class Reference extends Operand {
         if (this.isSelfish()) {
             return rootType();
         }
-        
+
 //        if (this.isSystemic()) {
 //            return typeNamed(JavaRoot);
 //        }
@@ -430,9 +456,11 @@ public class Reference extends Operand {
         if (this.isSelfish()) {
             return name;
         }
+
         if (this.isPrimitive()) {
             return PrimitiveFactory;
         }
+
         if (this.isElementary()) {
             return name;
         }
@@ -441,9 +469,11 @@ public class Reference extends Operand {
         if (scope == null) {
             return RootClass;
         }
+
         if (this.isMember()) {
             return scope.resolveTypeName(memberReference());
         }
+
         return scope.resolveTypeName(this);
     }
 
@@ -513,27 +543,27 @@ public class Reference extends Operand {
         }
 
         if (this.isSelfish()) {
-            return container().revised((String) ReservedNames.get(name));
+            return container().revised(ReservedNames.get(name));
         }
-        
+
+        if (this.isLocal()) {
+            return this.isTransient() ? name + "[0]" : name;
+        }
+
         if (this.isHeritage()) {
             return facialScope().revised(memberName());
-        }
-        
-        if (this.isLocal()) {
-            return name;
         }
 
         if (this.isMember()) {
             return facialScope().revised(memberName());
         }
 
-        result = (String) ReservedNames.get(name);
+        result = ReservedNames.get(name);
         if (result != null) {
             return result;
         }
 
-        result = (String) RevisedNames.get(name);
+        result = RevisedNames.get(name);
         if (result != null) {
             return result;
         }
@@ -569,5 +599,34 @@ public class Reference extends Operand {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        return emitItem(encodedName());
+    }
+
+    @Override
+    public Emission emitItem() {
+        return emitItem(encodedName());
+    }
+
+    public Emission emitArgument(boolean useFinal) {
+        Emission makeFinal = useFinal ? emitEmpty() : null;
+        String typeName = revisedTypeName();
+        String valueName = encodedName();
+        return emit("Argument")
+                .with("useFinal", makeFinal)
+                .type(typeName)
+                .name(valueName);
+    }
+
+    public String revisedTypeName() {
+        String typeName = type();
+        return RootClass.equals(typeName) ? SimpleRoot : typeName;
+    }
+
+    public String type() {
+        return SimpleRoot;
     }
 }

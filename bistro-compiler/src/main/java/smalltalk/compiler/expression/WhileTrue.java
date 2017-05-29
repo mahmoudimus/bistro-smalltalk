@@ -3,6 +3,7 @@
 //====================================================================
 package smalltalk.compiler.expression;
 
+import smalltalk.compiler.Emission;
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.scope.Block;
 
@@ -46,5 +47,10 @@ public class WhileTrue extends Message {
      */
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitStatement() {
+        return emitWhileLoop(true, firstArgument());
     }
 }

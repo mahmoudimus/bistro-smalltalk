@@ -52,7 +52,7 @@ public class BistroJavaGenerator extends BistroJavaEncoder implements
 
     @Override
     public Emission visitResult(Operand operand) {
-        return emitOperand(operand);
+        return operand.emitOperand();
     }
 
     /**
@@ -380,7 +380,7 @@ public class BistroJavaGenerator extends BistroJavaEncoder implements
 
         @Override
         public Emission visitResult(Operand operand) {
-            return emitOperand(operand);
+        return operand.emitOperand();
         }
 
         @Override
@@ -464,7 +464,7 @@ public class BistroJavaGenerator extends BistroJavaEncoder implements
 
         @Override
         public Emission visitResult(Operand operand) {
-            return emitOperand(operand);
+        return operand.emitOperand();
         }
 
         @Override
@@ -558,7 +558,7 @@ public class BistroJavaGenerator extends BistroJavaEncoder implements
 
         @Override
         public Emission visitResult(Operand operand) {
-            return emitOperand(operand);
+        return operand.emitOperand();
         }
 
         @Override
@@ -652,7 +652,7 @@ public class BistroJavaGenerator extends BistroJavaEncoder implements
 
         @Override
         public Emission visitResult(Operand operand) {
-            return emitOperand(operand);
+        return operand.emitOperand();
         }
 
         @Override
@@ -767,6 +767,11 @@ public class BistroJavaGenerator extends BistroJavaEncoder implements
      */
     @Override
     public Operand.Visitor primitiveEncoder() {
+        return primitiveEncoder;
+    }
+
+    @Override
+    public Operand.Emitter primitiveEmitter() {
         return primitiveEncoder;
     }
 

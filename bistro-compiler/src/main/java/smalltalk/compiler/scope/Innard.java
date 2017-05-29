@@ -3,6 +3,9 @@
 //====================================================================
 package smalltalk.compiler.scope;
 
+import java.util.ArrayList;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.element.Container;
 
@@ -81,5 +84,10 @@ public class Innard extends Operand {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        return emit("New").with("className", nestedClass().baseName()).with("arguments", new ArrayList());
     }
 }

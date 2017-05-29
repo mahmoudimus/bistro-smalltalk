@@ -5,6 +5,7 @@ package smalltalk.compiler.scope;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CharStream;
@@ -14,11 +15,15 @@ import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenSource;
 import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.CommonTree;
+import org.stringtemplate.v4.AutoIndentWriter;
+import org.stringtemplate.v4.STWriter;
 
 import smalltalk.Name;
 import smalltalk.compiler.Bistro;
 import smalltalk.compiler.BistroJavaGenerator;
 import smalltalk.compiler.BistroLex;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 
 import smalltalk.compiler.element.Container;
 import smalltalk.compiler.element.Reference;
@@ -223,21 +228,24 @@ public class File extends Scope {
             faceScope.metaFace().clean();
         }
 
-        if (facePackage.definesBehaviors()) {
-            return;
-        }
+        if (facePackage.definesSmalltalk()) return;
+
+        imports.add("smalltalk.behavior.Boolean");
+        imports.add("smalltalk.magnitude.SmallInteger");
+        imports.add("smalltalk.collection.String");
+
+        if (facePackage.definesBehaviors()) return;
+
         imports.add("smalltalk.behavior.*");
         imports.add("smalltalk.behavior.Object");
         imports.add("smalltalk.behavior.Behavior");
         imports.add("smalltalk.behavior.Class");
-        imports.add("smalltalk.behavior.Boolean");
         imports.add("smalltalk.behavior.UndefinedObject");
         imports.add("smalltalk.behavior.Exception");
         imports.add("smalltalk.behavior.Error");
 
-        if (facePackage.definesMagnitudes()) {
-            return;
-        }
+        if (facePackage.definesMagnitudes()) return;
+
         imports.add("smalltalk.magnitude.Float");
         imports.add("smalltalk.magnitude.Double");
         imports.add("smalltalk.magnitude.Number");
@@ -245,10 +253,8 @@ public class File extends Scope {
         imports.add("smalltalk.magnitude.Character");
         imports.add("smalltalk.magnitude.*");
 
-        if (facePackage.definesCollections()) {
-            return;
-        }
-        imports.add("smalltalk.collection.String");
+        if (facePackage.definesCollections()) return;
+
         imports.add("smalltalk.collection.Symbol");
         imports.add("smalltalk.collection.Array");
     }
@@ -300,7 +306,7 @@ public class File extends Scope {
     public String packagePathname() {
         return facePackage.pathname();
     }
-    
+
     public boolean imports(Reference reference) {
         return false;
     }
@@ -382,7 +388,7 @@ public class File extends Scope {
     public String nameOf(Container component) {
         return facePackage.qualify(component.name());
     }
-    
+
     public String fullName() {
         return facePackage().qualify(faceName());
     }
@@ -413,7 +419,7 @@ public class File extends Scope {
 
         return faceLibrary.faceNamed(faceName);
     }
-    
+
     /**
      * Compiles the Bistro file indicated by this.
      * @return whether compilation succeeded
@@ -428,10 +434,11 @@ public class File extends Scope {
         }
 
         if (parser == null) parse();
-
         clean();
+
         try (PrintWriter oStream = targetStream()) {
-            new BistroJavaGenerator(oStream).encodeScope(this);
+            emitScope().write(new AutoIndentWriter(oStream));
+//            new BistroJavaGenerator(oStream).encodeScope(this);
         }
         return true;
     }
@@ -447,10 +454,10 @@ public class File extends Scope {
         java.io.File targetFile = new java.io.File(targetFolder, targetFilename());
         return new PrintWriter(new FileWriter(targetFile));
     }
-    
+
     TokenSource lexer;
     Bistro parser;
-    
+
     /**
      * Parses the Bistro file indicated by this.
      * @throws Exception if raised
@@ -467,7 +474,7 @@ public class File extends Scope {
         tokenStream = stream;
         return new Bistro(stream);
     }
-    
+
     private LegacyCommonTokenStream createTokenStream() throws Exception {
         return new LegacyCommonTokenStream(createLexer());
     }
@@ -533,8 +540,8 @@ public class File extends Scope {
      * @return the container that resolves a symbolic (reference).
      */
     @Override
-    public Container scopeResolving(Reference reference) {
-        return (this.resolves(reference) ? this : null);
+    public Scope scopeResolving(Reference reference) {
+        return resolves(reference) ? this : null;
     }
 
     /**
@@ -580,5 +587,30 @@ public class File extends Scope {
         for (String importName : faceImports()) {
             aVisitor.visit(importName);
         }
+    }
+
+    @Override
+    public Emission emitScope() {
+        return faceScope().emitScope(emitLibraryScope());
+    }
+
+    public Emission emitLibraryScope() {
+        return emit("LibraryScope")
+                .with("packageName", emitPackage())
+                .with("imports", emitImports());
+    }
+
+    public Emission emitPackage() {
+        return emitStatement(emit("Package").name(packageName()));
+    }
+
+    public List<Emission> emitImports() {
+        return faceImports().stream()
+                .map(imp -> emitImport(imp))
+                .collect(Collectors.toList());
+    }
+
+    public Emission emitImport(String typeName) {
+        return emit("Import").name(typeName);
     }
 }

@@ -12,7 +12,7 @@ class:
 
 	"Returns the result of evaluating the receiver with (arguments)."
 	valueWithArguments: arguments [
-		count := arguments count.
+		count (Object) := arguments count.
 		count = 0 ifTrue: [ 
 			^(self as: ZeroArgumentBlock) value 
 		].

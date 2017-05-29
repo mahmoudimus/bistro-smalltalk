@@ -5,6 +5,9 @@ package smalltalk.compiler.scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import static smalltalk.Name.*;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.element.Reference;
@@ -34,9 +37,9 @@ public abstract class Code extends Scope {
      * Establishes the access modifiers supported by Bistro.
      */
     static {
-        accessModifiers.add("public");
-        accessModifiers.add("protected");
-        accessModifiers.add("private");
+        accessModifiers.add(Public);
+        accessModifiers.add(Protected);
+        accessModifiers.add(Private);
     }
 
     /**
@@ -170,12 +173,18 @@ public abstract class Code extends Scope {
      *
      * @return whether this code scope has any locally defined symbols.
      */
+    @Override
     public boolean hasLocals() {
         return localCount() > 0;
     }
 
     public boolean hasLocal(String symbol) {
         return locals().containsSymbol(symbol);
+    }
+
+    @Override
+    public Variable localNamed(String symbol) {
+        return locals().symbolNamed(symbol);
     }
 
     /**
@@ -248,7 +257,7 @@ public abstract class Code extends Scope {
     }
 
     public List<String> modifiersWithoutWrapped() {
-        return modifiers.stream().filter(m -> !m.equals("wrapped")).collect(Collectors.toList());
+        return modifiers.stream().filter(m -> !Wrapped.equals(m)).collect(Collectors.toList());
     }
 
     /**
@@ -274,7 +283,7 @@ public abstract class Code extends Scope {
      * @return whether the code signature is declared abstract.
      */
     public boolean isAbstract() {
-        return modifiers.contains("abstract");
+        return modifiers.contains(Abstract);
     }
 
     /**
@@ -283,7 +292,7 @@ public abstract class Code extends Scope {
      * @return whether the code signature is declared static.
      */
     public boolean isStatic() {
-        return modifiers.contains("static");
+        return modifiers.contains(Static);
     }
 
     /**
@@ -292,13 +301,7 @@ public abstract class Code extends Scope {
      * @return whether the code signature is declared public.
      */
     public boolean isPublic() {
-        if (modifiers.contains("protected")) {
-            return false;
-        }
-        if (modifiers.contains("private")) {
-            return false;
-        }
-        return true;
+        return modifiers.stream().noneMatch(m -> Protected.equals(m) || Private.equals(m));
     }
 
     /**
@@ -323,12 +326,14 @@ public abstract class Code extends Scope {
      */
     @Override
     public boolean resolves(Reference reference) {
-        String symbol = reference.name();
-        if (this.hasLocal(symbol)) {
-            return true;
-        }
-
+        if (this.hasLocal(reference.name())) return true;
         return containerScope().resolves(reference);
+    }
+
+    @Override
+    public Scope scopeResolving(Reference reference) {
+        if (this.hasLocal(reference.name())) return this;
+        return containerScope().scopeResolving(reference);
     }
 
     /**
@@ -389,9 +394,24 @@ public abstract class Code extends Scope {
             return;
         }
         for (String modifier : modifiers) {
-            if (!modifier.equals("wrapped")) {
+            if (!Wrapped.equals(modifier)) {
                 aVisitor.visit(modifier);
             }
         }
+    }
+
+    @Override
+    public Emission emitModifiers() {
+        return emitSequence(modifiersWithoutWrapped());
+    }
+
+    public Emission emitLocals() {
+        return emitLines(emitLocalVariables());
+    }
+
+    public List<Emission> emitLocalVariables() {
+        return locals().definedSymbols().stream()
+                .map(v -> emitStatement(v.emitItem()))
+                .collect(Collectors.toList());
     }
 }

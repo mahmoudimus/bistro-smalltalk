@@ -3,6 +3,9 @@
 //====================================================================
 package smalltalk.compiler.expression;
 
+import java.util.List;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.scope.Block;
 
@@ -47,5 +50,23 @@ public class IfFalseIfTrue extends Message {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        // swap block order here
+        List<Operand> arguments = arguments();
+        Operand falseBlock = arguments.get(0);
+        Operand trueBlock = arguments.get(1);
+        return emitAlternatives(true, trueBlock, falseBlock);
+    }
+
+    @Override
+    public Emission emitStatement() {
+        // swap block order here
+        List<Operand> arguments = arguments();
+        Operand falseBlock = arguments.get(0);
+        Operand trueBlock = arguments.get(1);
+        return emitGuardedStatement(true, trueBlock, falseBlock);
     }
 }

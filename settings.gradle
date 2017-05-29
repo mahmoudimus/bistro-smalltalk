@@ -1,8 +1,8 @@
 rootProject.name = 'bistro-smalltalk'
 include ':bistro-compiler'
 include ':bistro-library'
-include ':libs-smalltalk'
+//include ':libs-smalltalk'
 
 project(':bistro-compiler').projectDir = "$rootDir/bistro-compiler" as File
 project(':bistro-library').projectDir = "$rootDir/bistro-library" as File
-project(':libs-smalltalk').projectDir = "$rootDir/libs-smalltalk" as File
+//project(':libs-smalltalk').projectDir = "$rootDir/libs-smalltalk" as File

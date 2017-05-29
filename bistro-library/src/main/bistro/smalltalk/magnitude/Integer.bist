@@ -242,7 +242,7 @@ class:
 
 	"Returns a printable representation of the receiver using a (radix)."
 	printStringRadix: radix
-	[	^self printStringRadix: base showRadix: true
+	[	^self printStringRadix: radix showRadix: true
 	]
 
 	"Returns a printable representation of the receiver using a (radix)."

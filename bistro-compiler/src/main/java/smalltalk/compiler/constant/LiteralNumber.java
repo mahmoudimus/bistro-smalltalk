@@ -3,6 +3,7 @@
 //====================================================================
 package smalltalk.compiler.constant;
 
+import smalltalk.compiler.Emission;
 import smalltalk.compiler.element.Container;
 import smalltalk.compiler.element.Selector;
 
@@ -56,5 +57,14 @@ public abstract class LiteralNumber extends Scalar {
      */
     public void acceptVisitor(Visitor aVisitor) {
         aVisitor.visit(this);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        if (container().fileScope().needsMagnitudes()) {
+            super.emitOperand();
+        }
+
+        return emitCast(declaredType(), super.emitOperand());
     }
 }

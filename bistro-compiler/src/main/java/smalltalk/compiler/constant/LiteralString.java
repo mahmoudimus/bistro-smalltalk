@@ -3,7 +3,9 @@
 //====================================================================
 package smalltalk.compiler.constant;
 
+import static java.lang.String.format;
 import org.antlr.runtime.Token;
+import smalltalk.compiler.Emission;
 import smalltalk.compiler.element.Container;
 import smalltalk.compiler.element.Operand;
 
@@ -83,18 +85,7 @@ public class LiteralString extends LiteralCollection {
      */
     @Override
     public String encodedValue() {
-        StringBuffer result = new StringBuffer();
-        result.append("\"");
-        int count = value.length() - 1;
-        for (int n = 1; n < count; n++) {
-            char c = value.charAt(n);
-            result.append(c);
-            if (c == '\'') {
-                n++;
-            }
-        }
-        result.append("\"");
-        return result.toString();
+        return format(QuotedValue, value.replace(DoubledQuote, SingleQuote).replace(SingleQuote, EmptyString));
     }
 
     /**
@@ -115,4 +106,9 @@ public class LiteralString extends LiteralCollection {
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
     }
+
+//    @Override
+//    public Emission emitOperand() {
+//        return emitScalar();
+//    }
 }

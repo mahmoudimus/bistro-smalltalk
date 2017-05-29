@@ -3,6 +3,7 @@
 //====================================================================
 package smalltalk.compiler.expression;
 
+import smalltalk.compiler.Emission;
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.constant.Scalar;
 import smalltalk.compiler.scope.Block;
@@ -71,5 +72,19 @@ public class PrimitiveLiteral extends Message {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission visitResult(Operand.Emitter e) {
+        return e.visitResult(this);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        if (receiver().isLiteral()) {
+            return receiver().emitPrimitive();
+        } else {
+            return emitOptimized();
+        }
     }
 }

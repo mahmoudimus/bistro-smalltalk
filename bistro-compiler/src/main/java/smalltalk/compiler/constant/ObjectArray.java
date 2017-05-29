@@ -4,7 +4,11 @@
 package smalltalk.compiler.constant;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import smalltalk.compiler.element.*;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.Values;
+import static smalltalk.compiler.Emission.emit;
 
 /**
  * Represents and encodes a literal object array.
@@ -85,5 +89,11 @@ public class ObjectArray extends LiteralArray {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        return emit("NewArray").with(Values, contents().stream()
+                .map(item -> item.emitOperand()).collect(Collectors.toList()));
     }
 }

@@ -3,9 +3,13 @@
 //====================================================================
 package smalltalk.compiler.element;
 
+import java.util.List;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.CommonTree;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.Items;
+import static smalltalk.compiler.Emission.emit;
 
 /**
  * Provides general nesting of containers.
@@ -100,10 +104,7 @@ public class Container extends Base {
      * @return the type of the variable to which a (reference) resolves.
      */
     public Class resolveType(Reference reference) {
-        if (container == null) {
-            return null;
-        }
-        return container.resolveType(reference);
+        return (container == null) ? null : container.resolveType(reference);
     }
 
     /**
@@ -113,10 +114,7 @@ public class Container extends Base {
      * @return the type name of the variable to which a (reference) resolves.
      */
     public String resolveTypeName(Reference reference) {
-        if (container == null) {
-            return null;
-        }
-        return container.resolveTypeName(reference);
+        return (container == null) ? null : container.resolveTypeName(reference);
     }
 
     /**
@@ -125,9 +123,9 @@ public class Container extends Base {
      * @param reference a symbolic reference to be resolved.
      * @return whether the container can resolve a symbolic (reference).
      */
-    public boolean resolves(Reference reference) {
-        return false;
-    }
+//    public boolean resolves(Reference reference) {
+//        return false;
+//    }
 
     /**
      * Returns the container that resolves a symbolic (reference). Derived classes may override this method.
@@ -135,10 +133,10 @@ public class Container extends Base {
      * @param reference a symbolic reference to be resolved.
      * @return the container that resolves a symbolic (reference).
      */
-    public Container scopeResolving(Reference reference) {
-        return (this.resolves(reference) ? this
-                : container.scopeResolving(reference));
-    }
+//    public Container scopeResolving(Reference reference) {
+//        return (this.resolves(reference) ? this
+//                : container.scopeResolving(reference));
+//    }
 
     /**
      * Resolves an undefined (reference) if appropriate. This implementation does nothing. Some derived class should
@@ -215,6 +213,10 @@ public class Container extends Base {
         return false;
     }
 
+    public boolean isBlock() {
+        return false;
+    }
+
     /**
      * Returns whether this container has primitive available.
      *
@@ -258,10 +260,7 @@ public class Container extends Base {
      * @return the facial scope that contains this object.
      */
     public Container facialScope() {
-        if (container == null) {
-            return null;
-        }
-        return container.facialScope();
+        return (container == null) ? null : container.facialScope();
     }
 
     /**
@@ -270,17 +269,11 @@ public class Container extends Base {
      * @return the file scope that contains this object.
      */
     public Container fileScope() {
-        if (container == null) {
-            return null;
-        }
-        return container.fileScope();
+        return (container == null) ? null : container.fileScope();
     }
 
     public TokenStream tokenStream() {
-        if (fileScope() == null) {
-            return null;
-        }
-        return fileScope().tokenStream();
+        return (fileScope() == null) ? null : fileScope().tokenStream();
     }
 
     /**
@@ -310,5 +303,101 @@ public class Container extends Base {
         }
         Token candidate = tokenStream().get(token.getTokenIndex() - 1);
         return (candidate.getChannel() == Token.HIDDEN_CHANNEL ? candidate : null);
+    }
+
+
+    // emissions
+    public Emission emitEmpty() {
+        return emit("Empty");
+    }
+
+    public Emission emitNull() {
+        return emit("Null");
+    }
+
+    public Emission emitNil() {
+        return emit("Nil");
+    }
+
+    public Emission emitModifiers() {
+        return emitEmpty(); // override this!
+    }
+
+    public Emission emitOptimized() {
+        return emitEmpty(); // override this!
+    }
+
+    public Emission emitPrimitive() {
+        return emitEmpty(); // override this!
+    }
+
+    public Emission emitItem() {
+        return emitEmpty(); //override this!
+    }
+
+    public Emission emitItem(String value) {
+        return emit("Item").item(value == null ? EmptyString : value);
+    }
+
+    public Emission emitTerm(Operand operand) {
+        return emitTerm(emitOperand(operand));
+    }
+
+    public Emission emitTerm(Emission e) {
+        return emit("Term").value(e.result());
+    }
+
+    public Emission emitTerm(String value) {
+        return emit("Term").value(value);
+    }
+
+    public Emission emitComposite(Emission base, Emission path) {
+        return emit("Composite").with("base", base).with("path", path);
+    }
+
+    public Emission emitSequence(List<String> items) {
+        return emit("Sequence").with(Items, items);
+    }
+
+    public Emission emitList(List<Emission> items) {
+        return emit("List").items(items);
+    }
+
+    public Emission emitLines(List<Emission> items) {
+        return emit("Lines").items(items);
+    }
+
+    public <T extends Operand> Emission emitOperand(T operand) {
+        // should be resolved by (operand) type refinement.
+        return operand.emitOperand();
+    }
+
+    public Emission emitCast(String typeName, Emission value) {
+        return emit("Cast").type(typeName).value(value);
+    }
+
+    public Emission emitTrueGuard(Emission value) {
+        return emit("TrueGuard").value(value);
+    }
+
+    public Emission emitFalseGuard(Emission value) {
+        return emit("FalseGuard").value(value);
+    }
+
+    public Emission emitTypeName(String typeName) {
+        // simplify the root class name whenever possible
+        return emitItem(RootClass.equals(typeName) ? SimpleRoot : typeName);
+    }
+
+    public Emission emitStatement(Emission value) {
+        return emit("Statement").value(value);
+    }
+
+    public Emission emitClosureValue(Emission aBlock) {
+        return emit("ClosureValue").with("closure", aBlock);
+    }
+
+    public Emission emitResult(Emission value) {
+        return emit("Result").value(value);
     }
 }

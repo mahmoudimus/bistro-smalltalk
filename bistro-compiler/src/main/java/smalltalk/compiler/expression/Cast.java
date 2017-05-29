@@ -4,6 +4,7 @@
 package smalltalk.compiler.expression;
 
 import java.util.*;
+import smalltalk.compiler.Emission;
 
 import smalltalk.compiler.element.Reference;
 import smalltalk.compiler.element.Operand;
@@ -156,5 +157,11 @@ public class Cast extends Message {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        Reference type = (Reference) finalOperand();
+        return emitCast(type.name(), receiver().emitOperand());
     }
 }

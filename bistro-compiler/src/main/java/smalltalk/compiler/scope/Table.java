@@ -4,6 +4,7 @@
 package smalltalk.compiler.scope;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import smalltalk.compiler.element.Base;
 import smalltalk.compiler.element.Reference;
@@ -47,7 +48,7 @@ public class Table extends Container {
             symbol.container(container);
         }
     }
-    
+
     public Table withAll(Table table) {
         for (Variable v : table.order) {
             addSymbol(v);
@@ -185,6 +186,10 @@ public class Table extends Container {
      */
     public List<Variable> symbols() {
         return new ArrayList(order);
+    }
+
+    public List<Variable> definedSymbols() {
+        return order.stream().filter(v -> !v.isEmpty()).collect(Collectors.toList());
     }
 
     /**

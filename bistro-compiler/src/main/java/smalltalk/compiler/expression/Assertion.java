@@ -3,6 +3,8 @@
 //====================================================================
 package smalltalk.compiler.expression;
 
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.scope.Block;
 
@@ -70,5 +72,11 @@ public class Assertion extends Message {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitOptimized() {
+        return emit("Assert").value(emitTrueGuard(receiver().emitOperand()))
+                .with("message", operandCount() > 1 ? firstArgument().emitOptimized() : null);
     }
 }
