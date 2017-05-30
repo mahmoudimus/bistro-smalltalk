@@ -4,9 +4,7 @@
 package smalltalk.compiler.scope;
 
 import smalltalk.compiler.Emission;
-import static smalltalk.compiler.Emission.emit;
-import smalltalk.compiler.element.Operand;
-import smalltalk.compiler.element.Container;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a nested local code scope.

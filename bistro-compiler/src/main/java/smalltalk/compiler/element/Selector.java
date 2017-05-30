@@ -5,6 +5,7 @@ package smalltalk.compiler.element;
 
 import java.util.*;
 import org.antlr.runtime.Token;
+
 import smalltalk.Name;
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;

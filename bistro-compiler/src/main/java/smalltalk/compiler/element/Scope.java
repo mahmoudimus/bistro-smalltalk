@@ -1,12 +1,13 @@
 //====================================================================
 // Scope.java
 //====================================================================
-package smalltalk.compiler.scope;
+package smalltalk.compiler.element;
 
 import java.util.*;
 import org.antlr.runtime.tree.CommonTree;
 import smalltalk.compiler.Emission;
-import smalltalk.compiler.element.*;
+
+import smalltalk.compiler.scope.*;
 
 /**
  * Represents a language scope.

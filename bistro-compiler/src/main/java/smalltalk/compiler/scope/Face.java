@@ -5,16 +5,12 @@ package smalltalk.compiler.scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.antlr.runtime.tree.CommonTree;
 
 import smalltalk.Name;
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
-import smalltalk.compiler.element.Base;
-import smalltalk.compiler.element.Container;
-import smalltalk.compiler.element.Reference;
-import smalltalk.compiler.element.Mirror;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a class or interface definition.

@@ -5,13 +5,10 @@ package smalltalk.compiler.scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
 import static smalltalk.Name.*;
 import smalltalk.compiler.Emission;
-import static smalltalk.compiler.Emission.emit;
-
-import smalltalk.compiler.element.Operand;
-import smalltalk.compiler.element.Reference;
-import smalltalk.compiler.element.Container;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a local code scope.

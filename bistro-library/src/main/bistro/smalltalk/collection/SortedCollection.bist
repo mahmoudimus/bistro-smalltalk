@@ -198,7 +198,7 @@ class:
 	removeLast
 	[	self emptyCheck.
 		self reSort.
-		^(contents remove: contents size - 1) as: smalltalk.behavior.Object
+		^(contents remove: (contents size - 1) asPrimitive) as: smalltalk.behavior.Object
 	]
 
 	"Removes the first (count) elements from the receiver."

@@ -7,6 +7,7 @@ import java.util.List;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.CommonTree;
+
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.Items;
 import static smalltalk.compiler.Emission.emit;
@@ -144,8 +145,8 @@ public class Container extends Base {
      *
      * @param reference a symbolic reference to be resolved.
      */
-    public void resolveUndefined(Reference reference) {
-        // does nothing
+    public Variable resolveUndefined(Reference reference) {
+        return null; // does nothing
     }
 
     /**

@@ -5,13 +5,11 @@ package smalltalk.compiler.scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.Items;
 import static smalltalk.compiler.Emission.emit;
-
-import smalltalk.compiler.element.Selector;
-import smalltalk.compiler.element.Reference;
-import smalltalk.compiler.element.Operand;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a block as a sequence of statements.
@@ -102,7 +100,9 @@ public class Block extends Code {
     }
 
     public boolean needsResult() {
-        return !this.isConstructor() && !this.returnsVoid() && !this.isAbstract();
+        return !this.isConstructor() &&
+               !this.returnsVoid() &&
+               !this.isAbstract();
     }
 
     public boolean isConstructor() {
@@ -117,18 +117,16 @@ public class Block extends Code {
         return containsExit;
     }
 
+    public boolean needsErasure() {
+        return needsErasure(argumentCount());
+    }
+
     public boolean needsErasure(int argumentCount) {
-        if (this.isMethod()) {
-            return false;
-        }
-        if (!exceptions.isEmpty()) {
-            return true;
-        }
-        if (argumentCount == 0) {
-            return false;
-        }
-        return (arguments.hasTypedNames()
-                && !arguments.hasElementaryNames());
+        if (this.isMethod()) return false;
+        if (!exceptions.isEmpty()) return true;
+        if (argumentCount == 0) return false;
+        return (arguments.hasTypedNames() &&
+                !arguments.hasElementaryNames());
     }
 
     /**
@@ -235,6 +233,10 @@ public class Block extends Code {
         return arguments.currentSymbol();
     }
 
+    public Variable argumentNamed(String symbol) {
+        return arguments.symbolNamed(symbol);
+    }
+
     /**
      * Adds (exception) to those thrown by this method.
      *
@@ -337,15 +339,13 @@ public class Block extends Code {
         }
 
         if (this.hasLocal(symbol)) {
-            Variable v = locals.symbolNamed(symbol);
-            if (reference.isDeeper(this)) {
-                v.makeTransient();
-            }
+            Variable v = localNamed(symbol);
+            if (reference.isNestedDeeper(this)) v.makeTransient();
             return v.resolvedType();
         }
 
         if (this.hasArgument(symbol)) {
-            return arguments.symbolNamed(symbol).resolvedType();
+            return argumentNamed(symbol).resolvedType();
         }
 
         return super.resolveType(reference);
@@ -365,15 +365,13 @@ public class Block extends Code {
         }
 
         if (this.hasLocal(symbol)) {
-            Variable v = locals.symbolNamed(symbol);
-            if (reference.isDeeper(this)) {
-                v.makeTransient();
-            }
+            Variable v = localNamed(symbol);
+            if (reference.isNestedDeeper(this)) v.makeTransient();
             return v.type();
         }
 
         if (this.hasArgument(symbol)) {
-            return arguments.symbolNamed(symbol).type();
+            return argumentNamed(symbol).type();
         }
 
         return super.resolveTypeName(reference);
@@ -385,12 +383,13 @@ public class Block extends Code {
      * @param reference a symbolic reference to be resolved.
      */
     @Override
-    public void resolveUndefined(Reference reference) {
+    public Variable resolveUndefined(Reference reference) {
         Variable local = new Variable(this);
         local.name(reference.name());
         local.clean();
         addLocal(local);
 //        System.out.println(name() + " resolved undefined " + reference.name());
+        return local;
     }
 
     @Override
@@ -533,27 +532,33 @@ public class Block extends Code {
 
     public Emission emitErasedCall() {
         return returnsVoid() ?
-                emit("ErasedVoid").name(blockName()).with("arguments", emitCastedArguments()) :
-                emit("ErasedCall").name(blockName()).with("arguments", emitCastedArguments()) ;
+                emit("ErasedVoid").name(blockName()).with("arguments", emitList(emitCastedArguments())) :
+                emit("ErasedCall").name(blockName()).with("arguments", emitList(emitCastedArguments())) ;
     }
 
     public Emission emitErasure() {
         if (exceptionCount() == 0) {
             return emit("ErasedBlock").name(blockName())
-                    .with("arguments", emitErasedArguments(true))
+                    .with("arguments", emitList(emitErasedArguments(true)))
                     .with("content", emitErasedCall());
         }
 
         return emit("ErasedBlock").name(blockName())
-                    .with("arguments", emitErasedArguments(true))
+                    .with("arguments", emitList(emitErasedArguments(true)))
                     .with("content", wrapErasedCall());
     }
 
     public Emission emitSignature() {
-        Emission erasure = needsErasure(argumentCount()) ? emitErasure() : null;
-        return emit("BlockSignature").name(blockName())
+        String blockName = blockName();
+        Emission erasure = null;
+        if (needsErasure()) {
+            blockName = "$"+blockName;
+            erasure = emitErasure();
+        }
+
+        return emit("BlockSignature").name(blockName)
                 .with("erasure", erasure)
-                .with("arguments", emitArguments())
+                .with("arguments", emitList(emitArguments()))
                 .with("exceptions", emitExceptions());
     }
 
@@ -581,7 +586,6 @@ public class Block extends Code {
     }
 
     public String blockName() {
-        String result = signatureValues[argumentCount()];
-        return needsErasure(argumentCount()) ? "$"+result : result;
+        return signatureValues[argumentCount()];
     }
 }

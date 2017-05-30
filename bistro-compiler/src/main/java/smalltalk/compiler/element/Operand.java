@@ -3,7 +3,6 @@
 //====================================================================
 package smalltalk.compiler.element;
 
-import smalltalk.compiler.scope.Scope;
 import smalltalk.compiler.Emission;
 import smalltalk.compiler.scope.*;
 

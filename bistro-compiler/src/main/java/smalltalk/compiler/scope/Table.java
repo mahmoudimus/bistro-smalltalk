@@ -5,10 +5,7 @@ package smalltalk.compiler.scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import smalltalk.compiler.element.Base;
-import smalltalk.compiler.element.Reference;
-import smalltalk.compiler.element.Container;
+import smalltalk.compiler.element.*;
 
 /**
  * Maintains an ordered and indexable collection of local variables as a symbol table. Supports symbol lookup by name

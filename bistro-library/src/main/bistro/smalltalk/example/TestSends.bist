@@ -6,7 +6,7 @@ import: smalltalk.stream.Transcript;
 
 "Tests message optimization and structured names.
 @author Copyright 1999,2000 Nikolas S. Boyd. All rights reserved."
-nil subclass: TestSends
+Object subclass: TestSends
 class:
 [
     "Reports the results of thread tests on the console."
@@ -22,10 +22,11 @@ class:
         Transcript printLine: 'x' asPrimitive.
         Transcript printLine: self.member.
         Transcript printLine: '' asPrimitive + System currentTimeMillis.
+
         n (SmallInteger) := 5.
         m (LongInteger) := n asLongInteger.
-        x (long) := m primitiveLong.
-        (x == 5) assert.
+
+        (5 asLongInteger = m) assert.
         self member: $x.
         (c = member) assert: [ 'test assertion' ].
         (6 > 5) assert.

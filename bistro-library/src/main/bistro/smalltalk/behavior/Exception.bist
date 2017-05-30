@@ -110,10 +110,10 @@ class:
 
 	"Returns a description of the exception."
 	description [
-		message := self messageText.
-		^message == nil
+		text := self messageText.
+		^text == nil
 			ifTrue: [ self defaultDescriptionString ]
-			ifFalse: [ message ]
+			ifFalse: [ text ]
 	]
 
 	"Contains a message from the signaler."

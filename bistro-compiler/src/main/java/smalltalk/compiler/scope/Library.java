@@ -5,12 +5,10 @@ package smalltalk.compiler.scope;
 
 import java.util.*;
 import smalltalk.Name;
-import smalltalk.compiler.element.Base;
-import smalltalk.compiler.element.Mirror;
-import smalltalk.compiler.element.Reference;
+import smalltalk.compiler.element.*;
 
 /**
- * Maintains references to all classes and interfaces imported from external packages. 
+ * Maintains references to all classes and interfaces imported from external packages.
  * Packages are located relative to the system class path established by the Java environment.
  *
  * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
@@ -28,7 +26,7 @@ public class Library extends Base {
     ClassPath path = ClassPath.current;
 
     /**
-     * Maps face names to faces. 
+     * Maps face names to faces.
      * A face name always maps to the last face loaded from the class path.
      */
     Map<String, Face> faces = new HashMap();
@@ -37,7 +35,7 @@ public class Library extends Base {
      * Maps package names to packages.
      */
     Map<String, Package> packages = new HashMap();
-    
+
     java.io.File sourceBase;
     java.io.File targetBase;
     java.io.File classBase;
@@ -46,29 +44,29 @@ public class Library extends Base {
      * Constructs a new Library.
      */
     protected Library() { }
-    
+
     void clear() {
         faces.clear();
         packages.clear();
     }
-    
+
     public String[] basePaths() {
         String[] results = { sourcePath(), targetPath(), classPath() };
         return results;
     }
-    
+
     public String sourcePath() {
         return sourceBase.getAbsolutePath();
     }
-    
+
     public String targetPath() {
         return targetBase.getAbsolutePath();
     }
-    
+
     public String classPath() {
         return classBase.getAbsolutePath();
     }
-    
+
     /**
      * Returns whether a package with the supplied (packageName) can be located in the class path.
      *
@@ -88,7 +86,7 @@ public class Library extends Base {
     public java.io.File locate(String directoryName) {
         return path.locate(directoryName);
     }
-    
+
     public void addFace(Face face) {
         String fullName = face.fullName();
         String typeName = Name.typeName(fullName);
@@ -136,7 +134,7 @@ public class Library extends Base {
         packages.put(packageName, result);
         return result;
     }
-    
+
     public Face faceFrom(Reference reference) {
         if (reference == null) return null;
         return faceNamed(reference.name());
@@ -173,7 +171,7 @@ public class Library extends Base {
 
         String faceName = Name.typeName(reference.name());
         if (faceName.isEmpty()) return false;
-        
+
         if (faceName.endsWith(Face.metaSuffix)) {
             faceName = faceName.replace(Face.metaSuffix, Face.metaNesting);
         }
@@ -242,7 +240,7 @@ public class Library extends Base {
         packageNamed("java.lang.reflect").loadFaces();
         for (String className : CommonClasses) removeFace(className);
     }
-    
+
     private static final String[] CommonClasses = {
         "Object", "Boolean", "Character", "String",
         "Number", "Double", "Float", "Integer",

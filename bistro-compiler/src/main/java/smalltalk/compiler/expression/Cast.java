@@ -6,11 +6,9 @@ package smalltalk.compiler.expression;
 import java.util.*;
 import smalltalk.compiler.Emission;
 
-import smalltalk.compiler.element.Reference;
-import smalltalk.compiler.element.Operand;
+import smalltalk.compiler.element.*;
 import smalltalk.compiler.scope.Block;
 import smalltalk.compiler.scope.Method;
-import smalltalk.compiler.scope.Variable;
 
 /**
  * Optimizes the translation of a cast message into Java.

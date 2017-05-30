@@ -265,8 +265,8 @@ emitExceptions(items) ::= " throws <emitList(items)>"
 
 emitBlockSignature(erasure,name,arguments,exceptions) ::= 
 <<
-<if(erasure)><erasure><endif>
-@Override public Object <name>(<arguments>) <exceptions> 
+<if(erasure)><erasure>
+<else>@Override <endif>public Object <name>(<arguments>) <exceptions> 
 >>
 
 emitWrapErasedCall(content) ::=
@@ -350,7 +350,7 @@ emitPerform(operand,name,methodName,arguments) ::= "<operand><name>(<methodName>
 emitOperation(operator,argument) ::= " <operator> <argument>"
 emitTerm(value) ::= "(<value>)"
 
-emitAssert(value,message) ::= "assert <value><if(message)><message>.value()<endif>"
+emitAssert(value,message) ::= "assert <value><if(message)> : <message>.value()<endif>"
 emitThrowSelf() ::= "throw this"
 emitThrow(item) ::= "throw <item>"
 emitNew(className,arguments) ::= "new <className>(<arguments; separator=\", \">)"

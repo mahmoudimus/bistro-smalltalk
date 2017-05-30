@@ -5,10 +5,10 @@ package smalltalk.compiler.element;
 
 import java.util.*;
 import org.antlr.runtime.Token;
+
 import smalltalk.Name;
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
-import smalltalk.compiler.scope.*;
 
 /**
  * Represents and encodes a symbolic reference to a variable.
@@ -172,7 +172,7 @@ public class Reference extends Operand {
         return name.isEmpty();
     }
 
-    public boolean isDeeper(Container c) {
+    public boolean isNestedDeeper(Container c) {
         return container().nestLevel() > c.nestLevel();
     }
 
@@ -327,10 +327,7 @@ public class Reference extends Operand {
     }
 
     public void resolveUndefined() {
-//        if (this.isSystemic()) {
-//            return;
-//        }
-        container().resolveUndefined(this);
+        container().resolveUndefined(this).makeTransient();
     }
 
     /**
@@ -402,10 +399,6 @@ public class Reference extends Operand {
      * @return the scope that resolves this reference.
      */
     public Container resolvingScope() {
-        if ("result".equals(name()) && facialScope().name().equals("Behavior")) {
-            getLogger().info("");
-        }
-
         if (this.isReserved()) return null;
         if (this.isMember())   return facialScope();
         if (this.isLocal())    return containerScope();

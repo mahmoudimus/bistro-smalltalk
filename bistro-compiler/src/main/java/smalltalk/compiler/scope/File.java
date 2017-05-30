@@ -7,26 +7,16 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.antlr.runtime.ANTLRFileStream;
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.LegacyCommonTokenStream;
-
-import org.antlr.runtime.Token;
-import org.antlr.runtime.TokenSource;
-import org.antlr.runtime.TokenStream;
+import org.antlr.runtime.*;
 import org.antlr.runtime.tree.CommonTree;
 import org.stringtemplate.v4.AutoIndentWriter;
-import org.stringtemplate.v4.STWriter;
 
 import smalltalk.Name;
 import smalltalk.compiler.Bistro;
-import smalltalk.compiler.BistroJavaGenerator;
 import smalltalk.compiler.BistroLex;
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
-
-import smalltalk.compiler.element.Container;
-import smalltalk.compiler.element.Reference;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents a class file, including the package name, imports, and a face definition.

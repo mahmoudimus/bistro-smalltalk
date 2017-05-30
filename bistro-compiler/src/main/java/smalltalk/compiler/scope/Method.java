@@ -3,13 +3,11 @@
 //====================================================================
 package smalltalk.compiler.scope;
 
-import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
+
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
-
-import smalltalk.compiler.element.Base;
-import smalltalk.compiler.element.Expression;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a method.

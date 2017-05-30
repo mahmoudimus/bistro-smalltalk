@@ -6,15 +6,15 @@ package smalltalk.compiler.expression;
 import java.util.*;
 import java.util.stream.Collectors;
 import static java.lang.Integer.min;
+
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
 
 import smalltalk.compiler.element.*;
-import smalltalk.compiler.constant.LiteralNil;
 import smalltalk.compiler.scope.Face;
 import smalltalk.compiler.scope.Block;
 import smalltalk.compiler.scope.Method;
-import smalltalk.compiler.scope.Variable;
+import smalltalk.compiler.constant.LiteralNil;
 
 /**
  * Represents a Bistro message (method invocation) and translates it into Java.
@@ -667,10 +667,6 @@ public class Message extends Expression {
     public Emission emitPerform() {
         if (selector().isEmpty()) {
             return receiver().emitOperand();
-        }
-
-        if (facialScope().name().equals("Behavior")) {
-            getLogger().info("");
         }
 
         return emit("Perform")

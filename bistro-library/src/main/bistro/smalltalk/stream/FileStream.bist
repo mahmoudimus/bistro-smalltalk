@@ -169,7 +169,7 @@ class:
 	"Indicates whether the file is empty."
 	isEmpty
 	[	[	length (long) := file length.
-			^primitive BooleanFrom: length == 0
+			^primitive BooleanFrom: length == 0 primitiveLong
 		]
 		catch: [ :e (IOException) | ^true ]
 	]

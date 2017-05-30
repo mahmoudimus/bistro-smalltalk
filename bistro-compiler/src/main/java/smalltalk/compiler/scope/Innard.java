@@ -3,11 +3,10 @@
 //====================================================================
 package smalltalk.compiler.scope;
 
-import java.util.ArrayList;
+import java.util.*;
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
-import smalltalk.compiler.element.Operand;
-import smalltalk.compiler.element.Container;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a nested anonymous inner class.

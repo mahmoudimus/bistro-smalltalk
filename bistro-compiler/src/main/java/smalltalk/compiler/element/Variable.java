@@ -1,20 +1,17 @@
 //====================================================================
 // Variable.java
 //====================================================================
-package smalltalk.compiler.scope;
+package smalltalk.compiler.element;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.antlr.runtime.tree.CommonTree;
+
 import static smalltalk.Name.*;
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
 
-import smalltalk.compiler.element.Base;
-import smalltalk.compiler.element.Operand;
-import smalltalk.compiler.element.Container;
-import smalltalk.compiler.element.Reference;
+import smalltalk.compiler.scope.*;
 
 /**
  * Represents and encodes a variable, including its name, type and initial value.
@@ -105,8 +102,9 @@ public class Variable extends Reference {
     }
 
     public void makeTransient() {
-        if (isTransient()) return;
-        modifiers.add(Transient);
+        if (!this.isTransient()) {
+            modifiers.add(Transient);
+        }
     }
 
     @Override
@@ -346,11 +344,18 @@ public class Variable extends Reference {
     }
 
     public Emission emitTransientLocal() {
+        String valueDefault = "null";
+        if (PrimitiveTypes.containsKey(type())) {
+            valueDefault = "0";
+            if ("boolean".equals(type())) {
+                valueDefault = "false";
+            }
+        }
         return emit("TransientLocal")
                 .with("type", emitTypeName(type()))
                 .name(name())
                 .with("cast", valueNeedsCast() ? emitTerm(type()) : emitEmpty())
-                .value(hasValue() ? emitOperand(value()) : null);
+                .value(hasValue() ? emitOperand(value()) : emitItem(valueDefault));
     }
 
     public Emission emitErasedArgument(boolean useFinal) {
