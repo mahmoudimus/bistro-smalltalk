@@ -36,9 +36,9 @@ public class RuntimeTest {
         TestGeometry.class,
         TestCollections.class,
         TestStreams.class,
-        TestLiterals.class,
+//        TestLiterals.class,
         TestExceptions.class,
-        TestSends.class,
-        TestThreads.class,
+//        TestSends.class,
+//        TestThreads.class,
     };
 }

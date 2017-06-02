@@ -269,10 +269,10 @@ emitBlockSignature(erasure,name,arguments,exceptions) ::=
 <else>@Override <endif>public Object <name>(<arguments>) <exceptions> 
 >>
 
-emitWrapErasedCall(content) ::=
+emitWrapErasedCall() ::=
 <<
 try {
-  <content>
+  return $value();
 }
 catch (Throwable e) {
   throw new UnhandledJavaException(e);

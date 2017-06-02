@@ -527,7 +527,7 @@ public class Block extends Code {
     }
 
     public Emission wrapErasedCall() {
-        return emit("WrapErasedCall").with("content", emitErasedCall());
+        return emit("WrapErasedCall");
     }
 
     public Emission emitErasedCall() {

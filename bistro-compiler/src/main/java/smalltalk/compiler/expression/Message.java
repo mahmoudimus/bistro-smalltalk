@@ -756,12 +756,20 @@ public class Message extends Expression {
 
     public Emission emitWhileLoop(boolean positively, Operand guardedBlock) {
         return emit("WhileLoop")
-                .with("condition", emitGuarded(receiver(), positively))
+                .with("condition", emitGuardedValue(receiver(), positively))
                 .with("guardedBlock", emitStatement(emitClosureValue(emitOptimizedBlock(guardedBlock))));
     }
 
+    public Emission emitGuardedValue(Operand value, boolean positively) {
+        return positively ?
+                emitTrueGuard(emitClosureValue(value.emitOperand())) :
+                emitFalseGuard(emitClosureValue(value.emitOperand()));
+    }
+
     public Emission emitGuarded(Operand value, boolean positively) {
-        return positively ? emitTrueGuard(value.emitOperand()) : emitFalseGuard(value.emitOperand());
+        return positively ?
+                emitTrueGuard(value.emitOperand()) :
+                emitFalseGuard(value.emitOperand());
     }
 
     public Emission emitOptimizedBlock(Operand aBlock) {

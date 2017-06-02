@@ -97,6 +97,10 @@ class: [
 				specialSelectors.put( "collect:", classesWithBlock( 1, 1 ) );
 				specialSelectors.put( "inject:into:", classesWithBlock( 2, 2 ) );
 
+				specialSelectors.put( "or:", classesWithBlock( 1, 0 ) );
+				specialSelectors.put( "and:", classesWithBlock( 1, 0 ) );
+				specialSelectors.put( "whileTrue:", classesWithBlock( 1, 0 ) );
+				specialSelectors.put( "whileFalse:", classesWithBlock( 1, 0 ) );
 				specialSelectors.put( "ensure:", classesWithBlock( 1, 0 ) );
 				specialSelectors.put( "ifCurtailed:", classesWithBlock( 1, 0 ) );
 			}
@@ -137,7 +141,7 @@ class: [
 		if (aMethod != null) return aMethod;
 
 		// check special selectors for argument classes
-		Class arguments[] = specialSelector( selector );
+		Class arguments[] = specialSelector( Name.from(selector, argumentCount) );
 
 		// determine method argument classes
 		if (arguments == null) {
@@ -149,7 +153,10 @@ class: [
 		}
 
 		// find the method and cache its reference
-		java.lang.String methodName = Name.from( selector );
+		java.lang.String methodName = selector;
+        if (selector.endsWith(Name.Colon)) {
+            methodName = Name.from( selector );
+        }
 		try {
 			aMethod = cacheClass.getMethod( methodName, arguments );
 			contents.put( selector, aMethod );
