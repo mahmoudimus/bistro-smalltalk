@@ -208,4 +208,4 @@ sampleObject awakenWaitingThread.
 sampleObject awakenAllWaitingThreads.
 ```
 
-Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.

@@ -1,8 +1,8 @@
 //==================================================================================================
-// Copyright 2010,2015 Nikolas S. Boyd. All rights reserved.
+// Copyright 2010,2017 Nikolas S. Boyd. All rights reserved.
 //==================================================================================================
 
-group HootWalker;
+group BistroWalker;
 
 emitLibraryScope(packageName,imports,comment,signature,locals,methods) ::=
 <<
@@ -50,127 +50,6 @@ public static final boolean $class = true;
 >>
 
 
-
-emitTypeSignature(typeName,details,superTypes) ::= 
-<<
-public interface <typeName><details> 
-<if(superTypes)>  extends <emitList(superTypes)><endif>
->>
-
-emitMetatype(superType,typeName,typeUnary,parts) ::= 
-<<
-
-public static interface MetaType <if(superType)>extends <superType>.MetaType<endif> {
-  <parts>
-}
-
->>
-
-emitSubjectMetatype(typeName,typeUnary,parts) ::= 
-<<
-
-public static interface MetaType extends Classified {
-  <parts>
-}
-
->>
-
-
-emitClassScope(notice,packageName,imports,comment,notes,signature,parts) ::=
-<<
-/**
-* <notice>
-*/
-package <packageName>;
-
-import Hoot.Runtime.*;
-<if(imports)><emitLines(imports)><endif>
-
-<if(comment)>
-/**
- * <comment>
- */
-<endif>
-<notes>
-<signature>
-{
-  <parts>
-}
->>
-
-emitNilSubclassSignature(notes,className,details,faces) ::=
-<<
-public <notes> class <className><details> 
-<if(faces)>  implements <faces><endif>
->>
-
-emitClassSignature(notes,className,details,superClass,faces) ::= 
-<<
-public <notes> class <className><details> extends <superClass> 
-<if(faces)>  implements <faces><endif>
->>
-
-emitObjectMetaclass(superClass,className,classUnary,parts) ::= 
-<<
-
-private static final MetaClass Factory = new MetaClass(Object.class);
-public static class MetaClass extends Metaclass {
-  public MetaClass(java.lang.Class primitiveClass) {
-    super(primitiveClass);
-  }
-  <parts>
-}
-
-@Override public <className>.MetaClass _class() {
-  return Factory;
-}
-
->>
-
-emitMetaclass(superClass,className,classUnary,parts) ::= 
-<<
-
-private static final MetaClass Factory = new MetaClass(<className>.class);
-public static class MetaClass extends <superClass>.MetaClass {
-  public MetaClass(java.lang.Class primitiveClass) {
-    super(primitiveClass);
-  }
-  <parts>
-}
-
-@Override public <className>.MetaClass _class() {
-  return Factory;
-}
-
-@Override public boolean equals(java.lang.Object candidate) {
-  if (!(candidate instanceof <className>)) return false;
-  return this.equals((<className>) candidate).primitiveBoolean();
-}
-
->>
-
-emitMetaclassClass(superClass,className,classUnary,parts) ::=
-<<
-
-private static final MetaClass Factory = new MetaClass(Metaclass.class);
-public static class MetaClass extends <superClass>.MetaClass {
-  public MetaClass(java.lang.Class primitiveClass) {
-    super(primitiveClass);
-  }
-  <parts>
-}
-
-@Override public <className>.MetaClass _class() {
-  return Factory;
-}
-
->>
-
-emitProtocol(className,classUnary,members) ::= 
-<<
-<members>
->>
-
 emitVariable(comment,notes,type,name,cast,value) ::=
 <<
 <if(name)><if(comment)><comment><endif>
@@ -181,20 +60,6 @@ emitVariable(comment,notes,type,name,cast,value) ::=
 emitTransientLocal(type,name,cast,value) ::=
 <<<if(name)>
 <type>[] <name><if(value)> = { <cast><value> }<else> = { null }<endif><endif>
->>
-
-emitProperty(comment,notes,type,name,upper,value,className) ::=
-<<
-<if(name)><if(comment)><comment><endif>
-public <type> <name>() { return this.<name>; }
-public Object get<upper>() { return this.<name>; }
-
-public <className> <name>(<type> value) { this.<name> = value; return this; }
-public void set<upper>(Object value) { this.<name> = (<type>)value; }
-
-<if(notes)><notes><endif>
-<type> <name><if(value)> = <value><endif>;
-<endif>
 >>
 
 emitExitedMethod(comment,type,signature,locals,content,scope) ::=

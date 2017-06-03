@@ -270,7 +270,7 @@ including sends to **self** and **super**.
 For untyped variables and expression results, the compiler automatically generates dynamic message sends 
 using an appropriate **perform:** message.
 
-Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
 
 [diagram]: diagram.gif "Classes and Metaclasses"
 [stimps]: http://en.wikipedia.org/wiki/Smalltalk#List_of_implementations "Smalltalk Implementations"
