@@ -294,8 +294,8 @@ emitOptimizedBlock(closureType,locals,signature,content) ::=
 <<
 <emitNewClosure(closureType)>
 {<if(locals)>
-  <locals><endif>
-  <signature> {
+  <locals>
+<endif>  <signature> {
     <content>
   }
 }
