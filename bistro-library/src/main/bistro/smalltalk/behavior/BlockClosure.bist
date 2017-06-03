@@ -12,7 +12,7 @@ class:
 
 	"Returns the result of evaluating the receiver with (arguments)."
 	valueWithArguments: arguments [
-		count := arguments count.
+		count (Object) := arguments count.
 		count = 0 ifTrue: [ 
 			^(self as: ZeroArgumentBlock) value 
 		].
@@ -39,10 +39,11 @@ class:
 	]
 
 	"Returns the name of the associated thread."
-	threadName
-	[	^(Object isNull: thread) 
+	threadName [
+        sample (java.lang.Thread) := self primitiveThread.
+        ^(Object isNull: sample) 
 			ifTrue: [ 'a Thread' ]
-			ifFalse: [ primitive StringFrom: thread getName ]
+			ifFalse: [ primitive StringFrom: sample getName ]
 	]
 
 "printing"

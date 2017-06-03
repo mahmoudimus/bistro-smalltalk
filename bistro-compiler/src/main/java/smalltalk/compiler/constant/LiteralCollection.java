@@ -3,6 +3,7 @@
 //====================================================================
 package smalltalk.compiler.constant;
 
+import smalltalk.compiler.Emission;
 import smalltalk.compiler.element.Container;
 import smalltalk.compiler.element.Selector;
 
@@ -58,5 +59,11 @@ public abstract class LiteralCollection extends Scalar {
      */
     public void acceptVisitor(Visitor aVisitor) {
         aVisitor.visit(this);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        return container().fileScope().needsCollections() ?
+                super.emitOperand() : emitCast(declaredType(), super.emitOperand());
     }
 }

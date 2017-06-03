@@ -15,12 +15,12 @@ public class Name {
     /**
      * A colon character.
      */
-    static char COLON = ':';
+    public static char COLON = ':';
 
     /**
      * A colon.
      */
-    static String Colon = ":";
+    public static String Colon = ":";
 
     /**
      * An underline character.
@@ -51,7 +51,7 @@ public class Name {
      * Maps binary operators to equivalent method names.
      */
     public static final Properties BinaryOperators = new Properties();
-    
+
     public static final Character[] Vowels = { 'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U' };
     public static final List<Character> VowelList = Arrays.asList(Vowels);
 
@@ -190,7 +190,7 @@ public class Name {
         }
         return methodName;
     }
-    
+
     public static boolean isVowel(char aValue) {
         return VowelList.contains(aValue);
     }

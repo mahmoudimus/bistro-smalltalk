@@ -1,0 +1,14 @@
+
+description = 'bistro-compiler'
+dependencies {
+    compile group: 'org.slf4j', name: 'slf4j-api', version:"$version_slf4j"
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version:"$version_log4j"
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version:"$version_log4j"
+    compile group: 'commons-logging', name: 'commons-logging', version:"$version_commons_logging"
+    compile group: 'commons-lang', name: 'commons-lang', version:"$version_commons_lang"
+    compile group: 'commons-cli', name: 'commons-cli', version:"$version_commons_cli"
+    compile group: 'commons-io', name: 'commons-io', version:"$version_commons_io"
+    compile group: 'org.antlr', name: 'antlr', version:"$version_antlr"
+    compile group: 'org.antlr', name: 'ST4', version:"$version_antlr_st"
+    testCompile group: 'junit', name: 'junit', version:"$version_junit"
+}

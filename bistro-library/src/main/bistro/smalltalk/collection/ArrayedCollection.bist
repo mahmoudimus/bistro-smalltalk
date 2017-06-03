@@ -51,7 +51,7 @@ metaclass:
 
 	"Returns a new collection that contains (elements)."
 	withAll: elements
-	[	result := self new: aCollection size.
+	[	result := self new: elements size.
 		index (FastInteger) := 1 asFastInteger.
 		elements do: [ :element | 
 			result at: index put: element.

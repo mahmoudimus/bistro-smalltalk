@@ -3,6 +3,9 @@
 //====================================================================
 package smalltalk.compiler.expression;
 
+import java.util.ArrayList;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.Base;
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.element.Reference;
@@ -108,5 +111,71 @@ public class Instantiation extends Message {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitPrimitive() {
+        return emitOperand();
+    }
+
+    @Override
+    public Emission emitOperand() {
+        if (selector().isBasicNew()) {
+            return emitBasicNew();
+        } else {
+            return emitCastedNew();
+        }
+    }
+
+    public Emission emitCastedNew() {
+        if (receiver().isReference()) {
+            Reference receiver = receiver().asReference();
+            if (receiver.refersToMetaclass()) {
+                return emitCast(receiver.name(),
+                        emitNewExpression(emitBehaviorCast()));
+            }
+
+            if (receiver.isSelfish()) {
+                return emitFacialCast(receiver);
+            }
+        }
+
+        return emitNewExpression(emitBehaviorCast());
+    }
+
+    public Emission emitBasicNew() {
+        if (receiver().isReference()) {
+            Reference receiver = receiver().asReference();
+            return emit("New")
+                    .with("className", receiver.name())
+                    .with("arguments", emitArguments());
+        }
+
+        return emit("New")
+                .with("className", "Object")
+                .with("arguments", new ArrayList());
+    }
+
+    public Emission emitFacialCast(Reference reference) {
+        return emitCast(reference.facialTypeName(), emitNewExpression(reference.emitOperand()));
+    }
+
+    public Emission emitBehaviorCast() {
+        return emitCast("Behavior", receiver().emitOperand());
+    }
+
+    public Emission emitNewExpression(Emission operand) {
+        return emit("Expression")
+                .with("operand", operand)
+                .with("messages", emitCallNew());
+    }
+
+    public Emission emitCallNew() {
+        return emitMethodCall("$new");
+    }
+
+    public Emission emitNewObject() {
+        return emit("New")
+                .with("className", "Object");
     }
 }

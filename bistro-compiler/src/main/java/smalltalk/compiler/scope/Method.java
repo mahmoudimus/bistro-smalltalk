@@ -5,8 +5,9 @@ package smalltalk.compiler.scope;
 
 import org.antlr.runtime.tree.CommonTree;
 
-import smalltalk.compiler.element.Base;
-import smalltalk.compiler.element.Expression;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a method.
@@ -266,6 +267,9 @@ public class Method extends Block {
      * @return the primitive code
      */
     public String code() {
+        if (facialScope().isMetaface()) {
+            return primitiveCode.replace(LF, LF + TAB);
+        }
         return primitiveCode;
     }
 
@@ -299,5 +303,83 @@ public class Method extends Block {
      */
     public void acceptVisitor(Visitor aVisitor) {
         aVisitor.visit(this);
+    }
+
+
+    @Override
+    public Emission emitScope() {
+        if (this.isAbstract()) {
+            return emitAbstract();
+        }
+        else if (this.isPrimitive()) {
+            return emitPrimitive();
+        }
+        else if (this.exits()) {
+            return emitExited();
+        }
+        else {
+            return emitSimple();
+        }
+    }
+
+    public Emission emitSimple() {
+        return emit("MethodScope")
+                .with("comment", comment)
+                .with("type", emitTypeName(type()))
+                .with("signature", emitSignature())
+                .with("locals", emitLocals())
+                .with("content", emitExitedContents());
+    }
+
+    public Emission emitAbstract() {
+        return emit("MethodEmpty")
+                .with("comment", comment)
+                .with("type", emitTypeName(type()))
+                .with("signature", emitSignature());
+    }
+
+    @Override
+    public Emission emitSignature() {
+        return emit("MethodSignature")
+                .with("notes", emitEmpty())
+                .with("details", emitModifiers())
+                .with("type", emitTypeName(type()))
+                .with("name", name())
+                .with("arguments", emitArguments())
+                .with("exceptions", emitExceptions())
+                ;
+    }
+
+    @Override
+    public Emission emitPrimitive() {
+        return emit("PrimitiveMethod")
+                .with("comment", comment)
+                .with("type", emitTypeName(type()))
+                .with("signature", emitSignature())
+                .with("code", code());
+    }
+
+    public Emission emitExited() {
+        return emit("ExitedMethod")
+                .with("comment", comment)
+                .with("type", emitTypeName(type()))
+                .with("signature", emitSignature())
+                .with("locals", emitLocals())
+                .with("content", emitExitedContents())
+                .with("scope", scopeID());
+    }
+
+    public Emission emitExitedContents() {
+        if (this.hasLocals()) {
+            if (this.returnsVoid()) {
+                return emitStatement(emitClosureValue(emitClosure()));
+            }
+            else {
+                return (emitContents());
+            }
+        }
+        else {
+            return (emitContents());
+        }
     }
 }

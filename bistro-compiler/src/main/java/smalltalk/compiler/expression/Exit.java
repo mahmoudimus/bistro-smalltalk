@@ -3,8 +3,11 @@
 //====================================================================
 package smalltalk.compiler.expression;
 
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.scope.Block;
+import smalltalk.compiler.scope.Method;
 
 /**
  * Represents a method exit and translates it into Java.
@@ -57,5 +60,36 @@ public class Exit extends Message {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        return emitResult();
+    }
+
+    @Override
+    public Emission emitResult() {
+        Block block = blockScope();
+        Method method = block.currentMethod();
+
+        if (block.isMethod()) {
+            if (receiver().isSelfish() && method.returnsVoid() && method.hasLocals()) {
+                return emitResult(emitNull());
+            }
+
+            return (method.exits()) ? emitMethodExit() : emitBlockExit();
+        }
+
+        return emitMethodExit();
+    }
+
+    public Emission emitMethodExit() {
+        return emit("MethodExit")
+                .with("scope", blockScope().currentMethod().scopeID())
+                .with("value", receiver().emitOperand());
+    }
+
+    public Emission emitBlockExit() {
+        return emitResult(emitTerm(receiver().emitOperand()));
     }
 }

@@ -3,6 +3,8 @@
 //====================================================================
 package smalltalk.compiler.constant;
 
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.Container;
 import smalltalk.compiler.element.Constant;
 
@@ -32,7 +34,7 @@ public abstract class Scalar extends Constant {
      * @param container the container that surrounds this one.
      */
     public Scalar(Container container) {
-        this(container, "");
+        this(container, EmptyString);
     }
 
     /**
@@ -126,5 +128,21 @@ public abstract class Scalar extends Constant {
      */
     public void acceptVisitor(Visitor aVisitor) {
         aVisitor.visit(this);
+    }
+
+    public Emission emitScalar() {
+        return emit("Scalar")
+                .value(encodedValue())
+                .with("factory", primitiveFactoryName());
+    }
+
+    @Override
+    public Emission emitOperand() {
+        return emitScalar();
+    }
+
+    @Override
+    public Emission emitPrimitive() {
+        return emitItem(encodedValue());
     }
 }

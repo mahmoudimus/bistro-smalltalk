@@ -282,7 +282,7 @@ class:
 	"Returns the last element of the receiver after removing it."
 	removeLast
 	[	self emptyCheck.
-		^(contents remove: contents size - 1) as: smalltalk.behavior.Object
+		^(contents remove: (contents size - 1) asPrimitive) as: smalltalk.behavior.Object
 	]
 
 	"Removes the first (count) elements from the receiver."

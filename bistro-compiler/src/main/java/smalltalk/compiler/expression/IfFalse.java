@@ -3,6 +3,8 @@
 //====================================================================
 package smalltalk.compiler.expression;
 
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.scope.Block;
 
@@ -48,4 +50,15 @@ public class IfFalse extends Message {
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
     }
+
+    @Override
+    public Emission emitOperand() {
+        return emitAlternatives(false, firstArgument(), null);
+    }
+
+    @Override
+    public Emission emitStatement() {
+        return emitGuardedStatement(false, firstArgument());
+    }
+
 }

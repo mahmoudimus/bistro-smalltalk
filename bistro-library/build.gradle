@@ -1,0 +1,10 @@
+
+description = 'bistro-library'
+dependencies {
+    compile project(':bistro-compiler')
+    testCompile group: 'junit', name: 'junit', version:"$version_junit"
+}
+
+test {
+    testLogging.showStandardStreams = true
+}

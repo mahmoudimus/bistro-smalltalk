@@ -12,44 +12,47 @@ class:
 [
 	"Reports the results of STIC benchmarks on the console."
 	static (void) main: args (java.lang.String[])
-	[	bench := SticBenchmark basicNew.
-		[	Transcript
-				print: '100000 Array allocations =             ';
-				print: ( bench allocationTestDuration / 1000.0 ) printString;
-				printLine: ' seconds';
-
-				print: '100000 Array writes =                  ';
-				print: ( bench arrayWriteTestDuration / 1000.0 ) printString;
-				printLine: ' seconds';
-
-				print: '100000 Dictionary writes =             ';
-				print: ( bench dictionaryWriteTestDuration / 1000.0 ) printString;
-				printLine: ' seconds';
-
-				print: '100000 Float operations =              ';
-				print: ( bench floatMathTestDuration / 1000.0 ) printString;
-				printLine: ' seconds';
-
-				print: '100000 Integer operations =            ';
-				print: ( bench integerMathTestDuration / 1000.0 ) printString;
-				printLine: ' seconds';
-
-				print: '100000 OrderedCollection iterations =  ';
-				print: ( bench orderedCollectionIterateTestDuration / 1000.0 ) printString;
-				printLine: ' seconds';
-
-				print: '100000 OrderedCollection writes =      ';
-				print: ( bench orderedCollectionWriteTestDuration / 1000.0 ) printString;
-				printLine: ' seconds';
-
-				print: '100000 String comparisons =            ';
-				print: ( bench stringCompareTestDuration / 1000.0 ) printString;
-				printLine: ' seconds'.
+	[	[	SticBenchmark basicNew allTests.
 		]
 		catch: [ :e (java.lang.Throwable) |
 			e printStackTrace.
 		].
 	]
+
+    allTests
+    [	Transcript
+            print: '100000 Array allocations =             ';
+            print: ( self allocationTestDuration / 1000.0 ) printString;
+            printLine: ' seconds';
+
+            print: '100000 Array writes =                  ';
+            print: ( self arrayWriteTestDuration / 1000.0 ) printString;
+            printLine: ' seconds';
+
+            print: '100000 Dictionary writes =             ';
+            print: ( self dictionaryWriteTestDuration / 1000.0 ) printString;
+            printLine: ' seconds';
+
+            print: '100000 Float operations =              ';
+            print: ( self floatMathTestDuration / 1000.0 ) printString;
+            printLine: ' seconds';
+
+            print: '100000 Integer operations =            ';
+            print: ( self integerMathTestDuration / 1000.0 ) printString;
+            printLine: ' seconds';
+
+            print: '100000 OrderedCollection iterations =  ';
+            print: ( self orderedCollectionIterateTestDuration / 1000.0 ) printString;
+            printLine: ' seconds';
+
+            print: '100000 OrderedCollection writes =      ';
+            print: ( self orderedCollectionWriteTestDuration / 1000.0 ) printString;
+            printLine: ' seconds';
+
+            print: '100000 String comparisons =            ';
+            print: ( self stringCompareTestDuration / 1000.0 ) printString;
+            printLine: ' seconds'.
+    ]
 
 	"Returns the current runtime."
 	(java.lang.Runtime) getRuntime
@@ -64,17 +67,16 @@ class:
 
 		^Time millisecondsToRun: [
 			100000 timesRepeat: [
-				Array
-					new:10;
-					new:10;
-					new:10;
-					new:10;
-					new:10;
-					new:10;
-					new:10;
-					new:10;
-					new:10;
-					new:10
+				x := Array new: 10.
+				x := Array new: 10.
+				x := Array new: 10.
+				x := Array new: 10.
+				x := Array new: 10.
+				x := Array new: 10.
+				x := Array new: 10.
+				x := Array new: 10.
+				x := Array new: 10.
+				x := Array new: 10.
 			].
 			runtime gc.
 		]

@@ -4,6 +4,9 @@
 package smalltalk.compiler.expression;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.element.Selector;
@@ -15,7 +18,7 @@ import smalltalk.compiler.scope.Block;
 
 /**
  * Represents a series of messages. The first message receiver is also the receiver for all the subsequent messages.
- * When initially parsed by the compiler, only the first message has a receiver. So, before code may be generated, the
+ * When first parsed by the compiler, only the first message has a receiver. So, before code may be generated, the
  * receiver needs to be established for all the subsequent messages - see the clean method. If the first message
  * receiver is not a reference or an assignment, a new local variable is created to hold the receiver value, and the
  * first message receiver is replaced by a new assignment to that new local variable. During code generation, if the
@@ -199,5 +202,16 @@ public class Cascade extends Expression {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        return emitLines(emitStatements());
+    }
+
+    public List<Emission> emitStatements() {
+        return messages().stream()
+                .map(m -> m.emitStatement())
+                .collect(Collectors.toList());
     }
 }

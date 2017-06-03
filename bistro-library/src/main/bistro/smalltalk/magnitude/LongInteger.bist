@@ -245,16 +245,16 @@ class:
 
 	"Returns the bitwise union of the receiver and (anInteger)."
 	bitOr: anInteger (Integer)
-	[	^self generality < aNumber generality
-			ifTrue: [ aNumber bitOr: self ]
-			ifFalse: [ self bitOr: aNumber asLongInteger ]
+	[	^self generality < anInteger generality
+			ifTrue: [ anInteger bitOr: self ]
+			ifFalse: [ self bitOr: anInteger asLongInteger ]
 	]
 
 	"Returns the bitwise exclusive or of the receiver and (anInteger)."
 	bitXor: anInteger (Integer)
-	[	^self generality < aNumber generality
-			ifTrue: [ aNumber bitXor: self ]
-			ifFalse: [ self bitXor: aNumber asLongInteger ]
+	[	^self generality < anInteger generality
+			ifTrue: [ anInteger bitXor: self ]
+			ifFalse: [ self bitXor: anInteger asLongInteger ]
 	]
 
 	"Returns the bitwise inverse of the recevier."

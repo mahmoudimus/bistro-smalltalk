@@ -3,8 +3,10 @@
 //====================================================================
 package smalltalk.compiler.scope;
 
-import smalltalk.compiler.element.Operand;
-import smalltalk.compiler.element.Container;
+import java.util.*;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a nested anonymous inner class.
@@ -81,5 +83,10 @@ public class Innard extends Operand {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        return emit("New").with("className", nestedClass().baseName()).with("arguments", new ArrayList());
     }
 }

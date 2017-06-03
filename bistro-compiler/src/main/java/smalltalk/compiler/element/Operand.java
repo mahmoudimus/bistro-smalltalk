@@ -3,6 +3,9 @@
 //====================================================================
 package smalltalk.compiler.element;
 
+import smalltalk.compiler.Emission;
+import smalltalk.compiler.scope.*;
+
 /**
  * Represents an operand and translates it into Java.
  *
@@ -16,6 +19,11 @@ public class Operand extends Container {
     public static interface Visitor {
 
         public void visit(Operand operand);
+    }
+
+    public static interface Emitter {
+
+        public Emission visitResult(Operand operand);
     }
 
     /**
@@ -69,6 +77,40 @@ public class Operand extends Container {
      * @return whether the receiver is a message.
      */
     public boolean isMessage() {
+        return false;
+    }
+
+    public boolean isNest() {
+        return false;
+    }
+
+    public Scope containerScope() {
+        return container().asScope(Scope.class);
+    }
+
+    @Override
+    public Face facialScope() {
+        return super.facialScope().asScope(Face.class);
+    }
+
+    @Override
+    public File fileScope() {
+        return super.fileScope().asScope(File.class);
+    }
+
+    public Nest asNest() {
+        return (Nest)this;
+    }
+
+    public boolean isReference() {
+        return false;
+    }
+
+    public Reference asReference() {
+        return (Reference)this;
+    }
+
+    public boolean refersToMetaclass() {
         return false;
     }
 
@@ -149,5 +191,47 @@ public class Operand extends Container {
      */
     public void acceptVisitor(Visitor aVisitor) {
         aVisitor.visit(this);
+    }
+
+    public Emission visitResult(Emitter aVisitor) {
+        return aVisitor.visitResult(this);
+    }
+
+    @Override
+    public Emission emitItem() {
+        return emitOperand();
+    }
+
+    public Emission emitResult() {
+        return emitResult(emitOperand());
+    }
+
+    public Emission emitOperand() {
+        return emitEmpty(); // override this!
+    }
+
+    @Override
+    public Emission emitOptimized() {
+        return emitOperand();
+    }
+
+    public Emission emitStatement() {
+        return emitStatement(emitOperand());
+    }
+
+    public Emission emitBooleanTerm() {
+        return emitCast(BooleanType, emitOperand());
+    }
+
+    public Emission emitTerm() {
+        return emitTerm(emitOperand());
+    }
+
+    public Emission emitReceiver() {
+        if (receiverNeedsTerm()) {
+            return emitTerm(this);
+        } else {
+            return emitOperand();
+        }
     }
 }

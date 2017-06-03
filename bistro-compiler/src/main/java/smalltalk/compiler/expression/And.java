@@ -3,6 +3,8 @@
 //====================================================================
 package smalltalk.compiler.expression;
 
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.scope.Block;
 
@@ -47,5 +49,12 @@ public class And extends Message {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitExpression() {
+        return emit("Expression")
+                .with("operand", receiver().emitBooleanTerm())
+                .with("messages", emitMethodCall());
     }
 }

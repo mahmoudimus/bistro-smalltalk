@@ -211,7 +211,7 @@ class:
 
 	"Returns a string that contains the receiver character."
 	asString
-	{	return primitive.StringFrom( String.valueOf( primitiveValue ) );
+	{	return primitive.StringFrom( java.lang.String.valueOf( primitiveValue ) );
 	}
 
 	"Returns a character which is the upper case representation of the receiver."
@@ -291,7 +291,7 @@ class:
 
 	"Returns a printable representation of the receiver."
 	printString
-	{	return primitive.StringFrom( String.valueOf( primitiveCharacter() ) );
+	{	return primitive.StringFrom( java.lang.String.valueOf( primitiveCharacter() ) );
 	}
 
 "testing"

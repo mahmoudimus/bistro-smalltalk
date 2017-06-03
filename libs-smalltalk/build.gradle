@@ -1,0 +1,9 @@
+
+description = 'libs-smalltalk'
+dependencies {
+    testCompile group: 'junit', name: 'junit', version:"$version_junit"
+}
+
+test {
+    testLogging.showStandardStreams = true
+}

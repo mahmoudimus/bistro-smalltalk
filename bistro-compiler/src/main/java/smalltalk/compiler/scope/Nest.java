@@ -3,8 +3,8 @@
 //====================================================================
 package smalltalk.compiler.scope;
 
-import smalltalk.compiler.element.Operand;
-import smalltalk.compiler.element.Container;
+import smalltalk.compiler.Emission;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a nested local code scope.
@@ -55,6 +55,11 @@ public class Nest extends Operand {
         nestedBlock.clean();
     }
 
+    @Override
+    public boolean isNest() {
+        return true;
+    }
+
     /**
      * Returns the nested block.
      *
@@ -81,5 +86,15 @@ public class Nest extends Operand {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+    @Override
+    public Emission emitOperand() {
+        return emitOptimized();
+    }
+
+    @Override
+    public Emission emitOptimized() {
+        return nestedBlock().emitOptimized();
     }
 }

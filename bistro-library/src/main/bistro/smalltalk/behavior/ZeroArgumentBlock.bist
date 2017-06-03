@@ -87,11 +87,11 @@ class:
 
 	"Forks a thread at (priority) to evaluate the receiver."
 	forkAt: priority
-	[	thread (Thread) := Scheduler fork: self at: priority hashCode.
+	[	thread := Scheduler fork: self at: priority hashCode.
 	]
 
 	"Forks a thread at normal priority to evaluate the receiver."
 	fork
-	[	thread (Thread) := Scheduler fork: self at: Scheduler normalPriority hashCode.
+	[	thread := Scheduler fork: self at: Scheduler normalPriority hashCode.
 	]
 ]

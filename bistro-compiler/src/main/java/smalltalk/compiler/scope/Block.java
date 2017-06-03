@@ -4,10 +4,12 @@
 package smalltalk.compiler.scope;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-import smalltalk.compiler.element.Selector;
-import smalltalk.compiler.element.Reference;
-import smalltalk.compiler.element.Operand;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.Items;
+import static smalltalk.compiler.Emission.emit;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a block as a sequence of statements.
@@ -15,10 +17,6 @@ import smalltalk.compiler.element.Operand;
  * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
  */
 public class Block extends Code {
-    
-    static {
-        Reference.BlockClass = Block.class;
-    }
 
     /**
      * Defines an interface for visiting instances.
@@ -34,7 +32,8 @@ public class Block extends Code {
     public static final String signatureTypes[] = {
         "ZeroArgumentBlock",
         "OneArgumentBlock",
-        "TwoArgumentBlock"
+        "TwoArgumentBlock",
+        "UnsupportedBlock",
     };
 
     /**
@@ -82,6 +81,54 @@ public class Block extends Code {
         containsExit = false;
     }
 
+    @Override
+    public boolean isBlock() {
+        return true;
+    }
+
+    @Override
+    public boolean hasPrimitiveFactory() {
+        return true;
+    }
+
+    public boolean receiverNeedsTerm() {
+        return true;
+    }
+
+    public boolean hasArgument(String symbol) {
+        return arguments.containsSymbol(symbol);
+    }
+
+    public boolean needsResult() {
+        return !this.isConstructor() &&
+               !this.returnsVoid() &&
+               !this.isAbstract();
+    }
+
+    public boolean isConstructor() {
+        return false;
+    }
+
+    public boolean returnsVoid() {
+        return type().equals("void");
+    }
+
+    public boolean exits() {
+        return containsExit;
+    }
+
+    public boolean needsErasure() {
+        return needsErasure(argumentCount());
+    }
+
+    public boolean needsErasure(int argumentCount) {
+        if (this.isMethod()) return false;
+        if (!exceptions.isEmpty()) return true;
+        if (argumentCount == 0) return false;
+        return (arguments.hasTypedNames() &&
+                !arguments.hasElementaryNames());
+    }
+
     /**
      * Returns the ordered list of arguments.
      *
@@ -91,14 +138,10 @@ public class Block extends Code {
         return arguments.symbols();
     }
 
-    /**
-     * Returns whether the operand needs to be a term when used as a message receiver.
-     *
-     * @return whether the operand needs to be a term when used as a message receiver.
-     */
-    public boolean receiverNeedsTerm() {
-        return true;
+    public Operand finalStatement() {
+        return statements.get(statementCount() - 1);
     }
+
 
     /**
      * Removes all the statements from the block.
@@ -189,9 +232,9 @@ public class Block extends Code {
     public Variable currentArgument() {
         return arguments.currentSymbol();
     }
-    
-    public boolean hasArgument(String symbol) {
-        return arguments.containsSymbol(symbol);
+
+    public Variable argumentNamed(String symbol) {
+        return arguments.symbolNamed(symbol);
     }
 
     /**
@@ -234,43 +277,6 @@ public class Block extends Code {
      */
     public void addStatement(Object statement) {
         addStatement((Operand) statement);
-    }
-
-    /**
-     * Returns whether this container has primitive available.
-     *
-     * @return whether this container has primitive available.
-     */
-    @Override
-    public boolean hasPrimitiveFactory() {
-        return true;
-    }
-
-    /**
-     * Returns whether the method is a constructor.
-     *
-     * @return whether the method is a constructor.
-     */
-    public boolean isConstructor() {
-        return false;
-    }
-
-    /**
-     * Returns whether this block returns no result.
-     *
-     * @return whether this block returns no result.
-     */
-    public boolean returnsVoid() {
-        return type().equals("void");
-    }
-
-    /**
-     * Returns whether this block contains an exit expression.
-     *
-     * @return whether this block contains an exit expression.
-     */
-    public boolean exits() {
-        return containsExit;
     }
 
     /**
@@ -331,14 +337,17 @@ public class Block extends Code {
         if (reference.isSelfish()) {
             return currentFace().typeClass();
         }
-        
+
         if (this.hasLocal(symbol)) {
-            return locals.symbolNamed(symbol).resolvedType();
+            Variable v = localNamed(symbol);
+            if (reference.isNestedDeeper(this)) v.makeTransient();
+            return v.resolvedType();
         }
 
         if (this.hasArgument(symbol)) {
-            return arguments.symbolNamed(symbol).resolvedType();
+            return argumentNamed(symbol).resolvedType();
         }
+
         return super.resolveType(reference);
     }
 
@@ -354,14 +363,17 @@ public class Block extends Code {
         if (reference.isSelfish()) {
             return currentFace().name();
         }
-        
+
         if (this.hasLocal(symbol)) {
-            return locals.symbolNamed(symbol).type();
+            Variable v = localNamed(symbol);
+            if (reference.isNestedDeeper(this)) v.makeTransient();
+            return v.type();
         }
 
         if (this.hasArgument(symbol)) {
-            return arguments.symbolNamed(symbol).type();
+            return argumentNamed(symbol).type();
         }
+
         return super.resolveTypeName(reference);
     }
 
@@ -371,37 +383,19 @@ public class Block extends Code {
      * @param reference a symbolic reference to be resolved.
      */
     @Override
-    public void resolveUndefined(Reference reference) {
+    public Variable resolveUndefined(Reference reference) {
         Variable local = new Variable(this);
         local.name(reference.name());
         local.clean();
         addLocal(local);
 //        System.out.println(name() + " resolved undefined " + reference.name());
+        return local;
     }
 
     @Override
     public void addLocal(Variable local) {
 //        if (local.isSystemic()) return;
         super.addLocal(local);
-    }
-
-    /**
-     * Indicates whether the block needs erasure(s).
-     * @param argumentCount an argument count
-     * @return whether this block needs erasure(s)
-     */
-    public boolean needsErasure(int argumentCount) {
-        if (this.isMethod()) {
-            return false;
-        }
-        if (!exceptions.isEmpty()) {
-            return true;
-        }
-        if (argumentCount == 0) {
-            return false;
-        }
-        return (arguments.hasTypedNames()
-                && !arguments.hasElementaryNames());
     }
 
     /**
@@ -452,11 +446,146 @@ public class Block extends Code {
      * @param aVisitor visits the receiver for its information.
      */
     public void acceptStatementVisitor(Operand.Visitor aVisitor) {
-        if (statements.isEmpty()) {
-            return;
+        if (!statements.isEmpty()) {
+            statements.stream().forEach((s) -> {
+                aVisitor.visit(s);
+            });
         }
-        for (Operand s : statements) {
-            aVisitor.visit(s);
+    }
+
+    public void statementVisitResult(Operand.Emitter aVisitor) {
+        List<Emission> list = new ArrayList();
+        if (!statements.isEmpty()) {
+            statements.stream().forEach((s) -> {
+                list.add(aVisitor.visitResult(s));
+            });
         }
+    }
+
+
+
+    public Emission emitTry() {
+        return emit("OnlyTry")
+                .with("locals", emitLocals())
+                .with("content", emitContents());
+    }
+
+    public Emission emitCatch() {
+        return emit("OnlyCatch")
+                .with("caught", emitArguments(false))
+                .with("locals", emitLocals())
+                .with("content", emitContents());
+    }
+
+    public Emission emitFinally() {
+        return emit("OnlyEnsure")
+                .with("locals", emitLocals())
+                .with("content", emitContents());
+    }
+
+    public Emission emitNewClosure() {
+        return emit("NewClosure")
+                .with("closureType", signatureTypes[0]);
+    }
+
+    public Emission emitClosure() {
+        return emitOptimized();
+    }
+
+    @Override
+    public Emission emitOptimized() {
+        return emit("OptimizedBlock")
+                .with("closureType", closureType())
+                .with("locals", emitLocals())
+                .with("signature", emitSignature())
+                .with("content", emitContents());
+    }
+
+    public List<Emission> emitCastedArguments() {
+        return arguments().stream()
+                .map(arg -> arg.emitCast()).collect(Collectors.toList());
+    }
+
+    public List<Emission> emitArguments() {
+        return emitArguments(true);
+    }
+
+    public List<Emission> emitArguments(boolean useFinal) {
+        return arguments().stream()
+                .map(arg -> arg.emitArgument(useFinal))
+                .collect(Collectors.toList());
+    }
+
+    public List<Emission> emitErasedArguments(boolean useFinal) {
+        return arguments().stream()
+                .map(arg -> arg.emitErasedArgument(useFinal))
+                .collect(Collectors.toList());
+    }
+
+    public Emission emitExceptions() {
+        return exceptionCount() == 0 ? emitEmpty() : emit("Exceptions").with(Items, exceptions);
+    }
+
+    public Emission wrapErasedCall() {
+        return emit("WrapErasedCall");
+    }
+
+    public Emission emitErasedCall() {
+        return returnsVoid() ?
+                emit("ErasedVoid").name(blockName()).with("arguments", emitList(emitCastedArguments())) :
+                emit("ErasedCall").name(blockName()).with("arguments", emitList(emitCastedArguments())) ;
+    }
+
+    public Emission emitErasure() {
+        if (exceptionCount() == 0) {
+            return emit("ErasedBlock").name(blockName())
+                    .with("arguments", emitList(emitErasedArguments(true)))
+                    .with("content", emitErasedCall());
+        }
+
+        return emit("ErasedBlock").name(blockName())
+                    .with("arguments", emitList(emitErasedArguments(true)))
+                    .with("content", wrapErasedCall());
+    }
+
+    public Emission emitSignature() {
+        String blockName = blockName();
+        Emission erasure = null;
+        if (needsErasure()) {
+            blockName = "$"+blockName;
+            erasure = emitErasure();
+        }
+
+        return emit("BlockSignature").name(blockName)
+                .with("erasure", erasure)
+                .with("arguments", emitList(emitArguments()))
+                .with("exceptions", emitExceptions());
+    }
+
+    public Emission emitContents() {
+        return emitLines(emitStatements());
+    }
+
+    public List<Emission> emitStatements() {
+        List<Emission> contents = statements.stream()
+            .map(s -> s.emitStatement())
+            .collect(Collectors.toList());
+
+        if (returnsVoid() || this.isConstructor()) {
+            return contents; // context requires all statements;
+        }
+
+        // context requires returned result
+        contents.remove(contents.size() - 1);
+        contents.add(finalStatement().emitResult());
+        return contents;
+    }
+
+    public String closureType() {
+        return signatureTypes[argumentCount() > 2 ? 3 : argumentCount()];
+    }
+
+    public String blockName() {
+        return signatureValues[argumentCount()];
     }
 }

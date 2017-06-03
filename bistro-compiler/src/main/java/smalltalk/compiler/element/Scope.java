@@ -1,12 +1,13 @@
 //====================================================================
 // Scope.java
 //====================================================================
-package smalltalk.compiler.scope;
+package smalltalk.compiler.element;
 
 import java.util.*;
 import org.antlr.runtime.tree.CommonTree;
-import smalltalk.compiler.element.Container;
-import smalltalk.compiler.element.Selector;
+import smalltalk.compiler.Emission;
+
+import smalltalk.compiler.scope.*;
 
 /**
  * Represents a language scope.
@@ -205,5 +206,27 @@ public class Scope extends Container {
      */
     public void acceptVisitor(Visitor aVisitor) {
         aVisitor.visit(this);
+    }
+
+    public Emission emitScope() {
+        return null; // override this!
+    }
+
+
+    public boolean resolves(Reference reference) {
+        return false;
+    }
+
+    public Scope scopeResolving(Reference reference) {
+        return null;
+//        return resolves(reference) ? this : containerScope().scopeResolving(reference);
+    }
+
+    public boolean hasLocals() {
+        return false;
+    }
+
+    public Variable localNamed(String symbol) {
+        return null;
     }
 }

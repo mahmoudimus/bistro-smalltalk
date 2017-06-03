@@ -230,7 +230,7 @@ class:
 	"Returns a printable representation of the receiver."
 	printString
 	{	return primitive.StringFrom(
-			new String( 
+			new java.lang.String( 
 				numerator.primitiveInteger() + " / " + 
 				denominator.primitiveInteger()
 			)

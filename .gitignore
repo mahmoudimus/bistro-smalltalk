@@ -1,5 +1,7 @@
+build/
 target/
 workspace/
+.gradle/
 
 # *.bist
 *.txt
@@ -11,3 +13,4 @@ libs-smalltalk/src/main/java/smalltalk/example/
 libs-smalltalk/src/main/java/smalltalk/geometry/
 libs-smalltalk/src/main/java/smalltalk/magnitude/
 libs-smalltalk/src/main/java/smalltalk/stream/
+/.nb-gradle/

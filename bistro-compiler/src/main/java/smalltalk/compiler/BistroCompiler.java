@@ -102,7 +102,7 @@ public class BistroCompiler {
             System.out.println(name + " basepath = " + folderPath);
             return folder;
         }
-        
+
         if (createIfMissing) {
             if (folder.mkdirs()) return folder;
 
@@ -190,11 +190,11 @@ public class BistroCompiler {
         String[] options = { "-nowarn", "-d", classPath, "-cp", completePath };
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        try (StandardJavaFileManager fileManager = 
+        try (StandardJavaFileManager fileManager =
                 compiler.getStandardFileManager(null, null, null)) {
 
-            CompilationTask compile = 
-                compiler.getTask(null, fileManager, null, 
+            CompilationTask compile =
+                compiler.getTask(null, fileManager, null,
                     Arrays.asList(options), null,
                     fileManager.getJavaFileObjectsFromStrings(getTargetFilePaths()));
 
@@ -212,13 +212,12 @@ public class BistroCompiler {
      * Displays a message indicating how to use the Bistro compiler.
      */
     public static void displayUsage() {
-        String name = BistroCompiler.class.getName();
         System.out.println(
-                "Usage: java " + name + "  sourceBasepath  targetBasepath  classBasepath  className\n"
-                + "or     java " + name + "  sourceBasepath  targetBasepath  classBasepath  packageName.*"
+                "Usage: java " + ClassName + "  sourceBasepath  targetBasepath  classBasepath  className\n"
+                + "or     java " + ClassName + "  sourceBasepath  targetBasepath  classBasepath  packageName.*"
         );
     }
-    
+
     public void parseFiles(String args[]) throws Exception {
         for (int n = StandardArgumentCount; n < args.length; n++) {
             String faceName = args[n];
@@ -261,4 +260,5 @@ public class BistroCompiler {
     private static final String Parent = "..";
     private static final String WorkFolder = "user.dir";
     private static final String ServletAPI = "/lib/javax.servlet-api-3.1.0.jar";
+    private static final String ClassName = BistroCompiler.class.getName();
 }

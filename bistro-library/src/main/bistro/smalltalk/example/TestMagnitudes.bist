@@ -11,7 +11,11 @@ class:
 [
 	"Reports the results of magnitude tests on the console."
 	static (void) main: args (java.lang.String[])
-	[
+	[   TestMagnitudes basicNew allTests.
+	]
+
+    allTests 
+    [
 		frac := Float pi asFraction withScale: 5.
 		Transcript
 			print: 'precision = ';

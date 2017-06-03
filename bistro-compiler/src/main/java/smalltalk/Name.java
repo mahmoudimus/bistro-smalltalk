@@ -13,6 +13,14 @@ import org.apache.commons.lang.StringUtils;
  */
 public class Name {
 
+    public static final String Public = "public";
+    public static final String Protected = "protected";
+    public static final String Private = "private";
+    public static final String Transient = "transient";
+    public static final String Static = "static";
+    public static final String Abstract = "abstract";
+    public static final String Wrapped = "wrapped";
+
     static char DOT = '.';
     static String Dot = ".";
     static String Escape = "\\";
@@ -57,7 +65,7 @@ public class Name {
      * Maps binary operators to equivalent method names.
      */
     public static final Properties BinaryOperators = new Properties();
-    
+
     public static final char[] Vowels = { 'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U' };
 
     /**
@@ -77,13 +85,13 @@ public class Name {
         ReservedWords.add("case");
         ReservedWords.add("continue");
         ReservedWords.add("switch");
-        ReservedWords.add("public");
-        ReservedWords.add("private");
-        ReservedWords.add("protected");
+        ReservedWords.add(Public);
+        ReservedWords.add(Private);
+        ReservedWords.add(Protected);
         ReservedWords.add("synchronized");
         ReservedWords.add("native");
         ReservedWords.add("volatile");
-        ReservedWords.add("static");
+        ReservedWords.add(Static);
         ReservedWords.add("null");
         ReservedWords.add("byte");
         ReservedWords.add("char");
@@ -207,7 +215,7 @@ public class Name {
         String[] parts = packageName.split(Escape + Dot);
         return parts[0];
     }
-    
+
     /**
      * Returns the package name from a (fully qualified) name.
      * @param fullName a (fully qualified) name
@@ -219,13 +227,13 @@ public class Name {
 
         String[] parts = trim.split(Escape + Dot);
         String lastPart = parts[parts.length - 1];
-        if (Character.isLowerCase(lastPart.charAt(0))) return trim;
+//        if (Character.isLowerCase(lastPart.charAt(0))) return trim;
         if (!trim.contains(Dot)) return EmptyString;
 
         int headLength = trim.length() - lastPart.length();
         return trim.substring(0, headLength - 1);
     }
-    
+
     /**
      * Returns the full type name from a (fully qualified) name.
      * @param fullName a (fully qualified) name
@@ -238,7 +246,7 @@ public class Name {
         String lastPart = parts[parts.length - 1];
         return (Character.isLowerCase(lastPart.charAt(0))) ? EmptyString : lastPart;
     }
-    
+
     /**
      * Returns the outermost type name from a (fully qualified) name.
      * @param fullName a (fully qualified) name
@@ -248,7 +256,7 @@ public class Name {
         String[] parts = typeName(fullName).split(Escape + Dollar);
         return parts[0];
     }
-    
+
     public static boolean isQualified(String name) {
         if (StringUtils.isEmpty(name)) return false;
         return name.contains(Dot);

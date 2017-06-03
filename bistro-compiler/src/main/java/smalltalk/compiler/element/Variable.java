@@ -1,16 +1,17 @@
 //====================================================================
 // Variable.java
 //====================================================================
-package smalltalk.compiler.scope;
+package smalltalk.compiler.element;
 
 import java.util.*;
-
+import java.util.stream.Collectors;
 import org.antlr.runtime.tree.CommonTree;
 
-import smalltalk.compiler.element.Base;
-import smalltalk.compiler.element.Operand;
-import smalltalk.compiler.element.Container;
-import smalltalk.compiler.element.Reference;
+import static smalltalk.Name.*;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
+
+import smalltalk.compiler.scope.*;
 
 /**
  * Represents and encodes a variable, including its name, type and initial value.
@@ -72,9 +73,9 @@ public class Variable extends Reference {
         type = "";
         value = null;
     }
-    
+
     public String scopeDescription() {
-        return (container instanceof Face) ? "member" : "local";
+        return (container.isFacial()) ? "member" : "local";
     }
 
     /**
@@ -83,12 +84,32 @@ public class Variable extends Reference {
     @Override
     public void clean() {
         super.clean();
-        if (container instanceof Face && this.needsAccess()) {
-            modifiers.add(0, "protected");
+        if (container.isFacial() && this.needsAccess()) {
+            modifiers.add(0, Protected);
         }
         if (type.length() == 0) {
             type = Base.RootClass;
         }
+    }
+
+    public boolean hasValue() {
+        return value() != null;
+    }
+
+    public boolean valueNeedsCast() {
+        if (!hasValue()) return false;
+        return !type().equals(value().resolvedTypeName());
+    }
+
+    public void makeTransient() {
+        if (!this.isTransient()) {
+            modifiers.add(Transient);
+        }
+    }
+
+    @Override
+    public boolean isTransient() {
+        return modifiers.stream().anyMatch(m -> Transient.equals(m));
     }
 
     /**
@@ -106,12 +127,7 @@ public class Variable extends Reference {
      * @return whether an access modifier has been defined.
      */
     public boolean needsAccess() {
-        for (String modifier : modifiers) {
-            if (Code.accessModifiers.contains(modifier)) {
-                return false;
-            }
-        }
-        return true;
+        return !modifiers.stream().anyMatch(m -> Code.accessModifiers.contains(m));
     }
 
     /**
@@ -139,8 +155,9 @@ public class Variable extends Reference {
      * @return the comment for this code scope.
      */
     public String comment() {
-        return (comment.length() == 0 ? comment
-                : "/** " + comment.substring(1, comment.length() - 1) + " */");
+        return (comment.length() == 0 ? comment :
+                comment.substring(1, comment.length() - 1));
+//                "/** " + comment.substring(1, comment.length() - 1) + " */");
     }
 
     /**
@@ -160,6 +177,7 @@ public class Variable extends Reference {
      *
      * @return the type of the referenced object or datum.
      */
+    @Override
     public String type() {
         return type;
     }
@@ -198,7 +216,7 @@ public class Variable extends Reference {
         if (type != null) {
             return type;
         }
-        if (typeName.startsWith(rootPackage)) {
+        if (typeName.startsWith(RootJava)) {
             return typeNamed(typeName);
         }
         Face typeFace = Library.current.faceNamed(typeName);
@@ -236,13 +254,17 @@ public class Variable extends Reference {
         return new ArrayList(modifiers);
     }
 
+    public List<String> modifiersWithoutTransient() {
+        return modifiers.stream().filter(m -> !Transient.equals(m)).collect(Collectors.toList());
+    }
+
     /**
      * Returns whether the name refers to a static variable.
      *
      * @return whether the name refers to a static variable.
      */
     public boolean isStatic() {
-        return modifiers.contains("static");
+        return modifiers.contains(Static);
     }
 
     /**
@@ -293,5 +315,50 @@ public class Variable extends Reference {
         for (String modifier : modifiers) {
             aVisitor.visit(modifier);
         }
+    }
+
+
+    public Emission emitCast() {
+        if (type().equals(Base.RootClass)) return emitItem(name());
+        return emitCast(type(), emitItem(name()));
+    }
+
+    @Override
+    public Emission emitModifiers() {
+        return emitSequence(modifiersWithoutTransient());
+    }
+
+    @Override
+    public Emission emitItem() {
+        return this.isTransient() ? emitTransientLocal() : emitVariable();
+    }
+
+    public Emission emitVariable() {
+        return emit("Variable")
+                .comment(comment())
+                .with("notes", emitModifiers())
+                .with("type", emitTypeName(type()))
+                .name(name())
+                .with("cast", valueNeedsCast() ? emitTerm(type()) : emitEmpty())
+                .value(hasValue() ? emitOperand(value()) : null);
+    }
+
+    public Emission emitTransientLocal() {
+        String valueDefault = "null";
+        if (PrimitiveTypes.containsKey(type())) {
+            valueDefault = "0";
+            if ("boolean".equals(type())) {
+                valueDefault = "false";
+            }
+        }
+        return emit("TransientLocal")
+                .with("type", emitTypeName(type()))
+                .name(name())
+                .with("cast", valueNeedsCast() ? emitTerm(type()) : emitEmpty())
+                .value(hasValue() ? emitOperand(value()) : emitItem(valueDefault));
+    }
+
+    public Emission emitErasedArgument(boolean useFinal) {
+        return super.emitArgument(useFinal);
     }
 }

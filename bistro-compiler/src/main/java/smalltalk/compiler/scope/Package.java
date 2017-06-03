@@ -60,7 +60,7 @@ public class Package extends Container {
     public static Package named(String packageName) {
         return Library.current.packageNamed(nameFrom(packageName));
     }
-    
+
     public static String nameFrom(String packageName) {
         if (namesAllFaces(packageName)) {
             int length = packageName.length() - wildCard.length();
@@ -85,6 +85,8 @@ public class Package extends Container {
      * The names of the packages defining literals.
      */
     public static final List<String> LiteralPackageNames = new ArrayList();
+    public static final String AnsiPackage = "org.ansi.smalltalk";
+    public static final String Smalltalk = "smalltalk";
 
     // Initializes the literal package names.
     static {
@@ -97,7 +99,7 @@ public class Package extends Container {
      * Contains the name of a package.
      */
     String name;
-    
+
     String baseFolder = EmptyString;
 
     /**
@@ -128,14 +130,18 @@ public class Package extends Container {
         this("");
     }
 
+    public boolean definesSmalltalk() {
+        return AnsiPackage.equals(name());
+    }
+
     /**
      * Returns whether the package defines behaviors.
      *
      * @return whether the package defines behaviors.
      */
     public boolean definesBehaviors() {
-        return (name().equals(LiteralPackageNames.get(0))
-                || name().startsWith("org.ansi.smalltalk"));
+        return (LiteralPackageNames.get(0).equals(name())
+                || definesSmalltalk());
     }
 
     /**
@@ -144,7 +150,7 @@ public class Package extends Container {
      * @return whether the package defines magnitudes.
      */
     public boolean definesMagnitudes() {
-        return name().equals(LiteralPackageNames.get(1));
+        return LiteralPackageNames.get(1).equals(name());
     }
 
     /**
@@ -153,7 +159,7 @@ public class Package extends Container {
      * @return whether the package defines collections.
      */
     public boolean definesCollections() {
-        return name().equals(LiteralPackageNames.get(2));
+        return LiteralPackageNames.get(2).equals(name());
     }
 
     /**
@@ -221,7 +227,7 @@ public class Package extends Container {
     public String pathname() {
         return name.replace(Dot, directorySeparatorChar);
     }
-    
+
     public HashMap<String, File> parseSources() throws Exception {
         HashMap<String, File> results = new HashMap();
         java.io.File sourceFolder = sourceFolder();
@@ -229,8 +235,8 @@ public class Package extends Container {
             System.out.println("Failed to locate sources for " + name());
             return results;
         }
-        
-        if ("smalltalk".equals(name)) {
+
+        if (Smalltalk.equals(name)) {
             List<String> faceNames = targetFaces();
             for (String faceName : faceNames) {
                 File fileScope = packageTarget(faceName);
@@ -246,7 +252,7 @@ public class Package extends Container {
         }
         return results;
     }
-    
+
     public HashMap<String, File> parseSource(String faceName) throws Exception {
         String fullName = name() + nameSeparator + faceName;
         if (faceName.startsWith(name())) {
@@ -258,7 +264,7 @@ public class Package extends Container {
         results.put(fileScope.fullName(), fileScope);
         return results;
     }
-    
+
     private File packageTarget(String fullName) throws Exception {
         File fileScope = new File();
         fileScope.namePackage(name());
@@ -282,19 +288,19 @@ public class Package extends Container {
                 .map(f -> f.substring(0, f.length() - type.length()))
                 .collect(Collectors.toList());
     }
-    
+
     public List<String> sourceFaces() {
         return listFaces(sourceFolder(), File.sourceExtension, File.sourceFileFilter);
     }
-    
+
     public List<String> targetFaces() {
         return listFaces(targetFolder(), File.targetExtension, File.targetFileFilter);
     }
-    
+
     public java.io.File sourceFolder() {
         return new java.io.File(Library.current.sourcePath(), pathname());
     }
-    
+
     public java.io.File createTarget() {
         java.io.File targetFolder = targetFolder();
 
@@ -305,7 +311,7 @@ public class Package extends Container {
 
         return targetFolder;
     }
-    
+
     public java.io.File targetFolder() {
         return new java.io.File(Library.current.targetPath(), pathname());
     }

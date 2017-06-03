@@ -12,7 +12,7 @@ class:
 
 	"Indicates whether the receiver is less than or equal to (aMagnitude)."
 	<= aMagnitude
-	[	^((aMagnitude as: Magnitude) < self) == false
+	[	^((aMagnitude as: Magnitude) < self) not
 	]
 
 	"Indicates whether the receiver is more than (aMagnitude)."
@@ -22,7 +22,7 @@ class:
 
 	"Indicates whether the receiver is more than or equal to (aMagnitude)."
 	>= aMagnitude
-	[	^(self < aMagnitude) == false
+	[	^(self < aMagnitude) not
 	]
 
 	"Indicates whether the receiver is between (minimum) and (maximum)."

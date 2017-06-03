@@ -52,7 +52,7 @@ class:
 		try {
 			java.lang.reflect.Method m = receiverMethod();
 			if (m == null) return receiver.doesNotUnderstand( this );
-			return (Object) m.invoke( receiver, arguments );
+			return (Object) m.invoke( receiver, (java.lang.Object[]) arguments );
 		} catch( IllegalAccessException e ) {
 			throw appropriated( e );
 		} catch( java.lang.reflect.InvocationTargetException e ) {
@@ -70,7 +70,7 @@ class:
 			}
 			java.lang.reflect.Constructor c = receiverConstructor();
 			if (c == null) return receiver.doesNotUnderstand( this );
-			return (Object) c.newInstance( arguments );
+			return (Object) c.newInstance( (java.lang.Object[]) arguments );
 		} catch( InstantiationException e ) {
 			throw appropriated( e );
 		} catch( IllegalAccessException e ) {

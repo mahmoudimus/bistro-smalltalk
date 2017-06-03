@@ -4,14 +4,13 @@
 package smalltalk.compiler.scope;
 
 import java.util.*;
-
+import java.util.stream.Collectors;
 import org.antlr.runtime.tree.CommonTree;
 
 import smalltalk.Name;
-import smalltalk.compiler.element.Base;
-import smalltalk.compiler.element.Container;
-import smalltalk.compiler.element.Reference;
-import smalltalk.compiler.element.Mirror;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
+import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a class or interface definition.
@@ -174,12 +173,12 @@ public class Face extends Code {
         addLocal();
         addMethod();
     }
-    
+
     @Override
     public String description() {
         return "Face " + name + " -> " + baseName;
     }
-    
+
     public Table memberSymbols() {
         Table result = new Table(this);
         Face aFace = this;
@@ -366,7 +365,7 @@ public class Face extends Code {
             m.clean();
         }
     }
-    
+
     protected void resolveBase() {
 //        System.out.println("base: " + baseName);
         if (baseName.isEmpty()) return;
@@ -429,7 +428,7 @@ public class Face extends Code {
     public void addMethodArgument() {
         currentMethod().addArgument();
     }
-    
+
     public boolean isPackaged() {
         return (typeFace().container() instanceof Package);
     }
@@ -643,7 +642,7 @@ public class Face extends Code {
         String baseName = typeFace().baseName();
         return Library.current.faceNamed(baseName);
     }
-    
+
     public boolean hasNoHeritage() {
         return (baseName.isEmpty() || Nil.equals(baseName));
     }
@@ -726,7 +725,7 @@ public class Face extends Code {
         comment(commentFrom(node));
         baseName(node.getText().trim());
     }
-    
+
     /**
      * Returns the package containing this face.
      * @return a Package
@@ -847,13 +846,13 @@ public class Face extends Code {
     public List<String> interfaceNames() {
         List<String> results = new ArrayList();
         for (String interfaceName : interfaces) {
-            if (Name.packageName(interfaceName).length() > 0) {
-                results.add(interfaceName);
-            } else {
+            if (Name.packageName(interfaceName).isEmpty()) {
                 Face face = Library.current.faceNamed(interfaceName);
                 if (face != null) {
                     results.add(face.fullName());
                 }
+            } else {
+                results.add(interfaceName);
             }
         }
         return results;
@@ -920,7 +919,7 @@ public class Face extends Code {
 //            }
 //            return referenceType;
 //        }
-//        
+//
 //        return referenceType;
 //    }
 
@@ -947,7 +946,7 @@ public class Face extends Code {
         if (reference.isSelfish()) {
             return true;
         }
-        
+
         if (this.hasLocal(symbol)) {
             return true;
         }
@@ -978,13 +977,13 @@ public class Face extends Code {
         if (reference.isSelfish()) {
             return currentFace().typeClass();
         }
-        
+
         if (this.hasLocal(symbol)) {
             return locals.symbolNamed(symbol).resolvedType();
         }
 
         if (this.hasNoHeritage()) {
-            return container().resolveType(reference);
+            return containerScope().resolveType(reference);
         }
 
         return baseFace().resolveType(reference);
@@ -1002,13 +1001,13 @@ public class Face extends Code {
         if (reference.isSelfish()) {
             return currentFace().name();
         }
-        
+
         if (this.hasLocal(symbol)) {
             return locals.symbolNamed(symbol).type();
         }
 
         if (this.hasNoHeritage()) {
-            return container().resolveTypeName(reference);
+            return containerScope().resolveTypeName(reference);
         }
 
         return baseFace().resolveTypeName(reference);
@@ -1047,5 +1046,84 @@ public class Face extends Code {
         for (Method m : methods) {
             aVisitor.visit(m);
         }
+    }
+
+    @Override
+    public Emission emitScope() {
+        return emitScope(null);
+    }
+
+    public Emission emitScope(Emission libs) {
+        return emit("LibraryType")
+                .with("libs", libs)
+                .with("signature", emitSignature())
+                .with("metaFace", emitMetaFace())
+                .with("metaInstance", emitMetaInstance())
+                .with("locals", emitLocals())
+                .with("methods", emitLines(emitMethods()));
+    }
+
+    public Emission emitSignature() {
+        List<Emission> faces = emitInterfaces();
+        return emit("FaceSignature")
+                .comment(comment())
+                .with("notes", emitModifiers())
+                .with("type", type())
+                .with("subType", name())
+                .with("baseType", baseNameIfPresent())
+                .with("typeClass", this.isInterface() ? null : type())
+                .with("faces", faces.isEmpty() ? null : emitList(faces));
+    }
+
+    public String baseNameIfPresent() {
+        return baseName().isEmpty() ? null : baseName();
+    }
+
+    public List<Emission> emitInterfaces() {
+        List<String> faces = interfaces();
+        if (faces.isEmpty()) return new ArrayList();
+
+        return faces.stream()
+                .map(faceName -> emitInterfaceName(faceName))
+                .collect(Collectors.toList());
+    }
+
+    public Emission emitInterfaceName(String faceName) {
+        return this.isMetaface() ? emitItem(metaclassName(faceName)) : emitItem(faceName);
+    }
+
+    public List<Emission> emitMethods() {
+        return methods().stream()
+                .map(m -> m.emitScope())
+                .collect(Collectors.toList());
+    }
+
+    public Emission emitMetaFace() {
+        if (this.isMetaface()) return null;
+        if (this.hasMetaface()) return metaFace().emitScope();
+        return null;
+    }
+
+    public Emission emitMetaInstance() {
+        if (this.isInterface()) {
+            if (!this.isMetaface()) {
+                return emit("TypeMembers");
+            }
+
+            return null;
+        }
+
+        if (this.isMetaface()) {
+            return emit("MetaMembers").name(name());
+        }
+
+        if (this.hasMetaface()) {
+            return emit("FaceMembers")
+                    .type(type()).name(name())
+                    .with("metaName", metaFace().name())
+                    .with("notClass", name().equals("Class") ? null : name());
+        }
+
+        return null;
     }
 }

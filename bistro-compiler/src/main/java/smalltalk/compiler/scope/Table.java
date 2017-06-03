@@ -4,10 +4,8 @@
 package smalltalk.compiler.scope;
 
 import java.util.*;
-
-import smalltalk.compiler.element.Base;
-import smalltalk.compiler.element.Reference;
-import smalltalk.compiler.element.Container;
+import java.util.stream.Collectors;
+import smalltalk.compiler.element.*;
 
 /**
  * Maintains an ordered and indexable collection of local variables as a symbol table. Supports symbol lookup by name
@@ -47,7 +45,7 @@ public class Table extends Container {
             symbol.container(container);
         }
     }
-    
+
     public Table withAll(Table table) {
         for (Variable v : table.order) {
             addSymbol(v);
@@ -185,6 +183,10 @@ public class Table extends Container {
      */
     public List<Variable> symbols() {
         return new ArrayList(order);
+    }
+
+    public List<Variable> definedSymbols() {
+        return order.stream().filter(v -> !v.isEmpty()).collect(Collectors.toList());
     }
 
     /**

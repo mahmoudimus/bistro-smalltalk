@@ -5,7 +5,12 @@ package smalltalk.compiler.element;
 
 import java.util.*;
 import org.antlr.runtime.Token;
+
 import smalltalk.Name;
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
+import static smalltalk.compiler.element.Reference.Self;
+import static smalltalk.compiler.element.Reference.Super;
 
 /**
  * Represents and manipulates Bistro method names, including conversions to Java method names.
@@ -127,7 +132,7 @@ public class Selector extends Base {
         ObjectSelectors.add("species");
         ObjectSelectors.add("isNil");
         ObjectSelectors.add("notNil");
-        ObjectSelectors.add(":=");
+        ObjectSelectors.add(Assign);
     }
 
     /**
@@ -251,6 +256,12 @@ public class Selector extends Base {
         return contents().startsWith("new");
     }
 
+    public boolean isSelfish() {
+        if (contents().startsWith(Super)) return true;
+        if (contents().startsWith(Self)) return true;
+        return false;
+    }
+
     /**
      * Returns whether the selector contains a binary operator.
      *
@@ -312,5 +323,9 @@ public class Selector extends Base {
      */
     public void acceptVisitor(Visitor aVisitor) {
         aVisitor.visit(this);
+    }
+
+    public Emission emitQuotedMethodName() {
+        return emit("Quoted").value(methodName());
     }
 }

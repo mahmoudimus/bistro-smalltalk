@@ -4,13 +4,17 @@
 package smalltalk.compiler.expression;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import static java.lang.Integer.min;
+
+import smalltalk.compiler.Emission;
+import static smalltalk.compiler.Emission.emit;
 
 import smalltalk.compiler.element.*;
-import smalltalk.compiler.constant.LiteralNil;
 import smalltalk.compiler.scope.Face;
 import smalltalk.compiler.scope.Block;
 import smalltalk.compiler.scope.Method;
-import smalltalk.compiler.scope.Variable;
+import smalltalk.compiler.constant.LiteralNil;
 
 /**
  * Represents a Bistro message (method invocation) and translates it into Java.
@@ -70,7 +74,7 @@ public class Message extends Expression {
     static {
         initializeOptimizers();
         Method.wrapperFactory = new Method.WrapperFactory() {
-            public Expression createWrapper(Method method, Method wrapper) {
+            @Override public Expression createWrapper(Method method, Method wrapper) {
                 return Message.wrapping(method, wrapper);
             }
         };
@@ -202,8 +206,7 @@ public class Message extends Expression {
             }
         }
         if (blockScope.isMethod()) {
-            if (!blockScope.isConstructor()
-                    && !blockScope.isAbstract()) {
+            if (blockScope.needsResult()) {
                 Message message = Message.sending(Selector.Exit, blockScope);
                 message.addOperand(Reference.named(Reference.Self, blockScope));
                 blockScope.addStatement(message);
@@ -414,8 +417,11 @@ public class Message extends Expression {
     public Operand receiver() {
         return operands.get(0);
     }
-    
+
     public Operand firstArgument() {
+        if (operands.size() < 2) {
+            return null;
+        }
         return operands.get(1);
     }
 
@@ -584,10 +590,7 @@ public class Message extends Expression {
      * @return the name of a perform method.
      */
     public String performString() {
-        int count = operands.size();
-        if (count > 5) {
-            count = 6;
-        }
+        int count = min(operands.size(), 6);
         return performs[count - 1];
     }
 
@@ -596,8 +599,8 @@ public class Message extends Expression {
      *
      * @return the name of a performed method.
      */
-    public String performedMethodName() {
-        return selector.contents();
+    public Emission performedMethodName() {
+        return selector.emitQuotedMethodName();
     }
 
     /**
@@ -607,9 +610,8 @@ public class Message extends Expression {
      */
     public boolean elementaryReceiver() {
         Operand receiver = receiver();
-        if (receiver.resolvesToPrimitive()) {
-            return true;
-        }
+        if (receiver.resolvesToPrimitive()) return true;
+
         Face typeFace = Face.named(receiver.resolvedTypeName());
         return (typeFace != null && typeFace.isElementary());
     }
@@ -646,5 +648,131 @@ public class Message extends Expression {
     @Override
     public void acceptVisitor(Operand.Visitor aVisitor) {
         acceptVisitor((Visitor) aVisitor);
+    }
+
+
+    @Override
+    public Emission emitOperand() {
+        return elementaryReceiver() ? emitElementary() : emitInvocation();
+    }
+
+    public Emission emitElementary() {
+        return selector().isPrimitive() ? emitPrimitive() : emitOptimized();
+    }
+
+    public Emission emitInvocation() {
+        return canOptimizeInvocation() ? emitOptimized() : emitPerform();
+    }
+
+    public Emission emitPerform() {
+        if (selector().isEmpty()) {
+            return receiver().emitOperand();
+        }
+
+        return emit("Perform")
+                .with("operand", receiver().emitOperand())
+                .with("name", performString())
+                .with("methodName", performedMethodName())
+                .with("arguments", emitArguments());
+    }
+
+    public List<Emission> emitArguments() {
+        return arguments().stream()
+                .map(arg -> arg.emitOperand())
+                .collect(Collectors.toList());
+    }
+
+    public Emission emitOp() {
+        return emit("Operation")
+                .with("operator", selector().asPrimitiveOperator())
+                .with("argument", firstArgument().emitOperand());
+    }
+
+    public Emission emitCall() {
+        return emitCall(selector().methodName());
+    }
+
+    public Emission emitCall(String methodName) {
+        return emit("Call")
+                .with("methodName", methodName)
+                .with("arguments", emitArguments());
+    }
+
+    public Emission emitMethodCall() {
+        return emitMethodCall(selector().methodName());
+    }
+
+    public Emission emitMethodCall(String methodName) {
+        return emit("MethodCall")
+                .with("methodName", methodName)
+                .with("arguments", emitArguments());
+    }
+
+    public Emission emitExpression() {
+        return emit("Expression")
+                .with("operand", receiver().emitOperand())
+                .with("messages", emitMethodCall());
+    }
+
+    @Override
+    public Emission emitPrimitive() {
+        return emit("Expression")
+                .with("operand", receiver().emitOperand())
+                .with("messages", emitOp());
+    }
+
+    @Override
+    public Emission emitOptimized() {
+        if (selector().isEmpty()) {
+            return receiver().emitOperand();
+        }
+
+        if (selector().isSelfish()) {
+            return emitCall();
+        }
+
+        return emitExpression();
+    }
+
+    public Emission emitAlternatives(boolean positively, Operand trueBlock, Operand falseBlock) {
+        return emit("Alternatives")
+                .with("condition", emitGuarded(receiver(), positively))
+                .with("trueValue", emitOptimizedBlock(trueBlock))
+                .with("falseValue", emitOptimizedBlock(falseBlock));
+    }
+
+    public Emission emitGuardedStatement(boolean positively, Operand aBlock) {
+        return emit("GuardedBlock")
+                .with("condition", emitGuarded(receiver(), positively))
+                .with("aBlock", emitStatement(emitOptimizedBlock(aBlock)));
+    }
+
+    public Emission emitGuardedStatement(boolean positively, Operand trueBlock, Operand falseBlock) {
+        return emit("GuardedPair")
+                .with("condition", emitGuarded(receiver(), positively))
+                .with("trueValue", emitStatement(emitOptimizedBlock(trueBlock)))
+                .with("falseValue", emitStatement(emitOptimizedBlock(falseBlock)));
+    }
+
+    public Emission emitWhileLoop(boolean positively, Operand guardedBlock) {
+        return emit("WhileLoop")
+                .with("condition", emitGuardedValue(receiver(), positively))
+                .with("guardedBlock", emitStatement(emitClosureValue(emitOptimizedBlock(guardedBlock))));
+    }
+
+    public Emission emitGuardedValue(Operand value, boolean positively) {
+        return positively ?
+                emitTrueGuard(emitClosureValue(value.emitOperand())) :
+                emitFalseGuard(emitClosureValue(value.emitOperand()));
+    }
+
+    public Emission emitGuarded(Operand value, boolean positively) {
+        return positively ?
+                emitTrueGuard(value.emitOperand()) :
+                emitFalseGuard(value.emitOperand());
+    }
+
+    public Emission emitOptimizedBlock(Operand aBlock) {
+        return aBlock == null ? emitNil() : emitClosureValue(aBlock.emitOptimized());
     }
 }

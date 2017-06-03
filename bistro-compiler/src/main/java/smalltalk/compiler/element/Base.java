@@ -4,6 +4,8 @@
 package smalltalk.compiler.element;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Defines the basic capabilities of a Bistro compiler element.
@@ -25,6 +27,12 @@ public class Base {
      */
     public static final String EmptyString = "";
     public static final String Nil = "nil";
+    protected static final String TAB = "\t";
+    protected static final String LF = "\n";
+    protected static final String SingleQuote = "'";
+    protected static final String DoubledQuote = "''";
+    protected static final String JavaQuote = "\"";
+    protected static final String QuotedValue = JavaQuote + "%s" + JavaQuote;
 
     /**
      * Names the root object class.
@@ -65,6 +73,7 @@ public class Base {
      * The name of the primitive array class.
      */
     public static final String ArrayClass = "java.lang.reflect.Array";
+    protected static final String BooleanType = "smalltalk.behavior.Boolean";
 
     /**
      * Contains the primitive types.
@@ -219,5 +228,9 @@ public class Base {
      */
     public void clean() {
         // does nothing
+    }
+
+    public Logger getLogger() {
+        return LoggerFactory.getLogger(getClass());
     }
 }

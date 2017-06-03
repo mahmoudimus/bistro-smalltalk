@@ -8,14 +8,14 @@ RuntimeException subclass: MethodExit
 class: [
 
 	"Identifies the method scope to exit."
-	scope (String).
+	scope (java.lang.String).
 
 	"Holds a method result value."
 	value (Object).
 
 	"Constructs a new MethodExit.
 	@param exitValue a method result value."
-	MethodExit: scopeID (String) : exitValue (Object) {
+	MethodExit: scopeID (java.lang.String) : exitValue (Object) {
 		super();
 		scope = scopeID;
 		value = exitValue;
@@ -23,7 +23,7 @@ class: [
 
 	"Returns the name of the method to be exited.
 	@return the name of the method to be exited."
-	(String) scopeID [
+	(java.lang.String) scopeID [
 		^scope
 	]
 
@@ -35,7 +35,7 @@ class: [
 
 	"Returns the method result or rethrows itself if (scopeID) matches.
 	@return the method result or rethrows itself if (scopeID) matches."
-	(Object) exitOn: scopeID (String) {
+	(Object) exitOn: scopeID (java.lang.String) {
 		if (scope == scopeID) return value;
 		throw this;
 	}
