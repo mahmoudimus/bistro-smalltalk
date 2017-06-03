@@ -428,7 +428,6 @@ public class File extends Scope {
 
         try (PrintWriter oStream = targetStream()) {
             emitScope().write(new AutoIndentWriter(oStream));
-//            new BistroJavaGenerator(oStream).encodeScope(this);
         }
         return true;
     }

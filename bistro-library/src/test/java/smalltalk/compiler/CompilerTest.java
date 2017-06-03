@@ -3,7 +3,7 @@ package smalltalk.compiler;
 import org.junit.Test;
 
 /**
- *
+ * Compiles the Bistro class library.
  * @author nik
  */
 public class CompilerTest {
@@ -14,9 +14,31 @@ public class CompilerTest {
 
     @Test
     public void compileCode() throws Exception {
-        String[] packageNames = {
+        String[] runtimeArgs = {
+            SourceFolder,
+            TargetFolder,
+            ClassFolder,
+
             "smalltalk.*",
+        };
+
+        BistroCompiler.main(runtimeArgs);
+
+        String[] smalltalkArgs = {
+            SourceFolder,
+            TargetFolder,
+            ClassFolder,
+
             "org.ansi.smalltalk.*",
+        };
+
+        BistroCompiler.main(smalltalkArgs);
+
+        String[] bistroArgs = {
+            SourceFolder,
+            TargetFolder,
+            ClassFolder,
+
             "smalltalk.behavior.*",
             "smalltalk.magnitude.*",
             "smalltalk.collection.*",
@@ -25,14 +47,7 @@ public class CompilerTest {
             "smalltalk.example.*",
         };
 
-        for (String packageName : packageNames) {
-            compilePackage(packageName);
-        }
-    }
-
-    private void compilePackage(String packageName) throws Exception {
-        String[] args = { SourceFolder, TargetFolder, ClassFolder, packageName};
-        BistroCompiler.main(args);
+        BistroCompiler.main(bistroArgs);
     }
 
 }
