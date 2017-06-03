@@ -119,7 +119,7 @@ Both kinds of methods must have an empty method body **[]**, as their implementa
 **native** methods must be implemented as external functions, and made available through Java Native Interface (JNI)
 bindings.
 
-Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
 
 [smalltalk]: http://en.wikipedia.org/wiki/Smalltalk "Smalltalk"
 [reflect]: http://docs.oracle.com/javase/7/docs/api/java/lang/reflect/package-summary.html "Java Reflection"

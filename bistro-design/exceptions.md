@@ -105,7 +105,7 @@ keyword: a1 : a2 ; throws: IOException [ "..." ]
 [ :argument ; throws: IOException | "..." ]
 ```
 
-Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
 
 [smalltalk]: http://en.wikipedia.org/wiki/Smalltalk "Smalltalk"
 [reflect]: http://docs.oracle.com/javase/7/docs/api/java/lang/reflect/package-summary.html "Java Reflection"
