@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import javax.tools.*;
 import javax.tools.JavaCompiler.CompilationTask;
-import org.antlr.runtime.*;
 
 import smalltalk.compiler.scope.File;
 import smalltalk.compiler.scope.Package;
@@ -26,16 +25,7 @@ public class BistroCompiler {
      */
     public static final int StandardArgumentCount = 3;
 
-    /**
-     * Refers to the Bistro lexical analyzer.
-     */
-    TokenSource lexer;
-
-    /**
-     * Refers to the Bistro parser.
-     */
-    Bistro parser;
-
+    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     String workFolder = System.getProperty(WorkFolder);
 
     java.io.File sourceBase;
@@ -184,22 +174,23 @@ public class BistroCompiler {
             return;
         }
 
+        try (StandardJavaFileManager fileManager = createFileManager()) {
+            createCompilation(fileManager).call();
+        }
+    }
+
+    private CompilationTask createCompilation(StandardJavaFileManager fileManager) {
         String classPath = classBase.getAbsolutePath();
         String servletPath = workFolder + ServletAPI;
         String completePath = ClassPath.buildPath(classPath, servletPath);
         String[] options = { "-nowarn", "-d", classPath, "-cp", completePath };
 
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        try (StandardJavaFileManager fileManager =
-                compiler.getStandardFileManager(null, null, null)) {
+        return compiler.getTask(null, fileManager, null, Arrays.asList(options), null,
+                        fileManager.getJavaFileObjectsFromStrings(getTargetFilePaths()));
+    }
 
-            CompilationTask compile =
-                compiler.getTask(null, fileManager, null,
-                    Arrays.asList(options), null,
-                    fileManager.getJavaFileObjectsFromStrings(getTargetFilePaths()));
-
-            compile.call();
-        }
+    private StandardJavaFileManager createFileManager() {
+        return compiler.getStandardFileManager(null, null, null);
     }
 
     public List<String> getTargetFilePaths() {
