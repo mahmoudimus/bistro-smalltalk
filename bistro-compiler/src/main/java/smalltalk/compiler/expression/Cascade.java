@@ -5,16 +5,10 @@ package smalltalk.compiler.expression;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import smalltalk.compiler.Emission;
-import static smalltalk.compiler.Emission.emit;
 
-import smalltalk.compiler.element.Operand;
-import smalltalk.compiler.element.Selector;
-import smalltalk.compiler.element.Reference;
-import smalltalk.compiler.element.Container;
-import smalltalk.compiler.element.Expression;
-import smalltalk.compiler.scope.Nest;
-import smalltalk.compiler.scope.Block;
+import smalltalk.compiler.Emission;
+import smalltalk.compiler.element.*;
+import smalltalk.compiler.scope.*;
 
 /**
  * Represents a series of messages. The first message receiver is also the receiver for all the subsequent messages.
@@ -24,17 +18,9 @@ import smalltalk.compiler.scope.Block;
  * first message receiver is replaced by a new assignment to that new local variable. During code generation, if the
  * cascade is a nested term, it gets wrapped inside a block: [ cascade ] value - i.e., a Java inner class.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Cascade extends Expression {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Cascade cascade);
-    }
 
     /**
      * Contains the cascaded messages.
@@ -183,25 +169,6 @@ public class Cascade extends Expression {
      */
     public void addMessage(Object message) {
         messages.add((Message) message);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    @Override
-    public void acceptVisitor(Operand.Visitor aVisitor) {
-        acceptVisitor((Visitor) aVisitor);
     }
 
     @Override

@@ -14,22 +14,14 @@ import smalltalk.compiler.element.*;
 /**
  * Represents and encodes a block as a sequence of statements.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Block extends Code {
 
     /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Block scope);
-    }
-
-    /**
      * Identifies the classes used to implement blocks.
      */
-    public static final String signatureTypes[] = {
+    public static final String[] blockTypes = {
         "ZeroArgumentBlock",
         "OneArgumentBlock",
         "TwoArgumentBlock",
@@ -39,7 +31,7 @@ public class Block extends Code {
     /**
      * Identifies the evaluation protocols used by blocks.
      */
-    public static final String signatureValues[] = {
+    public static final String[] valueMessages = {
         "value",
         "value",
         "value_value"
@@ -408,61 +400,6 @@ public class Block extends Code {
         statements.remove(statements.size() - 1);
     }
 
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver arguments.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptArgumentVisitor(Variable.Visitor aVisitor) {
-        arguments.acceptVisitor(aVisitor);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver exceptions.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptExceptionVisitor(Reference.Visitor aVisitor) {
-        if (exceptions.isEmpty()) {
-            return;
-        }
-        for (String exceptionType : exceptions) {
-            aVisitor.visit(exceptionType);
-        }
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver statements.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptStatementVisitor(Operand.Visitor aVisitor) {
-        if (!statements.isEmpty()) {
-            statements.stream().forEach((s) -> {
-                aVisitor.visit(s);
-            });
-        }
-    }
-
-    public void statementVisitResult(Operand.Emitter aVisitor) {
-        List<Emission> list = new ArrayList();
-        if (!statements.isEmpty()) {
-            statements.stream().forEach((s) -> {
-                list.add(aVisitor.visitResult(s));
-            });
-        }
-    }
-
-
 
     public Emission emitTry() {
         return emit("OnlyTry")
@@ -485,7 +422,7 @@ public class Block extends Code {
 
     public Emission emitNewClosure() {
         return emit("NewClosure")
-                .with("closureType", signatureTypes[0]);
+                .with("closureType", blockTypes[0]);
     }
 
     public Emission emitClosure() {
@@ -582,10 +519,10 @@ public class Block extends Code {
     }
 
     public String closureType() {
-        return signatureTypes[argumentCount() > 2 ? 3 : argumentCount()];
+        return blockTypes[argumentCount() > 2 ? 3 : argumentCount()];
     }
 
     public String blockName() {
-        return signatureValues[argumentCount()];
+        return valueMessages[argumentCount()];
     }
 }

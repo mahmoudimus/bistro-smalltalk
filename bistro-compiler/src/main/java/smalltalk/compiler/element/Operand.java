@@ -9,22 +9,9 @@ import smalltalk.compiler.scope.*;
 /**
  * Represents an operand and translates it into Java.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Operand extends Container {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Operand operand);
-    }
-
-    public static interface Emitter {
-
-        public Emission visitResult(Operand operand);
-    }
 
     /**
      * Constructs a new Operand.
@@ -184,18 +171,6 @@ public class Operand extends Container {
         return false;
     }
 
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    public Emission visitResult(Emitter aVisitor) {
-        return aVisitor.visitResult(this);
-    }
 
     @Override
     public Emission emitItem() {

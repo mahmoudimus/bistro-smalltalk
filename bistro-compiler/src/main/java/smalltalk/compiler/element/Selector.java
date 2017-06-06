@@ -15,17 +15,9 @@ import static smalltalk.compiler.element.Reference.Super;
 /**
  * Represents and manipulates Bistro method names, including conversions to Java method names.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Selector extends Base {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Selector selector);
-    }
 
     /**
      * The empty selector.
@@ -314,15 +306,6 @@ public class Selector extends Base {
      */
     public int operandCount() {
         return operandCountFrom(contents());
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
     }
 
     public Emission emitQuotedMethodName() {

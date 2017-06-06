@@ -5,13 +5,12 @@ package smalltalk.compiler.expression;
 
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
-import smalltalk.compiler.element.Operand;
 import smalltalk.compiler.scope.Block;
 
 /**
  * Represents an assertion and translates it into Java.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Assertion extends Message {
 
@@ -19,14 +18,6 @@ public class Assertion extends Message {
      * The assert command.
      */
     public static final String COMMAND = "assert";
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Assertion message);
-    }
 
     /**
      * Constructs a new Assertion.
@@ -55,24 +46,6 @@ public class Assertion extends Message {
         return false;
     }
 
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    @Override
-    public void acceptVisitor(Operand.Visitor aVisitor) {
-        acceptVisitor((Visitor) aVisitor);
-    }
 
     @Override
     public Emission emitOptimized() {

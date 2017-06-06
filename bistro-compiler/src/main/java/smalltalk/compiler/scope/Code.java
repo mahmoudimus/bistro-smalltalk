@@ -13,17 +13,9 @@ import smalltalk.compiler.element.*;
 /**
  * Represents and encodes a local code scope.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public abstract class Code extends Scope {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Code scope);
-    }
 
     /**
      * Lists the access modifiers supported by Bistro.
@@ -363,39 +355,6 @@ public abstract class Code extends Scope {
         return containerScope().resolveTypeName(reference);
     }
 
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver locals.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptLocalVisitor(Variable.Visitor aVisitor) {
-        locals.acceptVisitor(aVisitor);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver modifiers.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptModifierVisitor(Reference.Visitor aVisitor) {
-        if (modifiers.isEmpty()) {
-            return;
-        }
-        for (String modifier : modifiers) {
-            if (!Wrapped.equals(modifier)) {
-                aVisitor.visit(modifier);
-            }
-        }
-    }
 
     @Override
     public Emission emitModifiers() {

@@ -10,17 +10,9 @@ import smalltalk.compiler.element.Selector;
 /**
  * Represents and encodes a literal number.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public abstract class LiteralNumber extends Scalar {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(LiteralNumber constant);
-    }
 
     /**
      * Constructs a new LiteralNumber.
@@ -48,15 +40,6 @@ public abstract class LiteralNumber extends Scalar {
     @Override
     public boolean optimizes(Selector selector) {
         return !container().fileScope().needsMagnitudes();
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
     }
 
     @Override

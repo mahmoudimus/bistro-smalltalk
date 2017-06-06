@@ -13,17 +13,9 @@ import smalltalk.compiler.scope.Block;
 /**
  * Optimizes the translation of an ensure-catch message into Java.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class TryCatch extends Message {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(TryCatch message);
-    }
 
     /**
      * Final term for an exception message.
@@ -76,25 +68,6 @@ public class TryCatch extends Message {
                 finalBlock.type("void");
             }
         }
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    @Override
-    public void acceptVisitor(Operand.Visitor aVisitor) {
-        acceptVisitor((Visitor) aVisitor);
     }
 
     @Override

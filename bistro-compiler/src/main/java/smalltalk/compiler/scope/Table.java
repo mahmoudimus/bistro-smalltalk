@@ -11,7 +11,7 @@ import smalltalk.compiler.element.*;
  * Maintains an ordered and indexable collection of local variables as a symbol table. Supports symbol lookup by name
  * and writes variables in the order of their definition.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Table extends Container {
 
@@ -260,19 +260,5 @@ public class Table extends Container {
             }
         }
         return false;
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Variable.Visitor aVisitor) {
-        if (contents.isEmpty()) {
-            return;
-        }
-        for (Variable symbol : symbols()) {
-            if (!symbol.isEmpty()) aVisitor.visit(symbol);
-        }
     }
 }

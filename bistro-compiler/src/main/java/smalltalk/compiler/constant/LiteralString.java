@@ -5,24 +5,14 @@ package smalltalk.compiler.constant;
 
 import static java.lang.String.format;
 import org.antlr.runtime.Token;
-import smalltalk.compiler.Emission;
 import smalltalk.compiler.element.Container;
-import smalltalk.compiler.element.Operand;
 
 /**
  * Represents and encodes a literal String.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class LiteralString extends LiteralCollection {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(LiteralString constant);
-    }
 
     /**
      * Returns a new literal String from the supplied (token).
@@ -87,28 +77,4 @@ public class LiteralString extends LiteralCollection {
     public String encodedValue() {
         return format(QuotedValue, value.replace(DoubledQuote, SingleQuote).replace(SingleQuote, EmptyString));
     }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    @Override
-    public void acceptVisitor(Operand.Visitor aVisitor) {
-        acceptVisitor((Visitor) aVisitor);
-    }
-
-//    @Override
-//    public Emission emitOperand() {
-//        return emitScalar();
-//    }
 }

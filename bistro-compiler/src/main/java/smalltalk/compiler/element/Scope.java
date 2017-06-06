@@ -12,17 +12,9 @@ import smalltalk.compiler.scope.*;
 /**
  * Represents a language scope.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Scope extends Container {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Scope scope);
-    }
 
     /**
      * Refers to the active compiler scope.
@@ -199,19 +191,10 @@ public class Scope extends Container {
         return result;
     }
 
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
 
     public Emission emitScope() {
         return null; // override this!
     }
-
 
     public boolean resolves(Reference reference) {
         return false;
@@ -219,7 +202,6 @@ public class Scope extends Container {
 
     public Scope scopeResolving(Reference reference) {
         return null;
-//        return resolves(reference) ? this : containerScope().scopeResolving(reference);
     }
 
     public boolean hasLocals() {

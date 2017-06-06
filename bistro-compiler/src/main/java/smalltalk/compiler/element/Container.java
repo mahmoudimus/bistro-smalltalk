@@ -15,17 +15,9 @@ import static smalltalk.compiler.Emission.emit;
 /**
  * Provides general nesting of containers.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Container extends Base {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Container element);
-    }
 
     /**
      * Refers to the container for this container.
@@ -275,15 +267,6 @@ public class Container extends Base {
 
     public TokenStream tokenStream() {
         return (fileScope() == null) ? null : fileScope().tokenStream();
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
     }
 
     public String commentFrom(CommonTree node) {

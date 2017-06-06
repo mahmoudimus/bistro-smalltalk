@@ -6,17 +6,9 @@ package smalltalk.compiler.element;
 /**
  * Represents and encodes a Bistro constant value in Java.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Constant extends Operand {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Constant constant);
-    }
 
     /**
      * Constructs a new Constant.
@@ -46,14 +38,5 @@ public class Constant extends Operand {
     @Override
     public boolean optimizes(Selector selector) {
         return true;
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
     }
 }

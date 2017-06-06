@@ -13,17 +13,9 @@ import static smalltalk.compiler.Emission.emit;
 /**
  * Represents and encodes a symbolic reference to a variable.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Reference extends Operand {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(String encodedName);
-    }
 
     /**
      * Identifies self.
@@ -575,24 +567,6 @@ public class Reference extends Operand {
         return result;
     }
 
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(encodedName());
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    @Override
-    public void acceptVisitor(Operand.Visitor aVisitor) {
-        acceptVisitor((Visitor) aVisitor);
-    }
 
     @Override
     public Emission emitOperand() {

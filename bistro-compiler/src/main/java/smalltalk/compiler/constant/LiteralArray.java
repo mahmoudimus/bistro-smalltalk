@@ -8,17 +8,9 @@ import smalltalk.compiler.element.Container;
 /**
  * Represents and encodes a literal array.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class LiteralArray extends LiteralCollection {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(LiteralArray array);
-    }
 
     /**
      * Constructs a new LiteralArray.
@@ -58,14 +50,5 @@ public class LiteralArray extends LiteralCollection {
     public String resolvedTypeName() {
         return (container().fileScope().needsCollections()
                 ? RootClass : "smalltalk.collection.Array");
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
     }
 }

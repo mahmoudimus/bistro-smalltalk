@@ -16,17 +16,9 @@ import smalltalk.compiler.scope.*;
 /**
  * Represents and encodes a variable, including its name, type and initial value.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Variable extends Reference {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Variable variable);
-    }
 
     /**
      * Returns a new reference named (name) in the (container) scope.
@@ -282,39 +274,6 @@ public class Variable extends Reference {
      */
     public void value(Operand aValue) {
         value = aValue;
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    @Override
-    public void acceptVisitor(Operand.Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver modifiers.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptModifierVisitor(Reference.Visitor aVisitor) {
-        if (modifiers.isEmpty()) {
-            return;
-        }
-        for (String modifier : modifiers) {
-            aVisitor.visit(modifier);
-        }
     }
 
 

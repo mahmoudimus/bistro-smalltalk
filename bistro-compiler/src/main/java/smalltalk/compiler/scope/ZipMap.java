@@ -8,10 +8,10 @@ import java.util.*;
 import java.util.zip.*;
 
 /**
- * Maps the classes located in an element of a class path. 
+ * Maps the classes located in an element of a class path.
  * Locates all package directories relative to an archive from the class path.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class ZipMap extends PathMap {
 

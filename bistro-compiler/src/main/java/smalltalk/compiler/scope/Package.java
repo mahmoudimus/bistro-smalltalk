@@ -14,17 +14,9 @@ import smalltalk.compiler.element.Container;
  * Represents a Java package and encodes its identification in a class definition. Also, contains classes imported from
  * the package.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Package extends Container {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Package facePackage);
-    }
 
     /**
      * Indicates all classes from a package.
@@ -386,14 +378,5 @@ public class Package extends Container {
      */
     public Face faceNamed(String faceName) {
         return faces.get(Name.typeName(faceName));
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
     }
 }

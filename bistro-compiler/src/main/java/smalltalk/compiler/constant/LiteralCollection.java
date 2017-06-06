@@ -10,17 +10,9 @@ import smalltalk.compiler.element.Selector;
 /**
  * Represents and encodes a literal collection.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public abstract class LiteralCollection extends Scalar {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(LiteralCollection collection);
-    }
 
     /**
      * Constructs a new LiteralCollection.
@@ -50,15 +42,6 @@ public abstract class LiteralCollection extends Scalar {
     @Override
     public boolean optimizes(Selector selector) {
         return !container().fileScope().needsCollections();
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
     }
 
     @Override

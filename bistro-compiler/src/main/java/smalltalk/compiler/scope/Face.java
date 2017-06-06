@@ -15,17 +15,9 @@ import smalltalk.compiler.element.*;
 /**
  * Represents and encodes a class or interface definition.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Face extends Code {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Face face);
-    }
 
     /**
      * Java package root.
@@ -1013,40 +1005,6 @@ public class Face extends Code {
         return baseFace().resolveTypeName(reference);
     }
 
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver interfaces.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptInterfaceVisitor(Reference.Visitor aVisitor) {
-        if (interfaces.isEmpty()) {
-            return;
-        }
-
-        for (String interfaceName : interfaces) {
-            aVisitor.visit(interfaceName);
-        }
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver methods.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptMethodVisitor(Method.Visitor aVisitor) {
-        for (Method m : methods) {
-            aVisitor.visit(m);
-        }
-    }
 
     @Override
     public Emission emitScope() {

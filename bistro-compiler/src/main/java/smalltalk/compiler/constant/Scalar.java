@@ -11,17 +11,9 @@ import smalltalk.compiler.element.Constant;
 /**
  * Represents a scalar constant and translates it into Java.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public abstract class Scalar extends Constant {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Scalar scalar);
-    }
 
     /**
      * Contains the scalar value as a string.
@@ -119,15 +111,6 @@ public abstract class Scalar extends Constant {
         } catch (Throwable ex) {
             return java.lang.Object.class;
         }
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
     }
 
     public Emission emitScalar() {

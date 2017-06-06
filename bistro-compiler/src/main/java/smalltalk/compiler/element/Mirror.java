@@ -8,7 +8,7 @@ import java.util.*;
 /**
  * Provides reflective utilities for dealing with primitive Java classes.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Mirror {
 
@@ -69,7 +69,7 @@ public class Mirror {
     public Mirror superior() {
         return Mirror.forClass(aClass.getSuperclass());
     }
-    
+
     public Class reflectedClass() {
         return aClass;
     }

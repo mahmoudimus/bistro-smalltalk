@@ -13,17 +13,9 @@ import smalltalk.compiler.scope.Method;
 /**
  * Optimizes the translation of a cast message into Java.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Cast extends Message {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Cast message);
-    }
 
     /**
      * Returns a new Cast message that unwraps the supplied (argument) in the context of a (wrapper) method.
@@ -136,25 +128,6 @@ public class Cast extends Message {
     @Override
     public String resolvedTypeName() {
         return arguments().get(0).name();
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    @Override
-    public void acceptVisitor(Operand.Visitor aVisitor) {
-        acceptVisitor((Visitor) aVisitor);
     }
 
     @Override

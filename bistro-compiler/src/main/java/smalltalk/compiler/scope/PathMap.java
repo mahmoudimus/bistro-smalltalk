@@ -7,10 +7,10 @@ import java.util.*;
 import java.io.IOException;
 
 /**
- * Maps the classes located in an element of a class path. 
+ * Maps the classes located in an element of a class path.
  * Locates all package directories relative to a base path from the class path.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class PathMap {
 
@@ -67,7 +67,7 @@ public class PathMap {
                 Package.named(packageName).loadFace(shortName);
             }
         }
-        
+
         if (!faceNames.isEmpty()) {
 //            System.out.println();
 //            System.out.println("loaded " + faceNames.size() + " from " + directoryName);
@@ -117,7 +117,7 @@ public class PathMap {
     public List<String> classesInPackage(Package aPackage) {
         return classesInDirectory(aPackage.pathname());
     }
-    
+
     public String packageContaining(String faceName) {
         return (!faceMap.containsKey(faceName) ? "" :
                 faceMap.get(faceName).replace(nameSeparator, Package.nameSeparator));

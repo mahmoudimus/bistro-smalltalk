@@ -9,11 +9,8 @@ import java.util.stream.Collectors;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.CommonTree;
-import org.stringtemplate.v4.AutoIndentWriter;
 
 import smalltalk.Name;
-import smalltalk.compiler.Bistro;
-import smalltalk.compiler.BistroLex;
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.*;
@@ -21,17 +18,9 @@ import smalltalk.compiler.element.*;
 /**
  * Represents a class file, including the package name, imports, and a face definition.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class File extends Scope {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(File file);
-    }
 
     /**
      * The extension for Bistro source files.
@@ -77,10 +66,7 @@ public class File extends Scope {
         }
     };
 
-    /**
-     * The token stream from the compiler.
-     */
-    TokenStream tokenStream;
+    TokenCompiler tokenCompiler = new TokenCompiler(this);
 
     /**
      * Contains the imports for a face definition.
@@ -115,16 +101,11 @@ public class File extends Scope {
         faceLibrary = Library.current;
         facePackage = null;
         faceScope = new Face(this);
-//		faceScope.metaFace( new Face( faceScope ) );
-    }
-
-    public void tokenStream(TokenStream aStream) {
-        tokenStream = aStream;
     }
 
     @Override
     public TokenStream tokenStream() {
-        return tokenStream;
+        return tokenCompiler.tokenStream();
     }
 
     /**
@@ -416,64 +397,15 @@ public class File extends Scope {
      * @throws Exception if raised
      */
     public boolean compile() throws Exception {
-        java.io.File sourceFile = sourceFile();
-        if (sourceFile == null || !sourceFile.exists()) {
-            String message = "Can't find source file for " + faceName();
-            System.out.println(message);
-            return false;
-        }
-
-        if (parser == null) parse();
-        clean();
-
-        try (PrintWriter oStream = targetStream()) {
-            emitScope().write(new AutoIndentWriter(oStream));
-        }
-        return true;
+        return tokenCompiler.compile();
     }
-
-    protected PrintWriter targetStream() throws IOException {
-        java.io.File targetFolder = facePackage.createTarget();
-
-        if (targetFolder == null) {
-            throw new FileNotFoundException(
-                    "Can't create " + facePackage.targetFolder().getAbsolutePath());
-        }
-
-        java.io.File targetFile = new java.io.File(targetFolder, targetFilename());
-        return new PrintWriter(new FileWriter(targetFile));
-    }
-
-    TokenSource lexer;
-    Bistro parser;
 
     /**
      * Parses the Bistro file indicated by this.
      * @throws Exception if raised
      */
     public void parse() throws Exception {
-        Scope.current = this;
-        parser = createParser();
-        parser.compilationUnit();
-    }
-
-    private Bistro createParser() throws Exception {
-        LegacyCommonTokenStream stream = createTokenStream();
-        stream.discardTokenType(Bistro.WhiteSpaces);
-        tokenStream = stream;
-        return new Bistro(stream);
-    }
-
-    private LegacyCommonTokenStream createTokenStream() throws Exception {
-        return new LegacyCommonTokenStream(createLexer());
-    }
-
-    private TokenSource createLexer() throws Exception {
-        return new BistroLex(createInputStream());
-    }
-
-    private CharStream createInputStream() throws Exception {
-        return new ANTLRFileStream(sourceFile().getAbsolutePath());
+        tokenCompiler.parseTokens();
     }
 
     /**
@@ -555,28 +487,6 @@ public class File extends Scope {
         return faceLibrary.resolveTypeName(reference);
     }
 
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver imports.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptImportVisitor(Reference.Visitor aVisitor) {
-        if (importCount() == 0) {
-            return;
-        }
-        for (String importName : faceImports()) {
-            aVisitor.visit(importName);
-        }
-    }
 
     @Override
     public Emission emitScope() {

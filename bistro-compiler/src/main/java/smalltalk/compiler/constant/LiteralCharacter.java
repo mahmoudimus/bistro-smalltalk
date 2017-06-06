@@ -5,22 +5,13 @@ package smalltalk.compiler.constant;
 
 import org.antlr.runtime.Token;
 import smalltalk.compiler.element.Container;
-import smalltalk.compiler.element.Operand;
 
 /**
  * Represents and encodes a literal Character.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class LiteralCharacter extends LiteralNumber {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(LiteralCharacter constant);
-    }
 
     /**
      * Returns a new literal Character from the supplied (token).
@@ -84,24 +75,5 @@ public class LiteralCharacter extends LiteralNumber {
     @Override
     public java.lang.String encodedValue() {
         return "'" + value.substring(1, 2) + "'";
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    @Override
-    public void acceptVisitor(Operand.Visitor aVisitor) {
-        acceptVisitor((Visitor) aVisitor);
     }
 }

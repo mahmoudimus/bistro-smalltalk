@@ -11,7 +11,7 @@ import smalltalk.compiler.element.*;
  * Maintains references to all classes and interfaces imported from external packages.
  * Packages are located relative to the system class path established by the Java environment.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Library extends Base {
 

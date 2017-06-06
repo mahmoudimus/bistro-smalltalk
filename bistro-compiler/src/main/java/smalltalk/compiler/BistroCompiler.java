@@ -17,7 +17,7 @@ import smalltalk.compiler.scope.ClassPath;
 /**
  * Translates a Bistro source file into a Java source file.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class BistroCompiler {
 

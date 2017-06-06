@@ -9,7 +9,7 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Maps names between Smalltalk selectors and Java method names.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Name {
 

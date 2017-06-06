@@ -10,17 +10,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Defines the basic capabilities of a Bistro compiler element.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Base {
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Base element);
-    }
 
     /**
      * An empty string.

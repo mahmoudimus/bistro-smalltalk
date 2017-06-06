@@ -11,7 +11,7 @@ import smalltalk.Name;
  * Provides a directory of the classes located by the Java class path. Locates packages by their directory names and
  * provides a list of the classes contained in a package.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class ClassPath {
 
@@ -34,7 +34,7 @@ public class ClassPath {
      * Constructs a new ClassPath.
      */
     protected ClassPath() { }
-    
+
     void clear() {
         contents.clear();
     }
@@ -75,7 +75,7 @@ public class ClassPath {
     public void parsePath(String path) {
         if (path == null) return;
         String[] folderPaths = path.split(separator);
-        for (String folderPath : folderPaths) 
+        for (String folderPath : folderPaths)
             mapPath(new java.io.File(folderPath));
     }
 
@@ -171,7 +171,7 @@ public class ClassPath {
         Collections.reverse(results);
         return results;
     }
-    
+
     public static String buildPath(String... basePaths) {
         int count = 0;
         StringBuilder builder = new StringBuilder();

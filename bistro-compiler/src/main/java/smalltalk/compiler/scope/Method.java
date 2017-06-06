@@ -12,7 +12,7 @@ import smalltalk.compiler.element.*;
 /**
  * Represents and encodes a method.
  *
- * @author Copyright 1999,2016 Nikolas S. Boyd. All rights reserved.
+ * @author Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
  */
 public class Method extends Block {
 
@@ -28,14 +28,6 @@ public class Method extends Block {
      * Creates new wrapper messages.
      */
     public static WrapperFactory wrapperFactory = null;
-
-    /**
-     * Defines an interface for visiting instances.
-     */
-    public static interface Visitor {
-
-        public void visit(Method method);
-    }
 
     /**
      * Contains the code of a primitive Java method.
@@ -294,15 +286,6 @@ public class Method extends Block {
     @Override
     public boolean hasPrimitiveFactory() {
         return this.hasLocals(); // || container().hasPrimitiveFactory();
-    }
-
-    /**
-     * Accepts a visitor for inspection of the receiver.
-     *
-     * @param aVisitor visits the receiver for its information.
-     */
-    public void acceptVisitor(Visitor aVisitor) {
-        aVisitor.visit(this);
     }
 
 
