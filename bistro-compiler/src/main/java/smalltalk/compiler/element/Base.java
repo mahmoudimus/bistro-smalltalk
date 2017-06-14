@@ -3,6 +3,7 @@
 //====================================================================
 package smalltalk.compiler.element;
 
+import static java.lang.String.format;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,17 +15,21 @@ import org.slf4j.LoggerFactory;
  */
 public class Base {
 
-    /**
-     * An empty string.
-     */
-    public static final String EmptyString = "";
     public static final String Nil = "nil";
+    public static final String Colon = ":";
+    public static final String EmptyString = "";
+
     protected static final String TAB = "\t";
     protected static final String LF = "\n";
+
     protected static final String SingleQuote = "'";
     protected static final String DoubledQuote = "''";
+
     protected static final String JavaQuote = "\"";
     protected static final String QuotedValue = JavaQuote + "%s" + JavaQuote;
+    public static String quoted(String text) {
+        return format(QuotedValue, text);
+    }
 
     /**
      * Names the root object class.
@@ -41,15 +46,20 @@ public class Base {
     /**
      * Names the root object meta-class.
      */
-    public static final String RootMetaclass = RootPackage + "Class";
+    public static final String SimpleMetaclass = "Class";
+    public static final String RootMetaclass = RootPackage + SimpleMetaclass;
     public static final String BehaviorClass = RootPackage + "Behavior";
     public static final String MetaclassMember = "$class";
 
     /**
      * The package component separator character.
      */
-    public static final char Dot = '.';
+    public static final char DOT = '.';
+    public static final String Dot = ".";
     public static final String WildDot = "\\.";
+    public static final String Associate = " >> ";
+
+    public static final String Override = "@Override";
 
     /**
      * The name of the primitive factory in smalltalk.behavior.Object.

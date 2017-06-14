@@ -3,11 +3,14 @@
 //====================================================================
 package smalltalk.compiler.scope;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import org.antlr.runtime.tree.CommonTree;
 
+import static smalltalk.Name.*;
+import smalltalk.compiler.element.*;
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
-import smalltalk.compiler.element.*;
 
 /**
  * Represents and encodes a method.
@@ -49,7 +52,7 @@ public class Method extends Block {
      */
     @Override
     public String description() {
-        return getClass().getName() + " = " + name();
+        return currentFace().typeName() + Associate + name();
     }
 
     /**
@@ -57,7 +60,7 @@ public class Method extends Block {
      * @return a scope ID
      */
     public String scopeID() {
-        return "\"" + currentFace().typeName() + "." + name() + "\"";
+        return quoted(currentFace().typeName() + Dot + name());
     }
 
     /**
@@ -67,10 +70,10 @@ public class Method extends Block {
     public void clean() {
         super.clean();
         if (!this.isConstructor() && this.needsType()) {
-            type(Base.RootClass);
+            type(RootClass);
         }
         if (needsAccess()) {
-            modifiers.add(0, "public");
+            modifiers.add(0, Public);
         }
     }
 
@@ -177,7 +180,7 @@ public class Method extends Block {
      * @return whether this method is a wrapped method.
      */
     public boolean isWrapped() {
-        return modifiers.contains("wrapped");
+        return modifiers.contains(Wrapped);
     }
 
     /**
@@ -209,9 +212,7 @@ public class Method extends Block {
         wrapper.type(type);
         wrapper.comment(comment);
         arguments.eraseTypes(wrapper.arguments);
-        wrapper.addStatement(
-                wrapperFactory.createWrapper(this, wrapper)
-        );
+        wrapper.addStatement(wrapperFactory.createWrapper(this, wrapper));
         return wrapper;
     }
 
@@ -288,6 +289,127 @@ public class Method extends Block {
         return this.hasLocals(); // || container().hasPrimitiveFactory();
     }
 
+    @Override
+    public Face facialScope() {
+        return super.facialScope().asScope(Face.class);
+    }
+
+    @Override
+    public File fileScope() {
+        return super.fileScope().asScope(File.class);
+    }
+
+    static final String NewSignature = RootClass + ":$new";
+    static final String[] OverrideSignatures = {
+        "boolean:equals",
+        "int:hashCode",
+        "void:printStackTrace",
+    };
+
+    static final List<String> StandardOverrides = Arrays.asList(OverrideSignatures);
+
+    public boolean operatesOnSame() {
+        if (arguments().isEmpty()) return false;
+        String argType = arguments().get(0).type();
+        String faceName = facialScope().name();
+        if (faceName.endsWith("LargeInteger")) {
+            getLogger().info("");
+        }
+        return faceName.equals(argType);
+    }
+
+    public boolean overridesArguments(Method m) {
+        Face mFace = m.facialScope();
+        if (argumentCount() == 1) {
+            String argType = arguments().get(0).typeFace().name();
+            if (argType.equals(mFace.name())) return false; // concrete operation!
+        }
+
+        if (m.argumentCount() == argumentCount()) {
+            List<Variable> args = arguments();
+            List<Variable> margs = m.arguments();
+            for (int index = 0; index < args.size(); index++) {
+                if (!args.get(index).typeFace().inheritsFrom(margs.get(index).typeFace())) {
+                    return false; // arg type not derived from base method arg type
+                }
+            }
+            return true; // all arg types derive from base method arg types
+        }
+
+        return false; // mismatched
+    }
+
+    public boolean overrides(Method m) {
+        if (facialScope() == m.facialScope()) return false;
+
+        if (facialScope().inheritsFrom(m.facialScope())) {
+            if (m.fullSignature().equals(erasedSignature())) {
+                
+            }
+            if (m.shortSignature().equals(shortSignature())) {
+                return overridesArguments(m);
+            }
+        }
+
+        return false;
+    }
+
+    public boolean overridesParent() {
+        String sig = shortSignature();
+        if (StandardOverrides.stream().anyMatch(ovr -> sig.startsWith(ovr))) {
+            return true; // override standard signature
+        }
+
+        Face facialScope = facialScope();
+        if (facialScope.isInterface()) return false;
+
+        if (sig.startsWith(NewSignature)) {
+            return !facialScope.name().equals("Behavior");
+        }
+
+        if (facialScope.hasNoHeritage()) return false;
+
+//        if (name().equals("$equal") && !arguments().get(0).type().equals(SimpleRoot)) {
+//            return false;
+//        }
+
+        if (facialScope.baseFace() == null) {
+            System.out.println("Warning! method face has no base " + description());
+            return false;
+        }
+
+        return facialScope.baseFace().overridenBy(this);
+    }
+
+    public String shortSignature() {
+        return type() + Colon + name();
+    }
+
+    public String erasedSignature() {
+        return shortSignature() +
+                emitTerm(emitList(argumentErasures())).result().render();
+    }
+
+    public String fullSignature() {
+        return shortSignature() +
+                emitTerm(emitList(argumentSignatures())).result().render();
+    }
+
+    public List<Emission> argumentErasures() {
+        return arguments().stream()
+                .map(arg -> emitItem(SimpleRoot))
+                .collect(Collectors.toList());
+    }
+
+    public List<Emission> argumentSignatures() {
+        return arguments().stream()
+                .map(arg -> emitItem(arg.shortSignature()))
+                .collect(Collectors.toList());
+    }
+
+    public Emission emitNotes() {
+        return overridesParent() ? emitItem(Override) : emitEmpty();
+    }
 
     @Override
     public Emission emitScope() {
@@ -324,7 +446,7 @@ public class Method extends Block {
     @Override
     public Emission emitSignature() {
         return emit("MethodSignature")
-                .with("notes", emitEmpty())
+                .with("notes", emitNotes())
                 .with("details", emitModifiers())
                 .with("type", emitTypeName(type()))
                 .with("name", name())

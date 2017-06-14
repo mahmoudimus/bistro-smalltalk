@@ -217,7 +217,7 @@ public class Package extends Container {
      * @return the directory pathname identified by the package.
      */
     public String pathname() {
-        return name.replace(Dot, directorySeparatorChar);
+        return name.replace(DOT, directorySeparatorChar);
     }
 
     public HashMap<String, File> parseSources() throws Exception {

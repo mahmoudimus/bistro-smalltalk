@@ -4,6 +4,7 @@
 package smalltalk.compiler.element;
 
 import java.util.*;
+import java.lang.reflect.*;
 
 /**
  * Provides reflective utilities for dealing with primitive Java classes.
@@ -74,6 +75,24 @@ public class Mirror {
         return aClass;
     }
 
+    public Field fieldNamed(String fieldName) {
+        try {
+            if (aClass == null) return null;
+            return aClass.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            return superior().fieldNamed(fieldName);
+        }
+    }
+
+    public Method methodNamed(String methodName, Class[] arguments) {
+        try {
+            if (aClass == null) return null;
+            return aClass.getDeclaredMethod(methodName, arguments);
+        } catch (Throwable ex) {
+            return superior().methodNamed(methodName, arguments);
+        }
+    }
+
     /**
      * Returns the type of the field named (fieldName).
      *
@@ -81,14 +100,8 @@ public class Mirror {
      * @return the type of the field named (fieldName).
      */
     public Class typeFieldNamed(String fieldName) {
-        if (aClass == null) {
-            return null;
-        }
-        try {
-            return aClass.getDeclaredField(fieldName).getType();
-        } catch (NoSuchFieldException e) {
-            return superior().typeFieldNamed(fieldName);
-        }
+        Field f = fieldNamed(fieldName);
+        return f == null ? null : f.getType();
     }
 
     /**
@@ -99,14 +112,8 @@ public class Mirror {
      * @return the type of the method named (methodName).
      */
     public Class typeMethodNamed(String methodName, Class[] arguments) {
-        if (aClass == null) {
-            return null;
-        }
-        try {
-            return aClass.getDeclaredMethod(methodName, arguments).getReturnType();
-        } catch (Throwable ex) {
-            return superior().typeMethodNamed(methodName, arguments);
-        }
+        Method m = methodNamed(methodName, arguments);
+        return m == null ? null : m.getReturnType();
     }
 
     /**

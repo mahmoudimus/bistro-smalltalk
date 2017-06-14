@@ -1,7 +1,11 @@
 //====================================================================
 // Constant.java
 //====================================================================
-package smalltalk.compiler.element;
+package smalltalk.compiler.constant;
+
+import smalltalk.compiler.element.Container;
+import smalltalk.compiler.element.Operand;
+import smalltalk.compiler.element.Selector;
 
 /**
  * Represents and encodes a Bistro constant value in Java.

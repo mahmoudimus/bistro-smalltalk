@@ -36,7 +36,7 @@ class: [
 	"Returns the method result or rethrows itself if (scopeID) matches.
 	@return the method result or rethrows itself if (scopeID) matches."
 	(Object) exitOn: scopeID (java.lang.String) {
-		if (scope == scopeID) return value;
+		if (scope != null && scope.equals(scopeID)) return value;
 		throw this;
 	}
 ]

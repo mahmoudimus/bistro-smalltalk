@@ -30,11 +30,11 @@ emitFaceSignature(comment,notes,type,subType,baseType,typeClass,faces) ::=
   implements <faces><endif><endif>
 >>
 
-emitFaceMembers(type,name,metaName,notClass) ::=
+emitFaceMembers(type,name,metaName,member,override) ::=
 <<
 /** <type> instance for <name>. **/
 public static final <metaName> $class = new <metaName>(<name>.class);
-<if(notClass)>public Behavior $class() { return $class; }<endif>
+<if(override)>@Override <endif>public Behavior $class() { return <member>; }
 >>
 
 emitMetaMembers(name) ::=
@@ -68,7 +68,8 @@ emitExitedMethod(comment,type,signature,locals,content,scope) ::=
 
 /**
 * <if(type)>@return <type><endif><comment>
-*/<endif>
+*/
+<endif>
 <signature> {
   <if(locals)><locals><endif>
   try {
@@ -86,7 +87,8 @@ emitPrimitiveMethod(comment,type,signature,code) ::=
 
 /**
 * <if(type)>@return <type><endif><comment>
-*/<endif>
+*/
+<endif>
 <signature>
 <code>
 >>
@@ -97,7 +99,8 @@ emitMethodEmpty(comment,type,signature) ::=
 
 /**
 * <if(type)>@return <type><endif><comment>
-*/<endif>
+*/
+<endif>
 <signature>;
 >>
 
@@ -107,7 +110,8 @@ emitMethodScope(comment,type,signature,locals,content) ::=
 
 /**
 * <if(type)>@return <type><endif><comment>
-*/<endif>
+*/
+<endif>
 <signature> {
   <if(locals)><locals><endif>
   <content>
@@ -115,7 +119,8 @@ emitMethodScope(comment,type,signature,locals,content) ::=
 >>
 
 emitMethodSignature(notes,details,type,name,arguments,exceptions) ::= 
-<<<if(notes)><notes><endif>
+<<
+<if(notes)><notes><endif>
 <details> <type> <name>(<if(arguments)><arguments; separator=", "><endif>)<exceptions> 
 >>
 
