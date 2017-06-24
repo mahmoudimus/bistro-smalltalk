@@ -356,15 +356,15 @@ public class Face extends Code {
     }
 
     protected void resolveBase() {
-//        System.out.println("base: " + baseName);
         if (baseName.isEmpty()) return;
         if (baseName.contains(".")) {
-//            System.out.println("base: " + baseName);
             return;
         }
+
         Face baseFace = Face.named(baseName);
-        if (baseFace != null) baseName = baseFace.fullName();
-//        System.out.println("base: " + baseName);
+        if (baseFace != null) {
+            baseName = baseFace.fullName();
+        }
     }
 
     /**
@@ -648,8 +648,11 @@ public class Face extends Code {
     public List<Face> fullInheritance() {
         ArrayList<Face> results = new ArrayList();
         if (hasHeritage()) {
-            results.add(baseFace());
-            results.addAll(baseFace().fullInheritance());
+            Face baseFace = baseFace();
+            if (baseFace != null) {
+                results.add(baseFace);
+                results.addAll(baseFace.fullInheritance());
+            }
         }
 
         results.addAll(typeInheritance());
@@ -734,7 +737,6 @@ public class Face extends Code {
      */
     public void baseName(String faceName) {
         baseName = faceName;
-//        System.out.println(name + " extends " + baseName);
     }
 
     /**
@@ -1035,54 +1037,30 @@ public class Face extends Code {
         return baseFace().resolveTypeName(reference);
     }
 
-    public boolean knowsMethod(Method m) {
-        return methodMap.keySet().stream()
-                .anyMatch(s -> s.startsWith(m.fullSignature()) || s.startsWith(m.shortSignature()));
-    }
-
     public String matchSignatures(Method m) {
-        for (String s : methodMap.keySet()) {
-            if (s.startsWith(m.fullSignature())) return s;
-            if (m.argumentCount() > 0) {
-                if (s.startsWith(m.erasedSignature())) return s;
+        String fullSig = m.fullSignature();
+        if (methodMap.containsKey(fullSig)) {
+            return fullSig;
+        }
+
+        String erasedSig = m.erasedSignature();
+        if (methodMap.containsKey(erasedSig)) {
+            return erasedSig;
+        }
+
+        String shortSig = m.shortSignature();
+        if (m.argumentCount() > 0) {
+            for (String s : methodMap.keySet()) {
+                if (s.startsWith(shortSig)) {
+                    return s;
+                }
             }
         }
+
         return EmptyString;
     }
 
-    public Method findSimilar(Method m) {
-        for (String sig : methodMap.keySet()) {
-            if (sig.startsWith(m.shortSignature())) return methodMap.get(sig);
-        }
-        return null;
-    }
-
-    public Face methodResolver(Method m) {
-        String sig = m.fullSignature();
-        if (m.facialScope().name().equals("Number")) {
-            getLogger().info("");
-        }
-
-        if (!matchSignatures(m).isEmpty()) {
-            return this;
-        }
-
-        List<Face> heritage = fullInheritance();
-        for (Face aFace : heritage) {
-            if (!aFace.matchSignatures(m).isEmpty()) {
-                return aFace;
-            }
-        }
-
-        return null;
-    }
-
     public Method resolveMethod(Method m) {
-        String sig = m.fullSignature();
-        if (m.facialScope().name().equals("LargeInteger")) {
-            getLogger().info("");
-        }
-
         String s = matchSignatures(m);
         if (!s.isEmpty()) {
             return methodMap.get(s);
@@ -1100,7 +1078,6 @@ public class Face extends Code {
     }
 
     public boolean overridenBy(Method m) {
-        String sig = m.fullSignature();
         Face methodFace = m.facialScope();
         if (methodFace.inheritsFrom(this)) {
             Method result = resolveMethod(m);

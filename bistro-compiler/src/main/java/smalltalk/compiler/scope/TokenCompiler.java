@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.AutoIndentWriter;
 import smalltalk.compiler.Bistro;
+import smalltalk.compiler.Bistro.compilationUnit_return;
 import smalltalk.compiler.BistroLex;
 import smalltalk.compiler.Emission;
 import smalltalk.compiler.element.Scope;
@@ -17,8 +18,10 @@ import smalltalk.compiler.element.Scope;
 public class TokenCompiler {
 
     File tokenFile;
-    Bistro parser;
     TokenStream tokenStream;
+
+    Bistro parser;
+    compilationUnit_return result;
 
     public TokenCompiler(File aFile) {
         tokenFile = aFile;
@@ -65,7 +68,7 @@ public class TokenCompiler {
             try {
                 parser = new Bistro(createTokenStream());
                 Scope.current = tokenFile;
-                parser.compilationUnit();
+                result = parser.compilationUnit();
             }
             catch (Exception ex) {
                 // unlikely given safeguards

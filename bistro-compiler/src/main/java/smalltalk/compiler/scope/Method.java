@@ -299,85 +299,102 @@ public class Method extends Block {
         return super.fileScope().asScope(File.class);
     }
 
+//    static final String CoerceSignature = RootClass + ":coerce";
+//    static final String[] CoerceBases = { "Number", "LargeInteger", };
+//    static final List<String> BaseCoercions = Arrays.asList(CoerceBases);
+
     static final String NewSignature = RootClass + ":$new";
+    static final String InitSignature = RootClass + ":initialize";
+
     static final String[] OverrideSignatures = {
-        "boolean:equals",
         "int:hashCode",
+        "boolean:equals",
         "void:printStackTrace",
     };
 
     static final List<String> StandardOverrides = Arrays.asList(OverrideSignatures);
-
-    public boolean operatesOnSame() {
-        if (arguments().isEmpty()) return false;
-        String argType = arguments().get(0).type();
-        String faceName = facialScope().name();
-        if (faceName.endsWith("LargeInteger")) {
-            getLogger().info("");
-        }
-        return faceName.equals(argType);
+    public boolean matchesStandardOverride() {
+        String shortSig = shortSignature();
+        return StandardOverrides.stream().anyMatch(sig -> shortSig.startsWith(sig));
     }
 
     public boolean overridesArguments(Method m) {
-        Face mFace = m.facialScope();
-        if (argumentCount() == 1) {
-            String argType = arguments().get(0).typeFace().name();
-            if (argType.equals(mFace.name())) return false; // concrete operation!
-        }
+        if (m.argumentCount() != argumentCount()) return false;
 
-        if (m.argumentCount() == argumentCount()) {
-            List<Variable> args = arguments();
-            List<Variable> margs = m.arguments();
-            for (int index = 0; index < args.size(); index++) {
-                if (!args.get(index).typeFace().inheritsFrom(margs.get(index).typeFace())) {
-                    return false; // arg type not derived from base method arg type
-                }
+        List<Variable> args = arguments();
+        List<Variable> margs = m.arguments();
+        for (int index = 0; index < args.size(); index++) {
+            Face argType = args.get(index).typeFace();
+            Face otherType = margs.get(index).typeFace();
+            if (argType == null || !argType.equals(otherType)) {
+                return false; // arg type not derived from base method arg type
             }
-            return true; // all arg types derive from base method arg types
         }
 
-        return false; // mismatched
+        return true; // all arg types derive from base method arg types
     }
 
     public boolean overrides(Method m) {
         if (facialScope() == m.facialScope()) return false;
 
-        if (facialScope().inheritsFrom(m.facialScope())) {
-            if (m.fullSignature().equals(erasedSignature())) {
-                
-            }
-            if (m.shortSignature().equals(shortSignature())) {
-                return overridesArguments(m);
-            }
-        }
+        String mSig = m.fullSignature();
+        String fullSig = fullSignature();
+        String shortSig = shortSignature();
+        String erasedSig = erasedSignature();
+
+        if (mSig.equals(fullSig)) return true;
+        if (mSig.equals(erasedSig)) return fullSig.equals(erasedSig);
+        if (m.shortSignature().equals(shortSig)) return overridesArguments(m);
 
         return false;
     }
 
-    public boolean overridesParent() {
-        String sig = shortSignature();
-        if (StandardOverrides.stream().anyMatch(ovr -> sig.startsWith(ovr))) {
-            return true; // override standard signature
-        }
-
+    public boolean needsOverrideNote() {
         Face facialScope = facialScope();
-        if (facialScope.isInterface()) return false;
-
-        if (sig.startsWith(NewSignature)) {
-            return !facialScope.name().equals("Behavior");
-        }
-
-        if (facialScope.hasNoHeritage()) return false;
-
-//        if (name().equals("$equal") && !arguments().get(0).type().equals(SimpleRoot)) {
-//            return false;
-//        }
-
-        if (facialScope.baseFace() == null) {
-            System.out.println("Warning! method face has no base " + description());
+        if (facialScope.isInterface()) {
             return false;
         }
 
+        String fullSig = fullSignature();
+        String shortSig = shortSignature();
+        if (matchesStandardOverride()) {
+            return true; // override standard signature
+        }
+
+        List<Face> heritage = facialScope.fullInheritance();
+        for (Face aFace : heritage) {
+            if (facialScope.isMetaface()) {
+                aFace = aFace.metaFace();
+            }
+
+            if (aFace != null) {
+                String s = aFace.matchSignatures(this);
+                if (!s.isEmpty()) {
+                    Method m = aFace.methodMap.get(s);
+                    if (this.overrides(m)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        if (shortSig.equals(NewSignature) ||
+            shortSig.equals(InitSignature)) {
+            return !facialScope.name().equals(SimpleBehavior);
+        }
+
+//        if (shortSig.equals(CoerceSignature)) {
+//            if (facialScope.isMetaface()) {
+//                return !BaseCoercions.contains(facialScope().container().name());
+//            }
+//        }
+
+        if (facialScope.baseFace() == null ||
+            facialScope.hasNoHeritage()) {
+            return false;
+        }
+
+//        return false;
         return facialScope.baseFace().overridenBy(this);
     }
 
@@ -408,7 +425,7 @@ public class Method extends Block {
     }
 
     public Emission emitNotes() {
-        return overridesParent() ? emitItem(Override) : emitEmpty();
+        return needsOverrideNote() ? emitItem(Override) : emitEmpty();
     }
 
     @Override

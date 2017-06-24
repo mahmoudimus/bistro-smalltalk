@@ -48,7 +48,8 @@ public class Base {
      */
     public static final String SimpleMetaclass = "Class";
     public static final String RootMetaclass = RootPackage + SimpleMetaclass;
-    public static final String BehaviorClass = RootPackage + "Behavior";
+    public static final String SimpleBehavior = "Behavior";
+    public static final String BehaviorClass = RootPackage + SimpleBehavior;
     public static final String MetaclassMember = "$class";
 
     /**

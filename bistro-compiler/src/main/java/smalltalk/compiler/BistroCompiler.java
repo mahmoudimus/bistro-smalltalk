@@ -193,7 +193,9 @@ public class BistroCompiler {
         String classPath = classBase.getAbsolutePath();
         String servletPath = workFolder + ServletAPI;
         String completePath = ClassPath.buildPath(classPath, servletPath);
-        String[] options = { "-nowarn", "-d", classPath, "-cp", completePath };
+        String[] options = {
+            "-nowarn", "-d", classPath, "-cp", completePath,
+        };
 
         return compiler.getTask(null, fileManager, null, Arrays.asList(options), null,
                         fileManager.getJavaFileObjectsFromStrings(getTargetFilePaths()));
