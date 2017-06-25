@@ -2,9 +2,13 @@ package smalltalk.compiler.scope;
 
 import java.io.*;
 import org.antlr.runtime.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.AutoIndentWriter;
 import smalltalk.compiler.Bistro;
+import smalltalk.compiler.Bistro.compilationUnit_return;
 import smalltalk.compiler.BistroLex;
+import smalltalk.compiler.Emission;
 import smalltalk.compiler.element.Scope;
 
 /**
@@ -14,8 +18,10 @@ import smalltalk.compiler.element.Scope;
 public class TokenCompiler {
 
     File tokenFile;
-    Bistro parser;
     TokenStream tokenStream;
+
+    Bistro parser;
+    compilationUnit_return result;
 
     public TokenCompiler(File aFile) {
         tokenFile = aFile;
@@ -25,8 +31,12 @@ public class TokenCompiler {
         return tokenStream;
     }
 
-    public boolean alreadyParsed() {
+    public boolean wasParsed() {
         return parser != null;
+    }
+
+    public boolean notParsed() {
+        return parser == null;
     }
 
     /**
@@ -41,7 +51,7 @@ public class TokenCompiler {
         }
 
         parseTokens();
-        if (alreadyParsed()) {
+        if (wasParsed()) {
             emitCode();
             return true;
         }
@@ -51,14 +61,14 @@ public class TokenCompiler {
     }
 
     /**
-     * Parses the associated tokens.
+     * Parses the associated tokens if needed.
      */
     public void parseTokens() {
-        if (!alreadyParsed()) {
+        if (notParsed()) {
             try {
                 parser = new Bistro(createTokenStream());
                 Scope.current = tokenFile;
-                parser.compilationUnit();
+                result = parser.compilationUnit();
             }
             catch (Exception ex) {
                 // unlikely given safeguards
@@ -87,19 +97,22 @@ public class TokenCompiler {
         java.io.File targetFolder = tokenFile.facePackage().createTarget();
         if (targetFolder == null) return; // failure already reported
 
-        try {
-            java.io.File targetFile = new java.io.File(targetFolder, tokenFile.targetFilename());
-            try (PrintWriter oStream = new PrintWriter(new FileWriter(targetFile))) {
-                tokenFile.emitScope().write(new AutoIndentWriter(oStream));
-            }
+        java.io.File targetFile = new java.io.File(targetFolder, tokenFile.targetFilename());
+        try (PrintWriter oStream = new PrintWriter(new FileWriter(targetFile))) {
+            Emission scope = tokenFile.emitScope();
+            scope.write(new AutoIndentWriter(oStream));
         }
         catch (Exception ex) {
-            // unlikely given safeguards
+            getLogger().error(ex.getMessage(), ex);
         }
     }
 
     private void reportMissingSource() {
         String message = "Can't find source file for " + tokenFile.faceName();
         System.out.println(message);
+    }
+
+    private Logger getLogger() {
+        return LoggerFactory.getLogger(getClass());
     }
 }

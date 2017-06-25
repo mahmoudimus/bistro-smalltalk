@@ -183,6 +183,10 @@ public class Variable extends Reference {
         type = typeName;
     }
 
+    public Face typeFace() {
+        return Face.named(type());
+    }
+
     /**
      * Returns the scope that resolves this reference.
      *

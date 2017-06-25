@@ -562,9 +562,17 @@ public class Reference extends Operand {
         }
 
         if (this.refersToMetaclass()) {
-            result = result + Dot + MetaclassMember;
+            result = result + DOT + MetaclassMember;
         }
         return result;
+    }
+
+    public String shortSignature() {
+        return revisedTypeName();
+    }
+
+    public String fullSignature() {
+        return revisedTypeName() + Colon + name();
     }
 
 

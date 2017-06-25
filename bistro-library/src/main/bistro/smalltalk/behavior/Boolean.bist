@@ -36,7 +36,7 @@ class:
 
 	"Converts the receiver to an elementary boolean."
 	(java.lang.Boolean) elementaryBoolean
-	{	return new java.lang.Boolean( primitiveBoolean() );
+	{	return primitiveBoolean();
 	}
 
 "comparing"
@@ -80,7 +80,7 @@ class:
 
 	"Evaluates (trueBlock) if the receiver indicates true.
 	Otherwise, evaluates (falseBlock)."
-	abstract 
+	abstract
 	ifTrue: trueBlock (ZeroArgumentBlock)
 	ifFalse: falseBlock (ZeroArgumentBlock) []
 
@@ -89,7 +89,7 @@ class:
 
 	"Evaluates (falseBlock) if the receiver indicates false.
 	Otherwise, evaluates (trueBlock)."
-	abstract 
+	abstract
 	ifFalse: falseBlock (ZeroArgumentBlock)
 	ifTrue: trueBlock (ZeroArgumentBlock) []
 

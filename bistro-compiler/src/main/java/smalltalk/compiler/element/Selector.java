@@ -50,11 +50,6 @@ public class Selector extends Base {
     public static final char COLON = ':';
 
     /**
-     * A colon.
-     */
-    public static final String Colon = ":";
-
-    /**
      * An underline character.
      */
     static final char UNDER = '_';

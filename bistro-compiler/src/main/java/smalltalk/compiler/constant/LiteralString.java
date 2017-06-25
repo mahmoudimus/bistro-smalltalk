@@ -75,6 +75,6 @@ public class LiteralString extends LiteralCollection {
      */
     @Override
     public String encodedValue() {
-        return format(QuotedValue, value.replace(DoubledQuote, SingleQuote).replace(SingleQuote, EmptyString));
+        return quoted(value.replace(DoubledQuote, SingleQuote).replace(SingleQuote, EmptyString));
     }
 }

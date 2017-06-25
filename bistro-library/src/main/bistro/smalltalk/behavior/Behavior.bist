@@ -168,10 +168,10 @@ class:
 	"Indicates whether the receiver inherits from (aClass)."
 	inheritsFrom: aClass {
 		Behavior aBehavior = (Behavior) aClass;
-		return( 
+		return(
 			primitive.BooleanFrom(
 				aBehavior.primitiveClass()
-					.isAssignableFrom( this.primitiveClass() ) 
+					.isAssignableFrom( this.primitiveClass() )
 			)
 		);
 	}

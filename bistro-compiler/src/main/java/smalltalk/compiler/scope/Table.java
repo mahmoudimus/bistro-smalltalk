@@ -209,7 +209,6 @@ public class Table extends Container {
      * @return whether all of the symbols have erasable types.
      */
     public boolean hasErasableTypes() {
-        Face rootFace = Face.named(RootClass);
         for (Variable symbol : symbols()) {
             String typeName = symbol.resolvedTypeName();
             if (typeName.isEmpty()) return false;
@@ -220,12 +219,7 @@ public class Table extends Container {
             } else {
                 Face typeFace = Face.named(typeName);
                 if (typeFace == null) return false;
-                if (typeFace.inheritsFrom(rootFace)) {
-                    // types derived from Object are erasable
-                } else {
-                    return false;
-                    // if any variable is not erasable
-                }
+                if (!typeFace.isEraseable()) return false;
             }
         }
         return true;

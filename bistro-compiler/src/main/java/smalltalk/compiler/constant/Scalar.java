@@ -6,7 +6,6 @@ package smalltalk.compiler.constant;
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.Container;
-import smalltalk.compiler.element.Constant;
 
 /**
  * Represents a scalar constant and translates it into Java.

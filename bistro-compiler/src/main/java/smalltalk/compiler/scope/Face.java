@@ -5,9 +5,11 @@ package smalltalk.compiler.scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import static java.lang.String.format;
 import org.antlr.runtime.tree.CommonTree;
 
 import smalltalk.Name;
+import static smalltalk.Name.*;
 import smalltalk.compiler.Emission;
 import static smalltalk.compiler.Emission.emit;
 import smalltalk.compiler.element.*;
@@ -150,6 +152,7 @@ public class Face extends Code {
      * Contains the method definitions for this face.
      */
     List<Method> methods = new ArrayList();
+    HashMap<String, Method> methodMap = new HashMap();
 
     /**
      * Constructs a new Face.
@@ -270,7 +273,7 @@ public class Face extends Code {
         resolveBase();
         super.clean();
         if (this.isMetaface()) {
-            modifiers.add(0, "static");
+            modifiers.add(0, Static);
         } else if (!this.hasMetaface()) {
             if (!this.hasElementaryBase()) {
                 this.addMetaface();
@@ -278,7 +281,7 @@ public class Face extends Code {
         }
 
         if (needsAccess()) {
-            modifiers.add(0, "public");
+            modifiers.add(0, Public);
         }
 
         Method method = methods.get(methods.size() - 1);
@@ -292,14 +295,20 @@ public class Face extends Code {
         for (Method m : methods()) {
             m.clean();
             if (m.isAbstract() && !this.isAbstract()) {
-                addModifier("abstract");
+                addModifier(Abstract);
             }
-            if (m.isConstructor()
-                    && m.argumentCount() == 0) {
+            if (m.isConstructor() && m.argumentCount() == 0) {
                 foundConstructor = true;
             }
             if (m.isInstantiator()) {
                 foundInstantiator = true;
+            }
+        }
+
+        for (Method m : methods()) {
+            methodMap.put(m.fullSignature(), m);
+            if (m.argumentCount() > 0) {
+                methodMap.put(m.erasedSignature(), m);
             }
         }
 
@@ -317,27 +326,15 @@ public class Face extends Code {
         for (Method m : methods()) {
             if (m.isWrapped()) {
                 if (wrappers.contains(m.name())) {
-                    System.out.println(
-                            "Warning! " + className() + " >> "
-                            + m.selector().contents()
-                            + " was declared wrapped, but already has wrapper"
-                    );
+                    reportAlreadyWrapped(m);
                 } else if (m.needsWrapper()) {
+                    reportBuildingWrapper(m);
                     wrappers.add(m.name());
-                    System.out.println(
-                            "building wrapper method for "
-                            + className() + " >> "
-                            + m.selector().contents()
-                    );
                     Method wrapper = m.buildWrapper();
                     addMethod(wrapper);
                     wrapper.clean();
                 } else {
-                    System.out.println(
-                            "Warning! " + className() + " >> "
-                            + m.selector().contents()
-                            + " was declared wrapped, but needs no wrapper"
-                    );
+                    reportExtraneousWrapper(m);
                 }
             }
         }
@@ -359,15 +356,15 @@ public class Face extends Code {
     }
 
     protected void resolveBase() {
-//        System.out.println("base: " + baseName);
         if (baseName.isEmpty()) return;
         if (baseName.contains(".")) {
-//            System.out.println("base: " + baseName);
             return;
         }
+
         Face baseFace = Face.named(baseName);
-        if (baseFace != null) baseName = baseFace.fullName();
-//        System.out.println("base: " + baseName);
+        if (baseFace != null) {
+            baseName = baseFace.fullName();
+        }
     }
 
     /**
@@ -432,6 +429,11 @@ public class Face extends Code {
      */
     public boolean hasElementaryBase() {
         return !baseMirror().hasMetaclass();
+    }
+
+    public boolean isEraseable() {
+        Face rootFace = Face.named(RootClass);
+        return rootFace == this || this.inheritsFrom(rootFace);
     }
 
     /**
@@ -631,12 +633,42 @@ public class Face extends Code {
      * @return the face from which this face was derived.
      */
     public Face baseFace() {
-        String baseName = typeFace().baseName();
-        return Library.current.faceNamed(baseName);
+        String faceName = typeFace().baseName();
+        return Library.current.faceNamed(faceName);
+    }
+
+    public boolean hasHeritage() {
+        return (!baseName.isEmpty() && !Nil.equals(baseName));
     }
 
     public boolean hasNoHeritage() {
         return (baseName.isEmpty() || Nil.equals(baseName));
+    }
+
+    public List<Face> fullInheritance() {
+        ArrayList<Face> results = new ArrayList();
+        if (hasHeritage()) {
+            Face baseFace = baseFace();
+            if (baseFace != null) {
+                results.add(baseFace);
+                results.addAll(baseFace.fullInheritance());
+            }
+        }
+
+        results.addAll(typeInheritance());
+        return results;
+    }
+
+    public List<Face> typeInheritance() {
+        ArrayList<Face> results = new ArrayList();
+        for (String typeName : interfaces()) {
+            Face faceType = Library.current.faceNamed(typeName);
+            if (faceType != null) {
+                results.add(faceType);
+                results.addAll(faceType.fullInheritance());
+            }
+        }
+        return results;
     }
 
     /**
@@ -646,10 +678,11 @@ public class Face extends Code {
      */
     public boolean inheritsFrom(Face superFace) {
         if (superFace == null) return false;
-        if (this == superFace) return true;
         if (this.hasNoHeritage()) return false;
+
         Face baseFace = baseFace();
         if (baseFace == null) return false;
+        if (baseFace == superFace) return true;
         return baseFace.inheritsFrom(superFace);
     }
 
@@ -704,7 +737,6 @@ public class Face extends Code {
      */
     public void baseName(String faceName) {
         baseName = faceName;
-//        System.out.println(name + " extends " + baseName);
     }
 
     /**
@@ -1005,6 +1037,56 @@ public class Face extends Code {
         return baseFace().resolveTypeName(reference);
     }
 
+    public String matchSignatures(Method m) {
+        String fullSig = m.fullSignature();
+        if (methodMap.containsKey(fullSig)) {
+            return fullSig;
+        }
+
+        String erasedSig = m.erasedSignature();
+        if (methodMap.containsKey(erasedSig)) {
+            return erasedSig;
+        }
+
+        String shortSig = m.shortSignature();
+        if (m.argumentCount() > 0) {
+            for (String s : methodMap.keySet()) {
+                if (s.startsWith(shortSig)) {
+                    return s;
+                }
+            }
+        }
+
+        return EmptyString;
+    }
+
+    public Method resolveMethod(Method m) {
+        String s = matchSignatures(m);
+        if (!s.isEmpty()) {
+            return methodMap.get(s);
+        }
+
+        List<Face> heritage = fullInheritance();
+        for (Face aFace : heritage) {
+            s = aFace.matchSignatures(m);
+            if (!s.isEmpty()) {
+                return aFace.methodMap.get(s);
+            }
+        }
+
+        return null;
+    }
+
+    public boolean overridenBy(Method m) {
+        Face methodFace = m.facialScope();
+        if (methodFace.inheritsFrom(this)) {
+            Method result = resolveMethod(m);
+            if (result == null) return false;
+            return m.overrides(result);
+        }
+        return false;
+    }
+
 
     @Override
     public Emission emitScope() {
@@ -1076,12 +1158,32 @@ public class Face extends Code {
         }
 
         if (this.hasMetaface()) {
+            Face rootFace = Face.named(RootClass);
+            boolean overrides = !name().equals(SimpleRoot) && inheritsFrom(rootFace);
             return emit("FaceMembers")
                     .type(type()).name(name())
                     .with("metaName", metaFace().name())
-                    .with("notClass", name().equals("Class") ? null : name());
+                    .with("member", name().equals(SimpleMetaclass) ? "metaclass" : "$class")
+                    .with("override", overrides ? "override" : null);
         }
 
         return null;
     }
+
+
+    public void reportBuildingWrapper(Method m) {
+        System.out.println(format(BuildingWrapper, className(), m.selector().contents()));
+    }
+
+    public void reportAlreadyWrapped(Method m) {
+        System.out.println(format(AlreadyWrapped, className(), m.selector().contents()));
+    }
+
+    public void reportExtraneousWrapper(Method m) {
+        System.out.println(format(ExtraneousWrapper, className(), m.selector().contents()));
+    }
+
+    static final String BuildingWrapper = "Building wrapper method for %s >> %s";
+    static final String AlreadyWrapped = "Warning! %s >> %s was declared wrapped, but already has wrapper";
+    static final String ExtraneousWrapper = "Warning! %s >> %s was declared wrapped, but needs no wrapper";
 }

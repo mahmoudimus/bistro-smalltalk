@@ -47,10 +47,6 @@ class:
 	{	return primitiveClass;
 	}
 
-	(Behavior) class {
-		return metaclass;
-	}
-
 	"Returns the receiver superclass."
 	(Behavior) superclass {
 		java.lang.Class aClass = primitiveClass.getSuperclass();

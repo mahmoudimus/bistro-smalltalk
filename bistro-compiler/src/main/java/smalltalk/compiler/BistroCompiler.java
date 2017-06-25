@@ -36,6 +36,7 @@ public class BistroCompiler {
      * Contains the parsed source file scopes indexed by filename.
      */
     HashMap<String, File> parsedFiles = new HashMap();
+    HashSet<String> writtenFiles = new HashSet();
     Package parsedPackage;
 
     /**
@@ -130,6 +131,8 @@ public class BistroCompiler {
      * @throws Exception if raised
      */
     public void compileFileNamed(String fileName) throws Exception {
+        if (writtenFiles.contains(fileName)) return;
+
         File fileScope = parsedFiles.get(fileName);
         if (fileScope == null) {
             System.out.println("No parsed file found " + fileName);
@@ -139,33 +142,40 @@ public class BistroCompiler {
         String baseName = fileScope.faceScope().fullBaseName();
         if (parsedFiles.containsKey(baseName)) {
             compileFileNamed(baseName);
-            return;
         }
 
         List<String> interfaces = fileScope.faceScope().interfaceNames();
         interfaces.retainAll(parsedFiles.keySet());
         if (!interfaces.isEmpty()) {
             compileFileNamed((String) interfaces.get(0));
-            return;
         }
 
         System.out.println("Writing " + fileName);
+        writtenFiles.add(fileName);
         fileScope.compile();
-        parsedFiles.remove(fileName);
     }
 
     /**
      * Compiles all the parsed source files.
      * @throws Exception if raised
      */
-    public void compileParsedFiles() throws Exception {
+    public void compileParsedFiles(String args[]) throws Exception {
         System.out.println();
-        if ("smalltalk".equals(parsedPackage.name())) return;
-        HashMap<String, File> copy = new HashMap(parsedFiles);
-        while (!parsedFiles.isEmpty()) {
-            compileFileNamed(parsedFiles.keySet().iterator().next());
+        for (int n = StandardArgumentCount; n < args.length; n++) {
+            String faceName = args[n];
+            parsedPackage = Package.named(Package.nameFrom(faceName));
+            String packageName = parsedPackage.name();
+            if ("smalltalk".equals(packageName)) break;
+
+            List<String> fileNames =
+                parsedFiles.keySet().stream()
+                    .filter(f -> f.startsWith(packageName))
+                    .collect(Collectors.toList());
+
+            for (String fileName : fileNames) {
+                compileFileNamed(fileName);
+            }
         }
-        parsedFiles = copy;
     }
 
     public void compileJavaFiles() throws Exception {
@@ -183,7 +193,9 @@ public class BistroCompiler {
         String classPath = classBase.getAbsolutePath();
         String servletPath = workFolder + ServletAPI;
         String completePath = ClassPath.buildPath(classPath, servletPath);
-        String[] options = { "-nowarn", "-d", classPath, "-cp", completePath };
+        String[] options = {
+            "-nowarn", "-d", classPath, "-cp", completePath,
+        };
 
         return compiler.getTask(null, fileManager, null, Arrays.asList(options), null,
                         fileManager.getJavaFileObjectsFromStrings(getTargetFilePaths()));
@@ -231,7 +243,7 @@ public class BistroCompiler {
         try {
             if (!validate(args)) return;
             parseFiles(args);
-            compileParsedFiles();
+            compileParsedFiles(args);
             compileJavaFiles();
             System.out.println("Done");
         } catch (Exception e) {
