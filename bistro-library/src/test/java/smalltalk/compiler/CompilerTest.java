@@ -12,6 +12,10 @@ public class CompilerTest {
     private static final String TargetFolder = "../libs-smalltalk/src/main/java";
     private static final String ClassFolder  = "../libs-smalltalk/target/classes";
 
+    static {
+        System.setProperty("java.awt.headless", "true");
+    }
+
     @Test
     public void compileCode() throws Exception {
         String[] runtimeArgs = {

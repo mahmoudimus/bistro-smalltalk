@@ -10,6 +10,10 @@ import org.junit.Test;
 @SuppressWarnings("unchecked")
 public class RuntimeTest {
 
+    static {
+        System.setProperty("java.awt.headless", "true");
+    }
+
     @Test
     public void examples() throws Exception {
         for (Class testClass : TestClasses) {
