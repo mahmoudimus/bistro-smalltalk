@@ -9,28 +9,33 @@ metaclass:
 [
 "converting booleans"
 
-	"Returns the Boolean whose value is (primitiveBoolean)."
-	(Boolean) BooleanFrom: aBoolean (boolean)
-	{	return( aBoolean ? True.$class.literal : False.$class.literal );
-	}
+    "Returns the Boolean whose value is (primitiveBoolean)."
+    (Boolean) BooleanFrom: aBoolean (boolean)
+    {	return( aBoolean ? True.$class.literal : False.$class.literal );
+    }
 
-	"Returns the primitive boolean value indicated by (aBoolean)."
-	(boolean) booleanFrom: aBoolean
-	{	Boolean b = (Boolean) aBoolean;
-		return b.primitiveBoolean();
-	}
+    "Returns the primitive boolean value indicated by (aBoolean)."
+    (boolean) booleanFrom: aBoolean
+    {	Boolean b = (Boolean) aBoolean;
+        return b.primitiveBoolean();
+    }
 ]
 class:
 [
 "accessing"
 
-	"Returns the primitive boolean value indicated by the receiver."
-	abstract (boolean) primitiveBoolean []
+    "Returns the primitive boolean value indicated by the receiver."
+    abstract (boolean) primitiveBoolean []
 
-	"Returns the primitive boolean value indicated by the receiver."
-	(boolean) asPrimitive [
-		^self primitiveBoolean
-	]
+    "Returns the primitive boolean value indicated by the receiver."
+    (boolean) asPrimitive [
+        ^self primitiveBoolean
+    ]
+
+    static (boolean) primitiveValue: aBoolean
+    {	Boolean b = (Boolean) aBoolean;
+        return b.primitiveBoolean();
+    }
 
 "converting"
 

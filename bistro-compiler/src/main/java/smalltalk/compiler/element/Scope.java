@@ -60,12 +60,12 @@ public class Scope extends Container {
     /**
      * The message operand stack for this scope.
      */
-    Stack operands = new Stack();
+    Stack<Operand> operands = new Stack();
 
     /**
      * The message selector stack for this scope.
      */
-    Stack selectors = new Stack();
+    Stack<Selector> selectors = new Stack();
 
     /**
      * Contains signature options found during parsing.
@@ -156,7 +156,7 @@ public class Scope extends Container {
      *
      * @return the message selector stack for this scope.
      */
-    public Stack selectors() {
+    public Stack<Selector> selectors() {
         return selectors;
     }
 
@@ -167,7 +167,7 @@ public class Scope extends Container {
         if (selectors().empty()) {
             return false;
         }
-        Selector top = (Selector) selectors().peek();
+        Selector top = selectors().peek();
         return (top.contents().equals(Selector.forAssignment.contents()));
     }
 
@@ -176,7 +176,7 @@ public class Scope extends Container {
      *
      * @return the message operand stack for this scope.
      */
-    public Stack operands() {
+    public Stack<Operand> operands() {
         return operands;
     }
 

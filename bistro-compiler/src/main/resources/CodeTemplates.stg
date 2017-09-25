@@ -13,7 +13,7 @@ emitLibraryScope(packageName,imports,comment,signature,locals,methods) ::=
 emitLibraryType(libs,signature,metaFace,metaInstance,locals,methods) ::=
 <<
 <if(libs)><libs><endif>
-<signature> 
+<signature>
 {
   <if(metaFace)><metaFace><endif>
 
@@ -23,7 +23,7 @@ emitLibraryType(libs,signature,metaFace,metaInstance,locals,methods) ::=
 }
 >>
 
-emitFaceSignature(comment,notes,type,subType,baseType,typeClass,faces) ::= 
+emitFaceSignature(comment,notes,type,subType,baseType,typeClass,faces) ::=
 <<
 <if(comment)><comment><endif>
 <notes> <type> <subType><if(baseType)> extends <baseType> <endif><if(typeClass)><if(faces)>
@@ -93,7 +93,7 @@ emitPrimitiveMethod(comment,type,signature,code) ::=
 <code>
 >>
 
-emitMethodEmpty(comment,type,signature) ::= 
+emitMethodEmpty(comment,type,signature) ::=
 <<
 <if(comment)>
 
@@ -104,7 +104,7 @@ emitMethodEmpty(comment,type,signature) ::=
 <signature>;
 >>
 
-emitMethodScope(comment,type,signature,locals,content) ::= 
+emitMethodScope(comment,type,signature,locals,content) ::=
 <<
 <if(comment)>
 
@@ -118,13 +118,13 @@ emitMethodScope(comment,type,signature,locals,content) ::=
 }
 >>
 
-emitMethodSignature(notes,details,type,name,arguments,exceptions) ::= 
+emitMethodSignature(notes,details,type,name,arguments,exceptions) ::=
 <<
 <if(notes)><notes><endif>
-<details> <type> <name>(<if(arguments)><arguments; separator=", "><endif>)<exceptions> 
+<details> <type> <name>(<if(arguments)><arguments; separator=", "><endif>)<exceptions>
 >>
 
-emitNamedArgument(notes,type,name) ::= 
+emitNamedArgument(notes,type,name) ::=
 "<if(notes)><notes><endif><type> <name>"
 
 emitFrameArgument(typeName,valueName,id,index) ::=
@@ -133,10 +133,10 @@ emitFrameArgument(typeName,valueName,id,index) ::=
 emitArgument(useFinal,type,name) ::= "<if(useFinal)>final <endif><type> <name>"
 emitExceptions(items) ::= " throws <emitList(items)>"
 
-emitBlockSignature(erasure,name,arguments,exceptions) ::= 
+emitBlockSignature(erasure,name,arguments,exceptions) ::=
 <<
 <if(erasure)><erasure>
-<else>@Override <endif>public Object <name>(<arguments>) <exceptions> 
+<else>@Override <endif>public Object <name>(<arguments>) <exceptions>
 >>
 
 emitWrapErasedCall() ::=
@@ -192,16 +192,16 @@ emitClosure(blockType, types) ::=
 emitBlockType(blockType,types) ::=
 "<blockType><if(types)><emitDetails(types)><endif>"
 
-emitStatements(items) ::= 
+emitStatements(items) ::=
 <<
 <items; wrap, separator="\n">
 >>
 
 emitAssignment(name,value) ::= "<name> = <value>"
 emitStatement(value) ::= "<value>;"
-emitMethodExit(scope,value) ::= 
+emitMethodExit(scope,value) ::=
 <<
-throw new MethodExit(<scope>, 
+throw new MethodExit(<scope>,
 <value>);
 >>
 
@@ -308,16 +308,15 @@ emitSections(sections) ::=
 <sections; wrap, separator="\n\n">
 >>
 
-emitPackage(name) ::= "package <name>"
-emitImport(name) ::= "import <name>;"
-emitSequence(items) ::= "<items; separator=\" \"> "
-emitList(items) ::= "<items; separator=\", \">"
-
-emitLines(items) ::= 
+emitLines(items) ::=
 <<
 <items; wrap, separator="\n">
 >>
 
+emitPackage(name) ::= "package <name>"
+emitImport(name) ::= "import <name>;"
+emitSequence(items) ::= "<items; separator=\" \"> "
+emitList(items) ::= "<items; separator=\", \">"
 emitNote(name,values) ::= "@<name><if(values)>(<values>)<endif>"
 emitPair(name,value) ::= "<name>=<value>"
 emitItem(item) ::= "<item>"
@@ -337,8 +336,8 @@ emitFloat(value) ::= "Float.from(<value>)"
 emitBoolean(value) ::= "<value>.literal()"
 
 emitScalar(factory,value) ::= "primitive.<factory>From(<value>)"
-emitTrueGuard(value) ::= "primitive.booleanFrom(<value>)"
-emitFalseGuard(value) ::= "!primitive.booleanFrom(<value>)"
+emitTrueGuard(value) ::= "Boolean.primitiveValue(<value>)"
+emitFalseGuard(value) ::= "!Boolean.primitiveValue(<value>)"
 emitClosureValue(closure) ::= "(<closure>).value()"
 
 emitVoid() ::= "void"
@@ -353,8 +352,8 @@ emitEmpty() ::= ""
 
 emitQuoted(value) ::= <<"<value>">>
 
-emitNewArray(values) ::= "Array.$class.withAll(new Object[]<emitArray(values)>)"
-emitArray(values) ::= 
+emitArrayWith(values) ::= "Array.withAll(new Object[]<emitArray(values)>)"
+emitArray(values) ::=
 <<
 {
   <values; wrap, separator=", ">

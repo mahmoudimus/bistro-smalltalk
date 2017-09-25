@@ -66,7 +66,9 @@ public class ObjectArray extends LiteralArray {
 
     @Override
     public Emission emitOperand() {
-        return emit("NewArray").with(Values, contents().stream()
-                .map(item -> item.emitOperand()).collect(Collectors.toList()));
+        return emit("ArrayWith").with(Values,
+                    contents().stream()
+                        .map(item -> item.emitOperand())
+                        .collect(Collectors.toList()));
     }
 }

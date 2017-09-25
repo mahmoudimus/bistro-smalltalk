@@ -40,18 +40,18 @@ protected classSignature : Subclass className ( interfaces )? ;
 protected interfaces : Implements ( interfaceName )+ ;
 protected classBlock : Class classMembership ;
 
-protected classMembership : 
+protected classMembership :
 	NewBlock classMembers EndBlock |
 	EmptyBlock
 ;
 
-protected metaclassToken 
+protected metaclassToken
 @after {// descend into a metaclass scope
 Scope.current = Scope.asFace().addMetaface();}
 : Metaclass
 ;
 
-protected metaclassBlock 
+protected metaclassBlock
 @after {// ascend into a face scope
 Scope.current = Scope.asFace().containerScope();}
 : metaclassToken classMembership
@@ -66,14 +66,14 @@ protected classMember :
 
 protected handlerClass : innerFace Inner innerMembership ;
 
-protected innerFace 
+protected innerFace
 @after {// create an inner class scope
 Scope.current = new Face(Scope.asBlock());
 Scope.asFace().baseName($innerFace.text);}
-: faceName 
+: faceName
 ;
 
-protected innerMembership 
+protected innerMembership
 @after {// build a nested class
 Innard innard = new Innard(Scope.asFace());
 // ascend 1 level from an inner class scope to a block scope
@@ -91,18 +91,18 @@ protected typeDeclaration : typeSignature ( metatypeBlock )? typeBlock ;
 protected typeSignature : ( Comma superType )* Subtype typeName ;
 protected typeBlock : Type typeMembership ;
 
-protected typeMembership : 
+protected typeMembership :
 	NewBlock typeMembers EndBlock |
 	EmptyBlock
 ;
 
-protected metatypeToken 
+protected metatypeToken
 @after {// descend into a metatype scope
 Scope.current = Scope.asFace().addMetaface();}
 : Metatype
 ;
 
-protected metatypeBlock 
+protected metatypeBlock
 @after {// ascend into a face scope
 Scope.current = Scope.asFace().containerScope();}
 : metatypeToken typeMembership
@@ -123,7 +123,7 @@ protected memberVariable : variableOptions variable variableEnd ;
 protected variable : memberVariableName ( memberVariableType )? ( variableInitialization )? ;
 protected variableInitialization : variableAssign initialization ;
 
-protected memberVariableName 
+protected memberVariableName
 @after {// consume optional modifiers and a name for a variable
 Scope.asFace().currentLocal().modifiers(Scope.current.consumeOptions());
 Scope.asFace().currentLocal().name($memberVariableName.text);
@@ -131,27 +131,27 @@ Scope.asFace().currentLocal().setLine($start.getLine());}
 : variableName
 ;
 
-protected memberVariableType 
+protected memberVariableType
 @after {// consume a type for a member variable
 Scope.asFace().currentLocal().type($memberVariableType.text);}
 : variableType
 ;
 
-protected variableEnd 
+protected variableEnd
 @after {// consume a local variable for a face
 Scope.asFace().addLocal();}
 : Period
 ;
 
-protected variableAssign 
+protected variableAssign
 @after {// create a method scope for parsing initial value
 Scope.current = new Method(Scope.asFace());}
 : Assign
 ;
 
-protected initialization 
+protected initialization
 @after {// consume an initial value for a variable
-Operand value = (Operand) Scope.current.operands().pop();
+Operand value = Scope.current.operands().pop();
 Scope.current = Scope.asMethod().containerScope();
 Scope.asFace().currentLocal().value(value);}
 : evaluation
@@ -169,13 +169,13 @@ protected method : methodSignature ( emptyMethod | methodBlock | primitiveBlock 
 protected thrownExceptions : Cascade throwsClause ;
 protected throwsClause : Throws ( exceptionClass )+ ;
 
-protected exceptionClass 
+protected exceptionClass
 @after {// consume the name of an exception thrown by the current method
 Scope.asBlock().throwsException($exceptionClass.text);}
-: faceName 
+: faceName
 ;
 
-protected methodPreparation 
+protected methodPreparation
 @after {// consume optional modifiers for a method
 Method method = Scope.asFace().currentMethod();
 method.modifiers(Scope.current.consumeOptions());
@@ -184,21 +184,21 @@ Scope.current = method;}
 : methodOptions
 ;
 
-protected methodCompletion 
+protected methodCompletion
 @after {// ascend 1 level from a method scope into a class scope
 Scope.current = Scope.asMethod().containerScope();
 Scope.asFace().addMethod();}
 : method
 ;
 
-protected methodAbstraction 
+protected methodAbstraction
 @after {// ascend 1 level from a method scope into a type scope
 Scope.current = Scope.asMethod().containerScope();
 Scope.asFace().addMethod();}
 : EmptyBlock
 ;
 
-protected primitiveBlock 
+protected primitiveBlock
 @after {// consume the source code for a primitive method
 Scope.asMethod().code($primitiveBlock.text);}
 : PrimitiveBlock
@@ -213,21 +213,21 @@ protected keywordArguments : ( keywordArgument )+ ;
 protected keywordArgument : keywordMethodSelector argument ;
 protected binaryPattern : binaryMethodSelector argument ;
 
-protected unaryPattern 
+protected unaryPattern
 @after {// consume a unary selector for a method
 Scope.asMethod().name($unaryPattern.text.trim());
 Scope.asMethod().setLine($start.getLine());}
 : unarySelector
 ;
 
-protected binaryMethodSelector 
+protected binaryMethodSelector
 @after {// consume a binary selector for a method
 Scope.asMethod().name($binaryMethodSelector.text);
 Scope.asMethod().setLine($start.getLine());}
 : binarySelector
 ;
 
-protected keywordMethodSelector 
+protected keywordMethodSelector
 @after {// consume a keyword selector for a method
 Scope.asMethod().name($keywordMethodSelector.text);
 Scope.asMethod().setLine($start.getLine());}
@@ -238,7 +238,7 @@ Scope.asMethod().setLine($start.getLine());}
 // blocks
 //====================================================================
 
-protected emptyMethod 
+protected emptyMethod
 @after {// build an empty method
 Message.endingBlock(Scope.asBlock());}
 : EmptyBlock
@@ -247,14 +247,14 @@ Message.endingBlock(Scope.asBlock());}
 protected methodBlock : NewBlock blockContents EndBlock ;
 protected nestedBlock : newBlock nestedContents EndBlock | emptyBlock ;
 
-protected newBlock 
+protected newBlock
 @after {// descend 1 level from a block scope into another block scope
 Block block = new Block(Scope.asBlock());
 Scope.current = block;}
 : NewBlock
 ;
 
-protected nestedContents 
+protected nestedContents
 @after {// build a nested block
 Nest nest = new Nest(Scope.asBlock());
 // ascend 1 level from a block scope into another block scope
@@ -264,7 +264,7 @@ Scope.current.operands().push(nest);}
 : ( blockPattern )? blockContents
 ;
 
-protected emptyBlock 
+protected emptyBlock
 @after {// builds an empty block
 Block block = new Block(Scope.asBlock());
 Message.endingBlock(block);
@@ -275,16 +275,16 @@ Scope.current.operands().push(nest);}
 : EmptyBlock
 ;
 
-protected blockPattern : 
+protected blockPattern :
 	throwsClause tokenBar |
-	( blockSignature | blockArguments ) ( thrownExceptions )? tokenBar 
+	( blockSignature | blockArguments ) ( thrownExceptions )? tokenBar
 ;
 
 protected tokenBar : Or | Bang ;
 protected blockSignature : blockType ( blockArguments )? ;
 protected blockArguments : ( Colon argument )+ ;
 
-protected argument 
+protected argument
 @after {// consume an argument for a block (or method) signature
 Scope.asBlock().addArgument();}
 : argumentName ( argumentType )?
@@ -300,20 +300,20 @@ protected blockContents :
 	expression ( ( Period ) => statementEnd blockContents | blockEnd )
 );
 
-protected blockEnd 
+protected blockEnd
 @after {// process the end of a block scope
 Message.endingBlock( Scope.asBlock() );
 if (false) throw new RecognitionException();}
 :
 ;
 
-protected statementEnd 
+protected statementEnd
 @after {// add the recent statement to the current block
 Scope.asBlock().addStatement(Scope.current.operands().pop());}
 : Period
 ;
 
-protected result 
+protected result
 @after {// add a method exit expression to the current block
 Scope.asBlock().addStatement(Message.from(Selector.forExit, 1, Scope.asBlock()));
 // mark for later optimization check
@@ -328,19 +328,19 @@ Scope.asBlock().exits(true);}
 protected expression : ( ( assignment ) => assignation | evaluation ) ;
 protected assignments : ( ( assignment ) => assignment assignments | ) ;
 
-protected assignation 
+protected assignation
 @after {// process any assignments on the current block stacks
 Message.assignments(Scope.asBlock());}
 : assignments evaluation
 ;
 
-protected assignment 
+protected assignment
 @after {// push an assignment onto a selector stack
 Scope.current.selectors().push(Selector.forAssignment);}
 : ( ( identifier variableType ) => initializedVariable | assignedVariable ) Assign
 ;
 
-protected assignedVariable 
+protected assignedVariable
 @after {// force early resolution of the reference
 Reference r = Reference.named($assignedVariable.text, Scope.current);
 Scope.current.operands().push(r);
@@ -351,14 +351,14 @@ Scope.current.operands().push(r);
 
 protected initializedVariable : assignedVariableName assignedVariableType ;
 
-protected assignedVariableName 
+protected assignedVariableName
 @after {// push an assigned variable reference onto an operand stack
 Reference r = Reference.named($assignedVariableName.text, Scope.current);
 Scope.current.operands().push(r);}
 : identifier
 ;
 
-protected assignedVariableType 
+protected assignedVariableType
 @after {// consume a type for an assigned variable and
 // define a local for an assigned variable in the current block
 Reference r = (Reference) Scope.current.operands().peek();
@@ -387,60 +387,60 @@ protected messages :
 	( unarySelector ) => unaryMessage+ binaryMessage* keywordMessage?
 ;
 
-protected firstCascade 
+protected firstCascade
 @after {// consume a message and convert it to a message cascade
-Operand top = (Operand) Scope.current.operands().pop();
+Operand top = Scope.current.operands().pop();
 Cascade cascade = new Cascade(Scope.asBlock(), top);
 Scope.current.operands().push(cascade);}
 : Cascade
 ;
 
-protected unaryMessage 
+protected unaryMessage
 @after {// consume a unary message and push it onto an operand stack
 Selector selector = Selector.from($unaryMessage.text.trim());
 Scope.current.operands().push(Message.from(selector, 1, Scope.asBlock()));}
 : unarySelector
 ;
 
-protected binaryMessage 
+protected binaryMessage
 @after {// consume a binary message and push it onto an operand stack
-Selector selector = (Selector) Scope.current.selectors().pop();
+Selector selector = Scope.current.selectors().pop();
 Scope.current.operands().push(Message.from(selector, 2, Scope.asBlock()));}
 : binaryMessageSelector binaryOperand
 ;
 
-protected keywordMessage 
+protected keywordMessage
 @after {// consume a keyword message and push it onto an operand stack
-Selector selector = (Selector) Scope.current.selectors().pop();
+Selector selector = Scope.current.selectors().pop();
 Scope.current.operands().push(Message.from(selector, Scope.asBlock()));}
 : keywordPhrase ( keywordPhrases | extraPhrases )?
 ;
 
-protected binaryMessageSelector 
+protected binaryMessageSelector
 @after {// push a binary selector onto a selector stack
 Selector selector = Selector.from($binaryMessageSelector.text);
 Scope.current.selectors().push(selector);}
 : binarySelector
 ;
 
-protected headKeywordSelector 
+protected headKeywordSelector
 @after {// push a keyword selector onto a selector stack
 Selector selector = Selector.from($headKeywordSelector.text);
 Scope.current.selectors().push(selector);}
 : keyword
 ;
 
-protected tailKeywordSelector 
+protected tailKeywordSelector
 @after {// append a keyword selector for a keyword message
-Selector selector = (Selector) Scope.current.selectors().pop();
+Selector selector = Scope.current.selectors().pop();
 selector.append($tailKeywordSelector.text);
 Scope.current.selectors().push(selector);}
 : keyword
 ;
 
-protected extraPhrase 
+protected extraPhrase
 @after {// append an argument separator (anonymous keyword) for a keyword message
-Selector selector = (Selector) Scope.current.selectors().pop();
+Selector selector = Scope.current.selectors().pop();
 selector.append(Selector.Colon);
 Scope.current.selectors().push(selector);}
 : Colon formula
@@ -453,7 +453,7 @@ Scope.current.selectors().push(selector);}
 protected primary : primaryVariable | nestedTerm | nestedBlock | literal ;
 protected nestedTerm : NewTerm ( ( faceName Inner ) => handlerClass | expression ) EndTerm ;
 
-protected primaryVariable 
+protected primaryVariable
 @after {// push a variableName onto an operand stack
 String variableName = $primaryVariable.text.trim();
 if (variableName.equals("nil"))
@@ -473,24 +473,24 @@ else
 protected literal : ( Minus ) => negativeNumber | literalNumber | literalCharacter | literalCollection ;
 protected literalCollection : literalString | literalSymbol | literalArray ;
 protected literalArray : Pound newArray ( arrayLiteral )* endArray ;
-protected literalNumber : 
+protected literalNumber :
   scaledFloat | scaledDecimal | literalFloat | radixedInteger | scaledInteger | literalInteger
 ;
 
-protected newArray 
+protected newArray
 @after {// push a new literal array onto an operand stack
 Scope.current.operands().push(new ObjectArray(Scope.current));}
 : NewTerm
 ;
 
-protected endArray 
+protected endArray
 @after {// optimize a literal array on top of an operand stack (if possible)
 ObjectArray array = (ObjectArray) Scope.current.operands().pop();
 Scope.current.operands().push(array.optimized());}
 : EndTerm
 ;
 
-protected arrayLiteral 
+protected arrayLiteral
 @after {// pop an array literal from an operand stack and
 Constant literal = (Constant) Scope.current.operands().pop();
 // add it to a literal array on top of an operand stack
@@ -499,61 +499,61 @@ array.add(literal);}
 : literal
 ;
 
-protected literalCharacter 
+protected literalCharacter
 @after {// push a literal character onto an operand stack
 Scope.current.operands().push(LiteralCharacter.from($start, Scope.current));}
 : ConstantCharacter
 ;
 
-protected negativeNumber 
+protected negativeNumber
 @after {// negate the top operand onto an operand stack
 ((LiteralNumber)Scope.current.operands().peek()).negate();}
 : Minus literalNumber
 ;
 
-protected literalInteger 
+protected literalInteger
 @after {// push a literal integer onto an operand stack
 Scope.current.operands().push(LiteralInteger.from($start, Scope.current));}
 : ConstantInteger
 ;
 
-protected radixedInteger 
+protected radixedInteger
 @after {// push a literal integer onto an operand stack
 Scope.current.operands().push(LiteralInteger.from($start, Scope.current));}
 : RadixedInteger
 ;
 
-protected literalFloat 
+protected literalFloat
 @after {// push a literal float onto an operand stack
 Scope.current.operands().push(LiteralFloat.from($start, Scope.current));}
 : ConstantFloat
 ;
 
-protected scaledFloat 
+protected scaledFloat
 @after {// push a literal float onto an operand stack
 Scope.current.operands().push(LiteralFloat.from($start, Scope.current));}
 : ScaledFloat
 ;
 
-protected scaledDecimal 
+protected scaledDecimal
 @after {// push a literal fixed point decimal onto an operand stack
 Scope.current.operands().push(LiteralDecimal.from($start, Scope.current));}
 : ScaledDecimal
 ;
 
-protected scaledInteger 
+protected scaledInteger
 @after {// push a literal fixed point decimal onto an operand stack
 Scope.current.operands().push(LiteralDecimal.from($start, Scope.current));}
 : ScaledInteger
 ;
 
-protected literalSymbol 
+protected literalSymbol
 @after {// push a literal symbol onto an operand stack
 Scope.current.operands().push(LiteralSymbol.from($start, Scope.current));}
 : Symbol
 ;
 
-protected literalString 
+protected literalString
 @after {// push a literal string onto an operand stack
 Scope.current.operands().push(LiteralString.from($start, Scope.current));}
 : ConstantString
@@ -563,77 +563,77 @@ Scope.current.operands().push(LiteralString.from($start, Scope.current));}
 // names + types
 //====================================================================
 
-protected methodType 
+protected methodType
 @after {// consume the type for method
 Scope.asMethod().type($methodType.text);}
 : typeAnnotation
 ;
 
-protected blockType 
+protected blockType
 @after {// consume the type for a block
 Scope.asBlock().type($blockType.text);}
 : typeAnnotation
 ;
 
-protected typeAnnotation 
+protected typeAnnotation
 @after {// remove the outer parentheses for a type name
 String typeName = $typeAnnotation.text;
 $start.setText(typeName.substring(1, typeName.length() - 1));}
 : namedType
 ;
 
-protected packageName 
+protected packageName
 @after {// consume the name for a package
 Scope.asFile().namePackage($packageName.text);}
 : ( Identifier | namedPart )
 ;
 
-protected importName 
+protected importName
 @after {// consume an imported face name for a library
 Scope.asFile().importFace($importName.text);}
 : ( NamedPackage | namedPart )
 ;
 
-protected superName 
+protected superName
 @after {// consume the name of a superclass or supertype
 Scope.asFile().importCurrentPackage();
 Scope.asFile().nameBase($superName.tree);}
 : faceName
 ;
 
-protected superType 
+protected superType
 @after {// consume the name of a supertype
 Scope.asFile().nameSuper($superType.text.trim());}
 : faceName
 ;
 
-protected typeName 
+protected typeName
 @after {// consume the name of a type
 Scope.asFile().nameSubtype($typeName.text.trim());
 Scope.current = Scope.asFile().faceScope();}
 : Identifier
 ;
 
-protected className 
+protected className
 @after {// consume the name of a class
 Scope.asFile().nameSubclass($className.text.trim());
 Scope.current = Scope.asFile().faceScope();}
 : Identifier
 ;
 
-protected interfaceName 
+protected interfaceName
 @after {// consume an interface implemented by a class
 Scope.asFace().implementsInterface($interfaceName.text);}
 : faceName
 ;
 
-protected argumentName 
+protected argumentName
 @after {// consume the name of an argument
 Scope.asBlock().currentArgument().name($argumentName.text);}
 : Identifier
 ;
 
-protected argumentType 
+protected argumentType
 @after {// consume the type of an argument
 Scope.asBlock().currentArgument().type($argumentType.text);}
 : typeAnnotation
@@ -655,9 +655,9 @@ protected identifier : Identifier ;
 protected namedPart  : NamedPart ;
 protected namedType  : ( NamedType | PartType ) ;
 
-protected keyword : 
- Keyword | Package | Import | Implements | 
- Subclass | Metaclass | Class | 
+protected keyword :
+ Keyword | Package | Import | Implements |
+ Subclass | Metaclass | Class |
  Subtype | Metatype | Type
 ;
 
@@ -667,58 +667,58 @@ protected keyword :
 
 protected extendOption : ( abstractOption | finalOption ) ;
 
-protected variableOptions : 
+protected variableOptions :
 	( accessOption )? ( staticOption )? ( finalOption )? ;
 
-protected methodOptions   : 
+protected methodOptions   :
 	( accessOption )? ( staticOption | wrappedOption )? ( abstractOption | concreteOptions ) ;
 
-protected concreteOptions : 
+protected concreteOptions :
 	( finalOption )? ( synchronizedOption )? ( nativeOption )? ;
 
-protected faceOptions 
+protected faceOptions
 @after {// consume optional modifiers for a face (class or interface)
 Scope.asFile().faceScope().modifiers(Scope.current.consumeOptions());}
 : ( accessOption )? ( extendOption )?
 ;
 
-protected accessOption 
+protected accessOption
 @after {// preserve an optional access modifier
 Scope.current.addOption($accessOption.text.trim());}
 : ( Public | Protected | Private )
 ;
 
-protected staticOption 
+protected staticOption
 @after {// preserve an optional static modifier
 Scope.current.addOption($staticOption.text.trim());}
 : Static
 ;
 
-protected abstractOption 
+protected abstractOption
 @after {// preserve an optional abstract modifier
 Scope.current.addOption($abstractOption.text.trim());}
 : Abstract
 ;
 
-protected finalOption 
+protected finalOption
 @after {// preserve an optional final modifier
 Scope.current.addOption($finalOption.text.trim());}
 : Final
 ;
 
-protected nativeOption 
+protected nativeOption
 @after {// preserve an optional native modifier
 Scope.current.addOption($nativeOption.text.trim());}
 : Native
 ;
 
-protected synchronizedOption 
+protected synchronizedOption
 @after {// preserve an optional synchronized modifier
 Scope.current.addOption($synchronizedOption.text.trim());}
 : Synchronized
 ;
 
-protected wrappedOption 
+protected wrappedOption
 @after {// preserve an optional wrapped modifier
 Scope.current.addOption($wrappedOption.text.trim());}
 : Wrapped
