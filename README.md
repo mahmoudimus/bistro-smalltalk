@@ -22,25 +22,37 @@ Also, Bistro does not use image-based persistence for storing its code.
 Rather, like many other programming languages, it uses simple text files.
 This allows developers to use popular tools for editing and source code version control.
 
+#### Hoot Smalltalk ####
+
+Bistro Smalltalk now has a natural conceptual successor in [Hoot Smalltalk][hoot-smalltalk].
+Hoot extends some of the ideas pioneered in Bistro:
+
+* retaining the simplicity and expressiveness of Smalltalk,
+* support for some standard Smalltalk type protocols,
+* support for optional type annotations,
+* easy integration with other class libraries (Hoot or otherwise).
+
+If you've found Bistro interesting, please check out Hoot!
+
 #### Platform Requirements ####
 
 Bistro has been upgraded to use (and now requires at least) Java SE 8 [JDK][jdk8].
 Bistro 3.8 updates its usage of collection classes and streams to those that became available in Java 8.
 Bistro 3.8 substantially simplifies its code generator with [StringTemplate][st].
-Bistro 3.8 also migrates the build process from Ant to the more modern [Gradle][gradle].
+Bistro 3.8 also migrates the build process from Ant to the more modern [Maven][maven].
 
 #### Project Installation ####
 
-Clone this repository and perform (one of) the following Gradle command in the cloned work folder.
+Clone this repository and perform (one of) the following Maven command in the cloned work folder.
 
 In Linux:
 ```
-./gradlew clean test
+mvn -U -B clean test
 ```
 
 In Windows:
 ```
-gradlew clean test
+mvn -U -B clean test
 ```
 
 This will build the compiler, then compile the Bistro library sources using the Bistro and Java compilers
@@ -111,6 +123,7 @@ Copyright 1999,2017 Nikolas S. Boyd. All rights reserved.
 [paper]: http://www.drdobbs.com/web-development/the-bistro-programming-language/184405578 "DDJ"
 
 [logo]: https://bitbucket.org/nik_boyd/bistro-smalltalk/raw/master/bistro-design/bistro-logo.svg "Bistro"
+[hoot-smalltalk]: https://gitlab.com/hoot-smalltalk/hoot-smalltalk#hoot
 
 [model]: ../master/bistro-design/model.md#markdown-header-language-model "Language Model"
 [spaces]: ../master/bistro-design/model.md#markdown-header-name-spaces "Name Spaces"

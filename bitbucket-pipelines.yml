@@ -7,4 +7,4 @@ pipelines:
     master:
       - step:
           script:
-            - bash ./gradlew build
+            - bash mvn -U -B clean test
