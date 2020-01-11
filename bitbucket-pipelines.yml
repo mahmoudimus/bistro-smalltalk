@@ -7,4 +7,4 @@ pipelines:
     master:
       - step:
           script:
-            - bash mvn -U -B clean test
+            - mvn -U -B clean test
