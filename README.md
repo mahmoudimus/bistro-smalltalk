@@ -1,6 +1,6 @@
-![Bistro][logo]
-
 ### Bistro Smalltalk ###
+
+![Bistro][logo]
 
 Bistro is a variation of Smalltalk that integrates the best features of [Smalltalk][smalltalk] and [Java][java].
 Bistro Smalltalk is an experimental programming language that runs on the Java Virtual Machine, or [JVM][jvm].
